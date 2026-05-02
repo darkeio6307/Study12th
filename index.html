@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyKai — 12th UP Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Nunito:wght@300;400;600;700;800&family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a14;
+  --bg2: #0f0f1e;
+  --bg3: #13132a;
+  --card: rgba(255,255,255,0.04);
+  --card-border: rgba(255,255,255,0.1);
+  --glass: rgba(255,255,255,0.06);
+  --glass-border: rgba(255,255,255,0.12);
+  --text: #e8e8f4;
+  --text2: #9999bb;
+  --accent: #7c6af7;
+  --accent2: #f76aaa;
+  --accent3: #6af7d0;
+  --accent4: #f7c06a;
+  --neon: #b06af7;
+  --shadow: rgba(124,106,247,0.3);
+  --red: #f76a6a;
+  --green: #6af7a0;
+}
+[data-theme="light"] {
+  --bg: #f0f0ff;
+  --bg2: #e8e8f8;
+  --bg3: #dcdcf0;
+  --card: rgba(255,255,255,0.7);
+  --card-border: rgba(100,100,200,0.2);
+  --glass: rgba(255,255,255,0.8);
+  --glass-border: rgba(100,100,200,0.25);
+  --text: #1a1a3e;
+  --text2: #5555aa;
+  --shadow: rgba(124,106,247,0.2);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Nunito',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+  transition:background 0.4s,color 0.4s;
+}
+
+/* CANVAS BACKGROUND */
+#bgCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0.5;}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--accent);border-radius:10px;}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  background:rgba(10,10,20,0.7);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--glass-border);
+  padding:0 24px;
+  height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+[data-theme="light"] nav{background:rgba(240,240,255,0.8);}
+.nav-logo{
+  font-family:'Orbitron',monospace;
+  font-size:1.3rem;font-weight:900;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  letter-spacing:2px;
+  text-decoration:none;
+}
+.nav-links{display:flex;gap:8px;align-items:center;}
+.nav-links a{
+  color:var(--text2);font-size:0.82rem;font-weight:600;
+  text-decoration:none;padding:6px 12px;border-radius:20px;
+  transition:all 0.3s;letter-spacing:0.5px;
+}
+.nav-links a:hover{color:var(--text);background:var(--glass);}
+.nav-right{display:flex;gap:10px;align-items:center;}
+#themeBtn{
+  background:var(--glass);border:1px solid var(--glass-border);
+  color:var(--text);width:38px;height:38px;border-radius:50%;
+  cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;
+  transition:all 0.3s;
+}
+#themeBtn:hover{background:var(--accent);border-color:var(--accent);}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;}
+.hamburger span{width:22px;height:2px;background:var(--text);border-radius:2px;transition:all 0.3s;}
+
+/* MOBILE NAV */
+.mobile-menu{
+  display:none;position:fixed;top:64px;left:0;right:0;z-index:999;
+  background:rgba(10,10,20,0.95);backdrop-filter:blur(24px);
+  padding:16px;border-bottom:1px solid var(--glass-border);
+  flex-direction:column;gap:4px;
+}
+.mobile-menu.open{display:flex;}
+.mobile-menu a{color:var(--text2);text-decoration:none;padding:10px 16px;border-radius:12px;font-weight:600;font-size:0.9rem;}
+.mobile-menu a:hover{background:var(--glass);color:var(--text);}
+
+/* HERO */
+.hero{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  position:relative;z-index:1;padding:80px 24px 40px;
+  text-align:center;
+}
+.hero-inner{max-width:800px;}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--glass);border:1px solid var(--glass-border);
+  border-radius:50px;padding:6px 16px;margin-bottom:24px;
+  font-size:0.78rem;font-weight:700;color:var(--accent3);letter-spacing:1px;
+  animation:fadeUp 0.6s ease both;
+}
+.hero-badge .dot{width:6px;height:6px;background:var(--accent3);border-radius:50%;animation:pulse 2s infinite;}
+.hero-title{
+  font-family:'Orbitron',monospace;
+  font-size:clamp(2rem,6vw,4.2rem);font-weight:900;line-height:1.1;
+  margin-bottom:16px;
+  animation:fadeUp 0.6s 0.1s ease both;
+}
+.hero-title .line1{
+  background:linear-gradient(135deg,var(--accent),var(--neon),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.hero-title .line2{color:var(--text);}
+.hero-jp{
+  font-family:'Noto Sans JP',sans-serif;
+  font-size:0.9rem;color:var(--text2);letter-spacing:4px;
+  margin-bottom:20px;animation:fadeUp 0.6s 0.15s ease both;
+}
+.hero-sub{
+  font-size:1.05rem;color:var(--text2);line-height:1.7;max-width:520px;margin:0 auto 32px;
+  animation:fadeUp 0.6s 0.2s ease both;
+}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;animation:fadeUp 0.6s 0.25s ease both;}
+.btn-primary{
+  background:linear-gradient(135deg,var(--accent),var(--neon));
+  color:#fff;border:none;padding:13px 28px;border-radius:50px;
+  font-family:'Nunito',sans-serif;font-weight:800;font-size:0.95rem;
+  cursor:pointer;transition:all 0.3s;letter-spacing:0.5px;
+  box-shadow:0 0 24px var(--shadow);text-decoration:none;display:inline-block;
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 40px var(--shadow);}
+.btn-secondary{
+  background:var(--glass);border:1px solid var(--glass-border);
+  color:var(--text);padding:13px 28px;border-radius:50px;
+  font-family:'Nunito',sans-serif;font-weight:700;font-size:0.95rem;
+  cursor:pointer;transition:all 0.3s;text-decoration:none;display:inline-block;
+}
+.btn-secondary:hover{background:rgba(255,255,255,0.1);transform:translateY(-2px);}
+.hero-stats{
+  display:flex;gap:32px;justify-content:center;margin-top:40px;flex-wrap:wrap;
+  animation:fadeUp 0.6s 0.3s ease both;
+}
+.stat{text-align:center;}
+.stat-num{font-family:'Orbitron',monospace;font-size:1.8rem;font-weight:900;color:var(--accent);}
+.stat-label{font-size:0.75rem;color:var(--text2);font-weight:600;letter-spacing:1px;}
+
+/* COUNTDOWN */
+.countdown-section{
+  position:relative;z-index:1;padding:16px 24px;
+  display:flex;justify-content:center;
+}
+.countdown-card{
+  background:var(--glass);border:1px solid var(--glass-border);
+  backdrop-filter:blur(20px);border-radius:20px;
+  padding:20px 32px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;
+  justify-content:center;
+}
+.countdown-label{font-size:0.8rem;color:var(--accent2);font-weight:700;letter-spacing:2px;}
+.countdown-units{display:flex;gap:12px;}
+.cu{text-align:center;min-width:56px;}
+.cu-num{
+  font-family:'Orbitron',monospace;font-size:1.8rem;font-weight:900;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.cu-label{font-size:0.65rem;color:var(--text2);font-weight:700;letter-spacing:1px;}
+.cu-sep{font-family:'Orbitron',monospace;font-size:1.4rem;color:var(--accent);align-self:center;opacity:0.5;}
+
+/* SECTION */
+.section{position:relative;z-index:1;padding:64px 24px;}
+.section-header{text-align:center;margin-bottom:48px;}
+.section-tag{
+  display:inline-block;font-size:0.72rem;font-weight:800;letter-spacing:2px;
+  color:var(--accent3);background:rgba(106,247,208,0.1);
+  border:1px solid rgba(106,247,208,0.2);border-radius:50px;
+  padding:4px 14px;margin-bottom:12px;
+}
+.section-title{
+  font-family:'Orbitron',monospace;font-size:clamp(1.4rem,3vw,2.2rem);font-weight:900;
+  background:linear-gradient(135deg,var(--text),var(--accent));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.section-sub{color:var(--text2);font-size:0.9rem;margin-top:8px;}
+
+/* SUBJECTS GRID */
+.subjects-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+  gap:20px;max-width:1200px;margin:0 auto;
+}
+.subject-card{
+  background:var(--card);border:1px solid var(--card-border);
+  border-radius:20px;padding:24px;cursor:pointer;
+  transition:all 0.3s;position:relative;overflow:hidden;
+}
+.subject-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,transparent,rgba(255,255,255,0.03));
+  opacity:0;transition:opacity 0.3s;
+}
+.subject-card:hover::before{opacity:1;}
+.subject-card:hover{
+  transform:translateY(-4px);
+  border-color:var(--accent);
+  box-shadow:0 8px 40px var(--shadow);
+}
+.subject-card.open:hover{transform:none;}
+.sc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;}
+.sc-icon{
+  width:52px;height:52px;border-radius:16px;
+  display:flex;align-items:center;justify-content:center;font-size:1.6rem;
+  flex-shrink:0;
+}
+.sc-badge{
+  font-size:0.68rem;font-weight:800;letter-spacing:1px;padding:4px 10px;
+  border-radius:50px;border:1px solid;
+}
+.sc-name{font-family:'Orbitron',monospace;font-size:1rem;font-weight:700;margin-bottom:6px;}
+.sc-desc{font-size:0.82rem;color:var(--text2);line-height:1.6;margin-bottom:16px;}
+.sc-meta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;}
+.sc-chip{
+  font-size:0.7rem;font-weight:700;padding:4px 10px;border-radius:50px;
+  background:var(--glass);border:1px solid var(--glass-border);color:var(--text2);
+}
+.sc-actions{display:flex;gap:10px;}
+.btn-join{
+  flex:1;background:linear-gradient(135deg,var(--accent),var(--neon));
+  color:#fff;border:none;padding:10px;border-radius:12px;
+  font-family:'Nunito',sans-serif;font-weight:800;font-size:0.85rem;
+  cursor:pointer;transition:all 0.3s;
+}
+.btn-join:hover{box-shadow:0 4px 20px var(--shadow);transform:translateY(-1px);}
+.btn-info{
+  background:var(--glass);border:1px solid var(--glass-border);
+  color:var(--text);padding:10px 14px;border-radius:12px;
+  font-family:'Nunito',sans-serif;font-weight:700;font-size:0.82rem;
+  cursor:pointer;transition:all 0.3s;
+}
+.btn-info:hover{background:rgba(255,255,255,0.1);}
+
+/* EXPAND PANEL */
+.expand-panel{
+  max-height:0;overflow:hidden;transition:max-height 0.5s ease;
+}
+.expand-panel.open{max-height:600px;}
+.ep-inner{border-top:1px solid var(--card-border);margin-top:16px;padding-top:16px;}
+.ep-tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;}
+.ep-tab{
+  padding:5px 12px;border-radius:50px;font-size:0.75rem;font-weight:700;
+  cursor:pointer;border:1px solid var(--glass-border);color:var(--text2);
+  background:var(--glass);transition:all 0.3s;
+}
+.ep-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.ep-content{display:none;}
+.ep-content.active{display:block;}
+.ep-content h4{font-size:0.82rem;font-weight:800;color:var(--accent3);margin-bottom:8px;letter-spacing:1px;}
+.ep-list{list-style:none;}
+.ep-list li{
+  font-size:0.8rem;color:var(--text2);padding:5px 0;
+  border-bottom:1px solid rgba(255,255,255,0.04);display:flex;align-items:center;gap:8px;
+}
+.ep-list li::before{content:'▸';color:var(--accent);font-size:0.6rem;}
+.ep-tip{
+  background:rgba(124,106,247,0.08);border:1px solid rgba(124,106,247,0.2);
+  border-radius:10px;padding:10px 12px;font-size:0.78rem;color:var(--text2);line-height:1.6;
+  margin-bottom:8px;
+}
+.ep-tip strong{color:var(--accent);}
+
+/* RESOURCES */
+.resources-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+  gap:16px;max-width:1000px;margin:0 auto;
+}
+.res-card{
+  background:var(--card);border:1px solid var(--card-border);
+  border-radius:16px;padding:20px;text-align:center;
+  transition:all 0.3s;cursor:pointer;
+}
+.res-card:hover{border-color:var(--accent4);transform:translateY(-3px);box-shadow:0 8px 30px rgba(247,192,106,0.15);}
+.res-icon{font-size:2.2rem;margin-bottom:12px;}
+.res-title{font-weight:800;font-size:0.95rem;margin-bottom:6px;}
+.res-sub{font-size:0.78rem;color:var(--text2);}
+
+/* QUOTES */
+.quotes-section{position:relative;z-index:1;padding:40px 24px;}
+.quote-carousel{max-width:700px;margin:0 auto;text-align:center;position:relative;}
+.quote-slide{display:none;animation:fadeIn 0.5s ease;}
+.quote-slide.active{display:block;}
+.quote-text{
+  font-size:clamp(1rem,2.5vw,1.3rem);font-style:italic;
+  color:var(--text);line-height:1.8;margin-bottom:16px;
+}
+.quote-text::before,.quote-text::after{content:'"';color:var(--accent);font-size:2rem;line-height:0;vertical-align:-0.4em;}
+.quote-author{font-size:0.8rem;color:var(--accent2);font-weight:700;letter-spacing:1px;}
+.quote-dots{display:flex;gap:8px;justify-content:center;margin-top:20px;}
+.qdot{width:6px;height:6px;border-radius:50%;background:var(--card-border);cursor:pointer;transition:all 0.3s;}
+.qdot.active{background:var(--accent);width:18px;border-radius:3px;}
+
+/* ADMIN PANEL TOGGLE */
+.admin-toggle{
+  position:fixed;bottom:24px;right:24px;z-index:500;
+  width:42px;height:42px;border-radius:50%;
+  background:rgba(20,20,40,0.8);border:1px solid var(--glass-border);
+  color:var(--text2);font-size:1rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.3s;backdrop-filter:blur(10px);
+}
+.admin-toggle:hover{color:var(--accent);border-color:var(--accent);}
+
+/* MODAL */
+.modal-overlay{
+  position:fixed;inset:0;z-index:2000;
+  background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);
+  display:none;align-items:center;justify-content:center;padding:20px;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:var(--bg2);border:1px solid var(--glass-border);
+  border-radius:24px;padding:28px;width:100%;max-width:520px;
+  max-height:90vh;overflow-y:auto;
+  animation:scaleIn 0.3s ease;
+}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+.modal-title{font-family:'Orbitron',monospace;font-size:1rem;font-weight:700;color:var(--accent);}
+.modal-close{
+  background:var(--glass);border:1px solid var(--glass-border);
+  color:var(--text);width:32px;height:32px;border-radius:50%;
+  cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;
+}
+.modal-close:hover{background:var(--red);border-color:var(--red);}
+
+/* ADMIN FORM */
+.admin-section{margin-bottom:24px;}
+.admin-section h3{
+  font-size:0.78rem;font-weight:800;color:var(--accent3);letter-spacing:1.5px;margin-bottom:12px;
+  text-transform:uppercase;
+}
+.form-group{margin-bottom:14px;}
+.form-group label{font-size:0.78rem;font-weight:700;color:var(--text2);display:block;margin-bottom:6px;}
+.form-group select,.form-group input{
+  width:100%;background:var(--bg3);border:1px solid var(--glass-border);
+  color:var(--text);padding:10px 14px;border-radius:12px;
+  font-family:'Nunito',sans-serif;font-size:0.88rem;outline:none;
+  transition:border-color 0.3s;
+}
+.form-group select:focus,.form-group input:focus{border-color:var(--accent);}
+.btn-save{
+  width:100%;background:linear-gradient(135deg,var(--accent),var(--neon));
+  color:#fff;border:none;padding:12px;border-radius:12px;
+  font-family:'Nunito',sans-serif;font-weight:800;font-size:0.9rem;cursor:pointer;
+  transition:all 0.3s;
+}
+.btn-save:hover{box-shadow:0 4px 20px var(--shadow);}
+.channel-list{display:flex;flex-direction:column;gap:8px;}
+.channel-item{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--bg3);border:1px solid var(--glass-border);
+  border-radius:12px;padding:10px 14px;
+}
+.ci-name{font-weight:700;font-size:0.85rem;}
+.ci-link{font-size:0.72rem;color:var(--text2);margin-top:2px;word-break:break-all;}
+.ci-actions{display:flex;gap:6px;}
+.ci-btn{
+  background:var(--glass);border:1px solid var(--glass-border);
+  color:var(--text2);padding:4px 10px;border-radius:8px;
+  font-size:0.72rem;font-weight:700;cursor:pointer;transition:all 0.3s;
+}
+.ci-btn.del:hover{background:var(--red);border-color:var(--red);color:#fff;}
+.ci-btn.edit:hover{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+/* AUTH */
+.auth-input{
+  width:100%;background:var(--bg3);border:1px solid var(--glass-border);
+  color:var(--text);padding:12px 16px;border-radius:12px;
+  font-family:'Nunito',sans-serif;font-size:1rem;outline:none;
+  text-align:center;letter-spacing:4px;
+}
+.auth-input:focus{border-color:var(--accent);}
+.auth-hint{font-size:0.75rem;color:var(--text2);text-align:center;margin-top:8px;}
+
+/* NOTICE BOARD */
+.notice-section{position:relative;z-index:1;padding:40px 24px;}
+.notice-board{
+  max-width:900px;margin:0 auto;
+  background:var(--card);border:1px solid var(--card-border);
+  border-radius:24px;overflow:hidden;
+}
+.nb-header{
+  background:linear-gradient(135deg,var(--accent),var(--neon));
+  padding:16px 24px;display:flex;align-items:center;gap:12px;
+}
+.nb-header h3{font-family:'Orbitron',monospace;font-size:0.9rem;font-weight:700;color:#fff;}
+.nb-body{padding:20px;}
+.notice-item{
+  display:flex;gap:14px;padding:14px 0;
+  border-bottom:1px solid var(--card-border);
+  align-items:flex-start;
+}
+.notice-item:last-child{border-bottom:none;}
+.ni-date{
+  font-family:'Orbitron',monospace;font-size:0.65rem;font-weight:700;
+  color:var(--accent2);white-space:nowrap;padding-top:2px;min-width:60px;
+}
+.ni-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:4px;}
+.ni-text{font-size:0.85rem;color:var(--text);line-height:1.5;}
+.ni-tag{
+  font-size:0.65rem;font-weight:800;padding:2px 8px;border-radius:50px;margin-left:8px;
+  display:inline-block;
+}
+.tag-new{background:rgba(106,247,160,0.15);color:var(--green);border:1px solid rgba(106,247,160,0.3);}
+.tag-imp{background:rgba(247,106,106,0.15);color:var(--red);border:1px solid rgba(247,106,106,0.3);}
+.tag-info{background:rgba(124,106,247,0.15);color:var(--accent);border:1px solid rgba(124,106,247,0.3);}
+
+/* FOOTER */
+footer{
+  position:relative;z-index:1;
+  background:var(--bg2);border-top:1px solid var(--card-border);
+  padding:40px 24px 24px;
+}
+.footer-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:32px;max-width:1000px;margin:0 auto 32px;
+}
+.footer-col h4{
+  font-family:'Orbitron',monospace;font-size:0.75rem;font-weight:700;
+  color:var(--accent);letter-spacing:2px;margin-bottom:14px;
+}
+.footer-col a,.footer-col p{
+  display:block;font-size:0.82rem;color:var(--text2);
+  text-decoration:none;margin-bottom:8px;transition:color 0.3s;
+}
+.footer-col a:hover{color:var(--text);}
+.footer-bottom{
+  text-align:center;padding-top:20px;border-top:1px solid var(--card-border);
+  font-size:0.75rem;color:var(--text2);
+}
+.footer-bottom span{color:var(--accent2);}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);
+  z-index:3000;background:var(--bg2);border:1px solid var(--glass-border);
+  border-radius:50px;padding:10px 20px;font-size:0.82rem;font-weight:700;
+  opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.success{border-color:var(--green);color:var(--green);}
+.toast.error{border-color:var(--red);color:var(--red);}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes scaleIn{from{opacity:0;transform:scale(0.9);}to{opacity:1;transform:scale(1);}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(1.3);}}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+@keyframes spin{to{transform:rotate(360deg);}}
+.float{animation:float 4s ease-in-out infinite;}
+.float2{animation:float 5s 1s ease-in-out infinite;}
+.float3{animation:float 3.5s 0.5s ease-in-out infinite;}
+
+/* SCROLL REVEAL */
+.reveal{opacity:0;transform:translateY(30px);transition:all 0.6s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+
+/* PROGRESS BAR */
+.progress-bar{
+  position:fixed;top:0;left:0;height:3px;z-index:2000;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  transition:width 0.1s;
+}
+
+/* BACK TO TOP */
+.back-top{
+  position:fixed;bottom:70px;right:24px;z-index:500;
+  width:38px;height:38px;border-radius:50%;
+  background:var(--accent);border:none;color:#fff;
+  font-size:1rem;cursor:pointer;opacity:0;transition:all 0.3s;
+  display:flex;align-items:center;justify-content:center;
+}
+.back-top.show{opacity:1;}
+.back-top:hover{transform:translateY(-3px);box-shadow:0 4px 20px var(--shadow);}
+
+/* RIPPLE */
+.ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,0.15);pointer-events:none;animation:rippleAnim 0.6s ease-out forwards;}
+@keyframes rippleAnim{from{transform:scale(0);opacity:1;}to{transform:scale(4);opacity:0;}}
+
+/* SUBJECT COLORS */
+.s1{background:linear-gradient(135deg,rgba(124,106,247,0.15),rgba(124,106,247,0.05));border-color:rgba(124,106,247,0.25)!important;}
+.s2{background:linear-gradient(135deg,rgba(247,106,170,0.15),rgba(247,106,170,0.05));border-color:rgba(247,106,170,0.25)!important;}
+.s3{background:linear-gradient(135deg,rgba(106,247,208,0.15),rgba(106,247,208,0.05));border-color:rgba(106,247,208,0.25)!important;}
+.s4{background:linear-gradient(135deg,rgba(247,192,106,0.15),rgba(247,192,106,0.05));border-color:rgba(247,192,106,0.25)!important;}
+.s5{background:linear-gradient(135deg,rgba(106,170,247,0.15),rgba(106,170,247,0.05));border-color:rgba(106,170,247,0.25)!important;}
+.s6{background:linear-gradient(135deg,rgba(170,247,106,0.15),rgba(170,247,106,0.05));border-color:rgba(170,247,106,0.25)!important;}
+.s7{background:linear-gradient(135deg,rgba(247,106,106,0.15),rgba(247,106,106,0.05));border-color:rgba(247,106,106,0.25)!important;}
+.ic1{background:rgba(124,106,247,0.15);}
+.ic2{background:rgba(247,106,170,0.15);}
+.ic3{background:rgba(106,247,208,0.15);}
+.ic4{background:rgba(247,192,106,0.15);}
+.ic5{background:rgba(106,170,247,0.15);}
+.ic6{background:rgba(170,247,106,0.15);}
+.ic7{background:rgba(247,106,106,0.15);}
+.bc1{color:var(--accent);border-color:rgba(124,106,247,0.3);}
+.bc2{color:var(--accent2);border-color:rgba(247,106,170,0.3);}
+.bc3{color:var(--accent3);border-color:rgba(106,247,208,0.3);}
+.bc4{color:var(--accent4);border-color:rgba(247,192,106,0.3);}
+.bc5{color:#6aaaf7;border-color:rgba(106,170,247,0.3);}
+.bc6{color:#aaf76a;border-color:rgba(170,247,106,0.3);}
+.bc7{color:var(--red);border-color:rgba(247,106,106,0.3);}
+
+@media(max-width:768px){
+  .nav-links{display:none;}
+  .hamburger{display:flex;}
+  .hero-stats{gap:20px;}
+  .subjects-grid{grid-template-columns:1fr;}
+  .footer-grid{grid-template-columns:1fr 1fr;}
+  .countdown-card{padding:16px 20px;gap:16px;}
+}
+@media(max-width:480px){
+  .footer-grid{grid-template-columns:1fr;}
+  .hero-btns{flex-direction:column;align-items:center;}
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<canvas id="bgCanvas"></canvas>
+<div class="toast" id="toast"></div>
+
+<nav>
+  <a href="#" class="nav-logo">StudyKai</a>
+  <div class="nav-links">
+    <a href="#subjects">Subjects</a>
+    <a href="#resources">Resources</a>
+    <a href="#notices">Notices</a>
+    <a href="#about">About</a>
+  </div>
+  <div class="nav-right">
+    <button id="themeBtn" title="Toggle Theme">🌙</button>
+    <div class="hamburger" id="hamburger">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#subjects" onclick="closeMobile()">📚 Subjects</a>
+  <a href="#resources" onclick="closeMobile()">📂 Resources</a>
+  <a href="#notices" onclick="closeMobile()">📌 Notices</a>
+  <a href="#about" onclick="closeMobile()">ℹ️ About</a>
+</div>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge float">
+      <span class="dot"></span>
+      UP BOARD 12TH — 2025-26
+    </div>
+    <div class="hero-title">
+      <div class="line1">勉強 StudyKai</div>
+      <div class="line2">Master Your Board</div>
+    </div>
+    <div class="hero-jp">あなたの夢を追いかけろ — Chase Your Dream</div>
+    <p class="hero-sub">The ultimate anime-powered study platform for UP Board Class 12. Notes, chapters, exam tips & live classes — all in one place.</p>
+    <div class="hero-btns">
+      <a href="#subjects" class="btn-primary">🚀 Start Studying</a>
+      <a href="#resources" class="btn-secondary">📂 Resources</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-num" id="ctr1">7</div>
+        <div class="stat-label">SUBJECTS</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" id="ctr2">120+</div>
+        <div class="stat-label">CHAPTERS</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" id="ctr3">500+</div>
+        <div class="stat-label">NOTES</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" id="ctr4">10K+</div>
+        <div class="stat-label">STUDENTS</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="countdown-section reveal">
+  <div class="countdown-card">
+    <div>
+      <div class="countdown-label">⏳ UP BOARD EXAM COUNTDOWN</div>
+      <div style="font-size:0.72rem;color:var(--text2);margin-top:2px;">Feb 2026 · Stay Ready!</div>
+    </div>
+    <div class="countdown-units">
+      <div class="cu"><div class="cu-num" id="cd-days">--</div><div class="cu-label">DAYS</div></div>
+      <div class="cu-sep">:</div>
+      <div class="cu"><div class="cu-num" id="cd-hrs">--</div><div class="cu-label">HRS</div></div>
+      <div class="cu-sep">:</div>
+      <div class="cu"><div class="cu-num" id="cd-min">--</div><div class="cu-label">MIN</div></div>
+      <div class="cu-sep">:</div>
+      <div class="cu"><div class="cu-num" id="cd-sec">--</div><div class="cu-label">SEC</div></div>
+    </div>
+  </div>
+</div>
+
+<section class="section" id="subjects">
+  <div class="section-header reveal">
+    <div class="section-tag">📚 CURRICULUM</div>
+    <div class="section-title">Choose Your Subject</div>
+    <div class="section-sub">UP Board Class 12 — All subjects with full syllabus, notes & live classes</div>
+  </div>
+  <div class="subjects-grid" id="subjectsGrid"></div>
+</section>
+
+<div class="quotes-section reveal">
+  <div class="section-header">
+    <div class="section-tag">✨ MOTIVATION</div>
+  </div>
+  <div class="quote-carousel">
+    <div class="quote-slide active"><p class="quote-text">Success is not about being the best. It is about always getting better.</p><div class="quote-author">— SHIKAMARU NARA</div></div>
+    <div class="quote-slide"><p class="quote-text">If you don't take risks, you can't create a future.</p><div class="quote-author">— MONKEY D. LUFFY</div></div>
+    <div class="quote-slide"><p class="quote-text">Hard work is worthless for those that don't believe in themselves.</p><div class="quote-author">— NARUTO UZUMAKI</div></div>
+    <div class="quote-slide"><p class="quote-text">A lesson without pain is meaningless. That's because no one can gain without sacrificing something.</p><div class="quote-author">— EDWARD ELRIC</div></div>
+    <div class="quote-slide"><p class="quote-text">Whatever you lose, you'll find it again. But what you throw away you'll never get back.</p><div class="quote-author">— KENSHIN HIMURA</div></div>
+    <div class="quote-slide"><p class="quote-text">Knowing you're inferior to others... is the first step in improving yourself.</p><div class="quote-author">— VEGETA</div></div>
+    <div class="quote-dots" id="quoteDots"></div>
+  </div>
+</div>
+
+<section class="section" id="resources">
+  <div class="section-header reveal">
+    <div class="section-tag">📂 RESOURCES</div>
+    <div class="section-title">Study Materials</div>
+    <div class="section-sub">Previous papers, model tests, exam strategies and more</div>
+  </div>
+  <div class="resources-grid">
+    <div class="res-card reveal" onclick="showToast('Opening Previous Year Papers...','success')">
+      <div class="res-icon">📄</div>
+      <div class="res-title">Previous Year Papers</div>
+      <div class="res-sub">2019–2024 solved papers with answers</div>
+    </div>
+    <div class="res-card reveal" onclick="showToast('Opening Model Papers...','success')">
+      <div class="res-icon">📝</div>
+      <div class="res-title">Model Papers 2026</div>
+      <div class="res-sub">UP Board official model question papers</div>
+    </div>
+    <div class="res-card reveal" onclick="showToast('Opening Syllabus...','success')">
+      <div class="res-icon">📋</div>
+      <div class="res-title">Complete Syllabus</div>
+      <div class="res-sub">Topic-wise reduced syllabus 2025-26</div>
+    </div>
+    <div class="res-card reveal" onclick="showToast('Opening Important Questions...','success')">
+      <div class="res-icon">⭐</div>
+      <div class="res-title">Important Questions</div>
+      <div class="res-sub">Most expected questions for 2026 exams</div>
+    </div>
+    <div class="res-card reveal" onclick="showToast('Opening Formula Sheets...','success')">
+      <div class="res-icon">🔢</div>
+      <div class="res-title">Formula Sheets</div>
+      <div class="res-sub">Quick revision formulas for all subjects</div>
+    </div>
+    <div class="res-card reveal" onclick="showToast('Opening Study Timetable...','success')">
+      <div class="res-icon">📅</div>
+      <div class="res-title">Study Timetable</div>
+      <div class="res-sub">Optimized 90-day exam prep plan</div>
+    </div>
+    <div class="res-card reveal" onclick="showToast('Opening Handwritten Notes...','success')">
+      <div class="res-icon">✏️</div>
+      <div class="res-title">Handwritten Notes</div>
+      <div class="res-sub">Topper notes for all key chapters</div>
+    </div>
+    <div class="res-card reveal" onclick="showToast('Opening Result Checker...','success')">
+      <div class="res-icon">🏆</div>
+      <div class="res-title">Result Checker</div>
+      <div class="res-sub">Check UP Board results & rank analysis</div>
+    </div>
+  </div>
+</section>
+
+<section class="notice-section" id="notices">
+  <div class="section-header reveal">
+    <div class="section-tag">📌 NOTICES</div>
+    <div class="section-title">Notice Board</div>
+    <div class="section-sub">Latest updates and important announcements</div>
+  </div>
+  <div class="notice-board reveal">
+    <div class="nb-header">
+      <span>📢</span>
+      <h3>IMPORTANT ANNOUNCEMENTS</h3>
+    </div>
+    <div class="nb-body" id="noticeBoard">
+      <div class="notice-item">
+        <div class="ni-date">NEW</div>
+        <div class="ni-dot"></div>
+        <div class="ni-text">UP Board Class 12 Exam Date Sheet 2026 released. Exams start from February 2026. <span class="ni-tag tag-new">NEW</span></div>
+      </div>
+      <div class="notice-item">
+        <div class="ni-date">IMP</div>
+        <div class="ni-dot" style="background:var(--accent2)"></div>
+        <div class="ni-text">Admit card will be available on official UP Board website. Check regularly. <span class="ni-tag tag-imp">IMPORTANT</span></div>
+      </div>
+      <div class="notice-item">
+        <div class="ni-date">INFO</div>
+        <div class="ni-dot" style="background:var(--accent3)"></div>
+        <div class="ni-text">New batch starting for Physics & Chemistry. Join via Telegram channel links. <span class="ni-tag tag-info">INFO</span></div>
+      </div>
+      <div class="notice-item">
+        <div class="ni-date">TIP</div>
+        <div class="ni-dot" style="background:var(--accent4)"></div>
+        <div class="ni-text">Revision sheets for all subjects uploaded. Download from Resources section above.</div>
+      </div>
+      <div class="notice-item">
+        <div class="ni-date">INFO</div>
+        <div class="ni-dot" style="background:var(--accent)"></div>
+        <div class="ni-text">Board has reduced syllabus by ~30%. Focus on remaining topics in notes section. <span class="ni-tag tag-info">INFO</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="about" style="padding-bottom:32px;">
+  <div class="section-header reveal">
+    <div class="section-tag">ℹ️ ABOUT</div>
+    <div class="section-title">Why StudyKai?</div>
+  </div>
+  <div style="max-width:800px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;">
+    <div class="res-card reveal" style="text-align:left;">
+      <div class="res-icon">🎯</div>
+      <div class="res-title">Exam Focused</div>
+      <div class="res-sub">Content strictly based on UP Board pattern and weightage</div>
+    </div>
+    <div class="res-card reveal" style="text-align:left;">
+      <div class="res-icon">🆓</div>
+      <div class="res-title">100% Free</div>
+      <div class="res-sub">All notes, papers and resources completely free</div>
+    </div>
+    <div class="res-card reveal" style="text-align:left;">
+      <div class="res-icon">📱</div>
+      <div class="res-title">Mobile First</div>
+      <div class="res-sub">Optimized for mobile studying — study anywhere</div>
+    </div>
+    <div class="res-card reveal" style="text-align:left;">
+      <div class="res-icon">🔥</div>
+      <div class="res-title">Live Classes</div>
+      <div class="res-sub">Join Telegram channels for live doubt sessions</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-col">
+      <h4>STUDYKAI</h4>
+      <p style="font-size:0.8rem;line-height:1.6;">The ultimate UP Board 12th study platform. Anime-powered learning for every student.</p>
+    </div>
+    <div class="footer-col">
+      <h4>SUBJECTS</h4>
+      <a href="#subjects">Physics</a>
+      <a href="#subjects">Chemistry</a>
+      <a href="#subjects">Mathematics</a>
+      <a href="#subjects">Biology</a>
+    </div>
+    <div class="footer-col">
+      <h4>RESOURCES</h4>
+      <a href="#resources">Previous Papers</a>
+      <a href="#resources">Model Papers</a>
+      <a href="#resources">Syllabus</a>
+      <a href="#resources">Notes</a>
+    </div>
+    <div class="footer-col">
+      <h4>CONNECT</h4>
+      <a href="#">📱 Telegram</a>
+      <a href="#">▶️ YouTube</a>
+      <a href="#">📸 Instagram</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    Made with <span>❤️</span> for UP Board Students · StudyKai © 2026 ·
+    <span style="cursor:pointer;color:var(--text2);" onclick="openAdminAuth()">⚙</span>
+  </div>
+</footer>
+
+<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<div class="modal-overlay" id="authModal">
+  <div class="modal" style="max-width:380px;">
+    <div class="modal-header">
+      <div class="modal-title">⚙️ ADMIN ACCESS</div>
+      <button class="modal-close" onclick="closeModal('authModal')">✕</button>
+    </div>
+    <p style="font-size:0.82rem;color:var(--text2);margin-bottom:16px;">Enter admin password to manage Telegram channels.</p>
+    <input type="password" class="auth-input" id="adminPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkAuth()">
+    <div class="auth-hint">Default password: <strong style="color:var(--accent)">admin123</strong></div>
+    <br>
+    <button class="btn-save" onclick="checkAuth()">UNLOCK ADMIN</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="adminModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">⚙️ CHANNEL MANAGER</div>
+      <button class="modal-close" onclick="closeModal('adminModal')">✕</button>
+    </div>
+
+    <div class="admin-section">
+      <h3>➕ Add / Edit Channel</h3>
+      <div class="form-group">
+        <label>SELECT SUBJECT</label>
+        <select id="chSubject">
+          <option value="">-- Choose Subject --</option>
+          <option value="physics">Physics</option>
+          <option value="chemistry">Chemistry</option>
+          <option value="mathematics">Mathematics</option>
+          <option value="biology">Biology</option>
+          <option value="english">English</option>
+          <option value="hindi">Hindi</option>
+          <option value="computer">Computer Science</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>TELEGRAM CHANNEL LINK</label>
+        <input type="url" id="chLink" placeholder="https://t.me/yourchannel">
+      </div>
+      <div class="form-group">
+        <label>CHANNEL DISPLAY NAME</label>
+        <input type="text" id="chName" placeholder="e.g. Physics Wallah 12th">
+      </div>
+      <input type="hidden" id="editIndex" value="">
+      <button class="btn-save" onclick="saveChannel()">💾 SAVE CHANNEL</button>
+    </div>
+
+    <div class="admin-section">
+      <h3>📋 SAVED CHANNELS</h3>
+      <div class="channel-list" id="channelList"></div>
+    </div>
+
+    <div class="admin-section">
+      <h3>🔐 CHANGE PASSWORD</h3>
+      <div class="form-group">
+        <input type="password" id="newPass" placeholder="New password" class="auth-input" style="font-size:0.88rem;letter-spacing:2px;">
+      </div>
+      <button class="btn-save" style="background:linear-gradient(135deg,var(--accent3),#2ab87a);" onclick="changePassword()">UPDATE PASSWORD</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+<script>
+// ============================================================
+// FIREBASE CONFIG & INIT
+// ============================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyCnwHn6b2F8O8M-3Elk54tydzqldj78Cxg",
+  authDomain: "arshad-music.firebaseapp.com",
+  projectId: "arshad-music",
+  storageBucket: "arshad-music.firebasestorage.app",
+  messagingSenderId: "301555315508",
+  appId: "1:301555315508:web:28340660dfbfe2429beb61"
+};
+
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+
+// Listen for real-time updates from Firebase
+database.ref('sk_channels').on('value', (snapshot) => {
+  cloudChannels = snapshot.val() || {};
+  renderSubjects();
+  if(document.getElementById('adminModal').classList.contains('open')){
+    renderChannelList();
+  }
+});
+
+// ============================================================
+// DATA
+// ============================================================
+const SUBJECTS = [
+  {
+    id:'physics',name:'Physics',emoji:'⚛️',
+    desc:'Explore electrostatics, optics, modern physics and more with concept clarity and numerical mastery.',
+    chapters:['Electric Charges & Fields','Electrostatic Potential','Current Electricity','Moving Charges & Magnetism','Magnetism & Matter','Electromagnetic Induction','AC Circuits','EM Waves','Ray Optics','Wave Optics','Dual Nature of Radiation','Atoms','Nuclei','Semiconductor Electronics'],
+    important:['Coulombs Law & Gauss Theorem','Kirchhoffs Laws & Wheatstone Bridge','Faradays Laws of EMI','Lens Maker Formula & Mirror Formula','Photoelectric Effect','Nuclear Fission & Fusion','Logic Gates & Boolean Algebra','Biot-Savart & Amperes Law'],
+    tips:['Focus on numericals in Electric Circuits and Optics','Draw neat diagrams for ray optics — marks guaranteed','Learn all formulas in a separate notebook','Practice derivations: Gauss Law, Biot-Savart, etc.','Previous year questions repeat 60% — solve 5 years'],
+    marks:70,papers:3,color:'s1',ic:'ic1',bc:'bc1'
+  },
+  {
+    id:'chemistry',name:'Chemistry',emoji:'🧪',
+    desc:'Master organic reactions, solutions, electrochemistry, and biomolecules for a perfect score.',
+    chapters:['Solutions','Electrochemistry','Chemical Kinetics','d & f Block Elements','Coordination Compounds','Haloalkanes & Haloarenes','Alcohols, Phenols & Ethers','Aldehydes & Ketones','Carboxylic Acids','Amines','Biomolecules','Polymers','Chemistry in Everyday Life'],
+    important:['Raoults Law & Colligative Properties','Nernst Equation & Electrolytic Cells','Rate Law & Arrhenius Equation','IUPAC Nomenclature','SN1 & SN2 Reactions','Aldol Condensation & Cannizzaro','Amino Acids & Proteins','Williamson Synthesis'],
+    tips:['Organic reactions: make reaction flowcharts','Inorganic — memorize d-block properties systematically','Electrochemistry formulae are scoring — dont skip','5 marks for each organic name reaction — learn all','Biomolecules is easy — full marks possible'],
+    marks:70,papers:3,color:'s2',ic:'ic2',bc:'bc2'
+  },
+  {
+    id:'mathematics',name:'Mathematics',emoji:'📐',
+    desc:'From Relations & Functions to Probability — build strong problem-solving skills and score 100.',
+    chapters:['Relations & Functions','Inverse Trigonometry','Matrices','Determinants','Continuity & Differentiability','Applications of Derivatives','Integrals','Application of Integrals','Differential Equations','Vector Algebra','3D Geometry','Linear Programming','Probability'],
+    important:['Maxima & Minima — Applications of Derivatives','Integration by Parts & Substitution','Determinant Expansion & Properties','Bayes Theorem','Dot & Cross Product of Vectors','Angle Between Lines & Planes in 3D','Matrix Operations & Inverse'],
+    tips:['Practice 10 integration problems daily — it takes time','Determinants & Matrices — guaranteed 10 marks','3D Geometry formula sheet is must','Probability: both classical and Bayes theorem','Never skip steps in board exam — show all work'],
+    marks:100,papers:2,color:'s3',ic:'ic3',bc:'bc3'
+  },
+  {
+    id:'biology',name:'Biology',emoji:'🧬',
+    desc:'Study reproduction, genetics, ecology and biotechnology with diagram-based deep understanding.',
+    chapters:['Sexual Reproduction in Flowering Plants','Human Reproduction','Reproductive Health','Principles of Inheritance','Molecular Basis of Inheritance','Evolution','Human Health & Disease','Microbes in Human Welfare','Biotechnology: Principles','Biotechnology Applications','Organisms & Populations','Ecosystem','Biodiversity & Conservation','Environmental Issues'],
+    important:['Meiosis & Fertilization Process','Mendelian Laws & Dihybrid Cross','DNA Replication & Transcription','PCR & Recombinant DNA','Food Chains & Pyramids','Greenhouse Effect & Ozone','Adaptive Immunity & AIDS','Human Genome Project'],
+    tips:['Diagrams are worth 2-3 marks each — practice all','Genetics: Punnett squares must be perfect','Biotechnology chapter — most scoring in biology','Learn full forms of all abbreviations','Answer in points with headings for long answers'],
+    marks:70,papers:3,color:'s4',ic:'ic4',bc:'bc4'
+  },
+  {
+    id:'english',name:'English',emoji:'📖',
+    desc:'Strengthen reading comprehension, writing skills, grammar, and literature for full marks in English.',
+    chapters:['The Last Lesson','Lost Spring','Deep Water','The Rattrap','Indigo','Poets & Pancakes','The Interview','Going Places','My Mother at Sixty-Six','An Elementary School Classroom','Keeping Quiet','A Thing of Beauty','Aunt Jennifers Tigers'],
+    important:['Flamingo: All prose chapters summary','Vistas: Jack and Jill + The Tiger King','Letter & Application Writing Format','Notice & Poster Writing','Reading Comprehension Strategies','Grammar: Reported Speech & Voice'],
+    tips:['Letter writing format is guaranteed 5 marks','Read each prose lesson summary carefully','Poetry: focus on theme and poetic devices','Grammar: active-passive, direct-indirect daily practice','Answer in complete sentences — no bullet points in English'],
+    marks:100,papers:2,color:'s5',ic:'ic5',bc:'bc5'
+  },
+  {
+    id:'hindi',name:'Hindi',emoji:'📜',
+    desc:'गद्य, पद्य, व्याकरण और लेखन — हिन्दी में पूर्ण अंक प्राप्त करने की पूरी तैयारी।',
+    chapters:['भक्तिन','बाजार दर्शन','काले मेघा पानी दे','पहलवान की ढोलक','चार्ली चैप्लिन','नमक','शिरीष के फूल','श्रम-विभाजन और जाति-प्रथा','आत्मा का ताप','कवितावली','लक्ष्मण मूर्छा','रुबाइयाँ','गज़ल','उषा','सहर्ष स्वीकारा है','कविता के बहाने','बात सीधी थी पर'],
+    important:['निबंध लेखन — सभी प्रकार','पत्र-लेखन: औपचारिक व अनौपचारिक','संधि, समास, अलंकार','काव्यांश की सप्रसंग व्याख्या','लेखकों का परिचय'],
+    tips:['गद्यांश की व्याख्या — सप्रसंग लिखें','निबंध: 400-500 शब्द, बिंदुवार लिखें','व्याकरण में पूरे अंक लाए जा सकते हैं','कविता का भाव — अपने शब्दों में समझाएं','पत्र का format याद रखें — guaranteed marks'],
+    marks:100,papers:2,color:'s6',ic:'ic6',bc:'bc6'
+  },
+  {
+    id:'computer',name:'Computer Science',emoji:'💻',
+    desc:'Learn Python, databases, networking and Boolean logic for full marks in Computer Science.',
+    chapters:['Python Fundamentals Revision','File Handling in Python','Exception Handling','Stack & Queue in Python','MySQL — Databases','SQL Queries','Interface Python with MySQL','Computer Networks','Data Communication','Network Devices & Protocols','Boolean Logic & Minimization','Societal Impacts of IT'],
+    important:['File Handling: read/write/append modes','SQL: SELECT, JOIN, GROUP BY, WHERE','Python: Functions, Lists, Dictionaries','Stack Push/Pop operations','Network Topologies & OSI Model','Boolean minimization: K-Map','Cyber crimes & IT Act 2000'],
+    tips:['Python programs: practice at least 20 programs','SQL queries are guaranteed 8-10 marks — master them','File handling: know all modes and methods','Networking: learn full forms and definitions','Boolean algebra: simplify using K-Map or laws'],
+    marks:70,papers:3,color:'s7',ic:'ic7',bc:'bc7'
+  }
+];
+
+const QUOTES_COUNT = 6;
+let currentQuote = 0;
+let quoteTimer;
+
+// ============================================================
+// FIREBASE & LOCAL STORAGE
+// ============================================================
+let cloudChannels = {};
+
+function getChannels(){
+  return cloudChannels;
+}
+
+function getAdminPass(){
+  // Password locally stored hi sahi hai
+  return localStorage.getItem('sk_adminpass')||'admin123';
+}
+
+// ============================================================
+// RENDER SUBJECTS
+// ============================================================
+function renderSubjects(){
+  const grid = document.getElementById('subjectsGrid');
+  const channels = getChannels();
+  grid.innerHTML = '';
+  SUBJECTS.forEach((s,i)=>{
+    const ch = channels[s.id];
+    const card = document.createElement('div');
+    card.className = `subject-card ${s.color} reveal`;
+    card.id = `card-${s.id}`;
+    card.style.animationDelay = (i*0.07)+'s';
+    card.innerHTML = `
+      <div class="sc-top">
+        <div class="sc-icon ${s.ic}" style="font-size:1.8rem;width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;">${s.emoji}</div>
+        <span class="sc-badge ${s.bc}">${s.marks} MARKS</span>
+      </div>
+      <div class="sc-name">${s.name}</div>
+      <div class="sc-desc">${s.desc}</div>
+      <div class="sc-meta">
+        <span class="sc-chip">📚 ${s.chapters.length} Chapters</span>
+        <span class="sc-chip">📄 ${s.papers} Papers</span>
+        <span class="sc-chip">⭐ ${s.important.length} Key Topics</span>
+      </div>
+      <div class="sc-actions">
+        <button class="btn-join" onclick="joinClass('${s.id}',event)">📲 Join Class Now</button>
+        <button class="btn-info" onclick="toggleExpand('${s.id}',event)">📖 Info</button>
+      </div>
+      <div class="expand-panel" id="ep-${s.id}">
+        <div class="ep-inner">
+          <div class="ep-tabs">
+            <div class="ep-tab active" onclick="switchTab('${s.id}','chapters',this)">Chapters</div>
+            <div class="ep-tab" onclick="switchTab('${s.id}','important',this)">Important</div>
+            <div class="ep-tab" onclick="switchTab('${s.id}','tips',this)">Exam Tips</div>
+          </div>
+          <div class="ep-content active" id="${s.id}-chapters">
+            <h4>ALL CHAPTERS</h4>
+            <ul class="ep-list">${s.chapters.map(c=>`<li>${c}</li>`).join('')}</ul>
+          </div>
+          <div class="ep-content" id="${s.id}-important">
+            <h4>IMPORTANT TOPICS</h4>
+            <ul class="ep-list">${s.important.map(t=>`<li>${t}</li>`).join('')}</ul>
+          </div>
+          <div class="ep-content" id="${s.id}-tips">
+            <h4>EXAM TIPS</h4>
+            ${s.tips.map(t=>`<div class="ep-tip">💡 <strong>Tip:</strong> ${t}</div>`).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+  setupReveal();
+}
+
+function toggleExpand(id, e){
+  e.stopPropagation();
+  const panel = document.getElementById('ep-'+id);
+  panel.classList.toggle('open');
+}
+
+function switchTab(subjectId, tab, el){
+  const tabs = el.parentElement.querySelectorAll('.ep-tab');
+  tabs.forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  const contents = el.closest('.ep-inner').querySelectorAll('.ep-content');
+  contents.forEach(c=>c.classList.remove('active'));
+  document.getElementById(subjectId+'-'+tab).classList.add('active');
+}
+
+function joinClass(id, e){
+  e.stopPropagation();
+  const channels = getChannels();
+  const ch = channels[id];
+  if(ch && ch.link){
+    window.open(ch.link,'_blank');
+  } else {
+    showToast('No channel set! Ask admin to add one.','error');
+  }
+}
+
+// ============================================================
+// ADMIN
+// ============================================================
+function openAdminAuth(){
+  document.getElementById('adminPass').value='';
+  openModal('authModal');
+}
+
+function checkAuth(){
+  const pass = document.getElementById('adminPass').value;
+  if(pass === getAdminPass()){
+    closeModal('authModal');
+    setTimeout(()=>{
+      openModal('adminModal');
+      renderChannelList();
+    },300);
+  } else {
+    showToast('Wrong password!','error');
+    document.getElementById('adminPass').style.borderColor='var(--red)';
+    setTimeout(()=>document.getElementById('adminPass').style.borderColor='',1500);
+  }
+}
+
+function saveChannel(){
+  const sub = document.getElementById('chSubject').value;
+  const link = document.getElementById('chLink').value.trim();
+  const name = document.getElementById('chName').value.trim();
+  if(!sub){showToast('Select a subject!','error');return;}
+  if(!link){showToast('Enter channel link!','error');return;}
+  if(!name){showToast('Enter channel name!','error');return;}
+  if(!link.startsWith('https://')){showToast('Link must start with https://','error');return;}
+  
+  // FIREBASE CLOUD UPDATE
+  database.ref('sk_channels/' + sub).set({link: link, name: name})
+    .then(() => {
+      document.getElementById('chSubject').value='';
+      document.getElementById('chLink').value='';
+      document.getElementById('chName').value='';
+      document.getElementById('editIndex').value='';
+      showToast('Channel saved successfully to Cloud!','success');
+    })
+    .catch(error => showToast('Error saving to cloud!','error'));
+}
+
+function renderChannelList(){
+  const list = document.getElementById('channelList');
+  const channels = getChannels();
+  const keys = Object.keys(channels);
+  if(!keys.length){
+    list.innerHTML='<div style="font-size:0.8rem;color:var(--text2);padding:10px;text-align:center;">No channels added yet.</div>';
+    return;
+  }
+  list.innerHTML = keys.map(k=>`
+    <div class="channel-item">
+      <div>
+        <div class="ci-name">${channels[k].name} <span style="font-size:0.7rem;color:var(--text2);font-weight:400;">(${k})</span></div>
+        <div class="ci-link">${channels[k].link}</div>
+      </div>
+      <div class="ci-actions">
+        <button class="ci-btn edit" onclick="editChannel('${k}')">Edit</button>
+        <button class="ci-btn del" onclick="delChannel('${k}')">Del</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function editChannel(key){
+  const channels = getChannels();
+  const ch = channels[key];
+  document.getElementById('chSubject').value = key;
+  document.getElementById('chLink').value = ch.link;
+  document.getElementById('chName').value = ch.name;
+  document.getElementById('chSubject').scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function delChannel(key){
+  // FIREBASE CLOUD DELETE
+  database.ref('sk_channels/' + key).remove()
+    .then(() => {
+      showToast('Channel removed from Cloud.','success');
+    })
+    .catch(error => showToast('Error removing from cloud!','error'));
+}
+
+function changePassword(){
+  const np = document.getElementById('newPass').value;
+  if(!np||np.length<4){showToast('Password too short!','error');return;}
+  localStorage.setItem('sk_adminpass',np);
+  document.getElementById('newPass').value='';
+  showToast('Password updated!','success');
+}
+
+// ============================================================
+// MODAL
+// ============================================================
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});
+});
+
+// ============================================================
+// COUNTDOWN
+// ============================================================
+function updateCountdown(){
+  const target = new Date('2026-02-17T08:00:00');
+  const now = new Date();
+  const diff = target - now;
+  if(diff<=0){
+    document.getElementById('cd-days').textContent='00';
+    document.getElementById('cd-hrs').textContent='00';
+    document.getElementById('cd-min').textContent='00';
+    document.getElementById('cd-sec').textContent='00';
+    return;
+  }
+  const days = Math.floor(diff/86400000);
+  const hrs = Math.floor((diff%86400000)/3600000);
+  const min = Math.floor((diff%3600000)/60000);
+  const sec = Math.floor((diff%60000)/1000);
+  document.getElementById('cd-days').textContent = String(days).padStart(2,'0');
+  document.getElementById('cd-hrs').textContent = String(hrs).padStart(2,'0');
+  document.getElementById('cd-min').textContent = String(min).padStart(2,'0');
+  document.getElementById('cd-sec').textContent = String(sec).padStart(2,'0');
+}
+setInterval(updateCountdown,1000);
+updateCountdown();
+
+// ============================================================
+// QUOTES
+// ============================================================
+function setupQuotes(){
+  const dots = document.getElementById('quoteDots');
+  const slides = document.querySelectorAll('.quote-slide');
+  dots.innerHTML='';
+  for(let i=0;i<QUOTES_COUNT;i++){
+    const d = document.createElement('div');
+    d.className = 'qdot'+(i===0?' active':'');
+    d.onclick=()=>goQuote(i);
+    dots.appendChild(d);
+  }
+  function goQuote(n){
+    slides.forEach(s=>s.classList.remove('active'));
+    document.querySelectorAll('.qdot').forEach(d=>d.classList.remove('active'));
+    if(slides[n]) slides[n].classList.add('active');
+    const dotEls = document.querySelectorAll('.qdot');
+    if(dotEls[n]) dotEls[n].classList.add('active');
+    currentQuote = n;
+  }
+  clearInterval(quoteTimer);
+  quoteTimer = setInterval(()=>{
+    currentQuote=(currentQuote+1)%QUOTES_COUNT;
+    goQuote(currentQuote);
+  },4000);
+}
+
+// ============================================================
+// CANVAS PARTICLES
+// ============================================================
+const canvas = document.getElementById('bgCanvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+let W,H;
+
+function resizeCanvas(){
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize',resizeCanvas);
+
+class Particle{
+  constructor(){this.reset(true);}
+  reset(init){
+    this.x = Math.random()*W;
+    this.y = init ? Math.random()*H : H+10;
+    this.size = Math.random()*3+1;
+    this.speed = Math.random()*0.5+0.2;
+    this.opacity = Math.random()*0.4+0.1;
+    this.color = ['#7c6af7','#f76aaa','#6af7d0','#f7c06a','#b06af7'][Math.floor(Math.random()*5)];
+    this.drift = (Math.random()-0.5)*0.3;
+    this.wave = Math.random()*Math.PI*2;
+    this.waveSpeed = Math.random()*0.02+0.01;
+  }
+  update(){
+    this.y -= this.speed;
+    this.wave += this.waveSpeed;
+    this.x += Math.sin(this.wave)*0.5 + this.drift;
+    if(this.y < -10) this.reset(false);
+    if(this.x < -10 || this.x > W+10) this.reset(false);
+  }
+  draw(){
+    ctx.save();
+    ctx.globalAlpha = this.opacity;
+    ctx.fillStyle = this.color;
+    ctx.shadowColor = this.color;
+    ctx.shadowBlur = 6;
+    // Draw sakura petal or circle randomly
+    if(this.size > 2.5){
+      ctx.beginPath();
+      ctx.ellipse(this.x,this.y,this.size*1.5,this.size,this.wave,0,Math.PI*2);
+      ctx.fill();
+    } else {
+      ctx.beginPath();
+      ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+}
+
+for(let i=0;i<80;i++) particles.push(new Particle());
+
+function animateParticles(){
+  ctx.clearRect(0,0,W,H);
+  particles.forEach(p=>{p.update();p.draw();});
+  requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+// ============================================================
+// SCROLL & REVEAL
+// ============================================================
+function setupReveal(){
+  const els = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting) e.target.classList.add('visible');
+    });
+  },{threshold:0.1});
+  els.forEach(el=>observer.observe(el));
+}
+setupReveal();
+
+window.addEventListener('scroll',()=>{
+  const bar = document.getElementById('progressBar');
+  const backTop = document.getElementById('backTop');
+  const scroll = window.scrollY;
+  const total = document.body.scrollHeight - window.innerHeight;
+  bar.style.width = (scroll/total*100)+'%';
+  backTop.classList.toggle('show', scroll>300);
+});
+
+// ============================================================
+// THEME
+// ============================================================
+const themeBtn = document.getElementById('themeBtn');
+let isDark = true;
+themeBtn.onclick = ()=>{
+  isDark = !isDark;
+  document.documentElement.setAttribute('data-theme', isDark?'dark':'light');
+  themeBtn.textContent = isDark?'🌙':'☀️';
+  localStorage.setItem('sk_theme', isDark?'dark':'light');
+};
+const savedTheme = localStorage.getItem('sk_theme');
+if(savedTheme==='light'){isDark=false;document.documentElement.setAttribute('data-theme','light');themeBtn.textContent='☀️';}
+
+// ============================================================
+// HAMBURGER
+// ============================================================
+document.getElementById('hamburger').onclick = ()=>{
+  document.getElementById('mobileMenu').classList.toggle('open');
+};
+function closeMobile(){document.getElementById('mobileMenu').classList.remove('open');}
+
+// ============================================================
+// TOAST
+// ============================================================
+let toastTimer;
+function showToast(msg,type='success'){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show '+(type||'');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ============================================================
+// RIPPLE EFFECT
+// ============================================================
+document.addEventListener('click',e=>{
+  const btn = e.target.closest('.btn-join,.btn-primary,.btn-save');
+  if(!btn) return;
+  const r = document.createElement('span');
+  r.className='ripple';
+  const rect = btn.getBoundingClientRect();
+  const size = Math.max(rect.width,rect.height);
+  r.style.cssText=`width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px;`;
+  btn.style.position='relative';btn.style.overflow='hidden';
+  btn.appendChild(r);
+  setTimeout(()=>r.remove(),600);
+});
+
+// ============================================================
+// INIT
+// ============================================================
+renderSubjects();
+setupQuotes();
+
+// Animate stat numbers
+function animateCount(el,target,suffix){
+  let current=0;
+  const isPlus = suffix==='+'||String(target).includes('+');
+  const num = parseInt(String(target).replace(/\D/g,''));
+  const step = Math.ceil(num/40);
+  const timer = setInterval(()=>{
+    current=Math.min(current+step,num);
+    el.textContent = current+(isPlus?'+':'');
+    if(current>=num) clearInterval(timer);
+  },30);
+}
+setTimeout(()=>{
+  animateCount(document.getElementById('ctr1'),7,'');
+  animateCount(document.getElementById('ctr2'),120,'+');
+  animateCount(document.getElementById('ctr3'),500,'+');
+},500);
+
+console.log('%c StudyKai 📚 ', 'background:#7c6af7;color:white;font-size:16px;padding:8px 16px;border-radius:8px;font-weight:bold;');
+console.log('%c Admin panel: click the ⚙ in footer · Default pass: admin123', 'color:#f76aaa;font-size:12px;');
+</script>
+</body>
+</html>
