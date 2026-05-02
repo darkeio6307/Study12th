@@ -49,6 +49,10 @@
             box-sizing: border-box;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             background: var(--bg-dark);
@@ -164,6 +168,9 @@
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.05); }
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         .animate-slide-up {
@@ -983,6 +990,10 @@
             margin-bottom: 12px;
         }
 
+        .resource-admin-item {
+            grid-template-columns: 1fr 1fr 1fr 1fr auto;
+        }
+
         .tag-select {
             padding: 6px 12px;
             border-radius: 8px;
@@ -1130,6 +1141,9 @@
                 gap: 12px;
                 align-items: flex-start;
             }
+            .resource-admin-item {
+                grid-template-columns: 1fr 1fr auto;
+            }
         }
 
         /* Loading Spinner */
@@ -1142,10 +1156,6 @@
             animation: spin 1s linear infinite;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
         .loading-overlay {
             position: fixed;
             inset: 0;
@@ -1156,10 +1166,12 @@
             justify-content: center;
             flex-direction: column;
             gap: 20px;
+            transition: opacity 0.5s ease;
         }
 
         .loading-overlay.hidden {
-            display: none;
+            opacity: 0;
+            pointer-events: none;
         }
     </style>
 </head>
@@ -1180,7 +1192,7 @@
             <div class="login-content">
                 <div class="login-logo">StudyKai</div>
                 <p class="login-subtitle">12th UP Board — Your Ultimate Study Companion</p>
-                <button class="google-btn ripple-btn" onclick="signInWithGoogle(event)">
+                <button class="google-btn ripple-btn" id="google-login-btn">
                     <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google">
                     Continue with Google
                 </button>
@@ -1212,13 +1224,13 @@
                     <span id="nav-site-name">StudyKai</span>
                 </div>
                 <div class="nav-actions">
-                    <button class="nav-btn ripple-btn" onclick="toggleTheme()" title="Toggle Theme">
+                    <button class="nav-btn ripple-btn" id="theme-toggle-btn" title="Toggle Theme">
                         <i class="fas fa-moon" id="theme-icon"></i>
                     </button>
-                    <button class="nav-btn ripple-btn" onclick="openAdminAuth()" title="Admin Panel">
+                    <button class="nav-btn ripple-btn" id="admin-btn" title="Admin Panel">
                         <i class="fas fa-crown"></i>
                     </button>
-                    <img id="user-avatar" class="user-avatar" src="" alt="Profile" title="Logout" onclick="signOut()">
+                    <img id="user-avatar" class="user-avatar" src="" alt="Profile" title="Logout">
                 </div>
             </div>
         </nav>
@@ -1312,11 +1324,11 @@
         <div class="modal-container glass-strong password-modal">
             <h3><i class="fas fa-lock" style="color: var(--warning);"></i> Admin Access</h3>
             <p>Enter the master password to unlock the cloud dashboard</p>
-            <input type="password" class="form-input password-input" id="admin-password" placeholder="Enter password..." onkeypress="if(event.key==='Enter')verifyAdminPassword()">
-            <button class="btn-primary ripple-btn" onclick="verifyAdminPassword()" style="width: 100%; justify-content: center;">
+            <input type="password" class="form-input password-input" id="admin-password" placeholder="Enter password...">
+            <button class="btn-primary ripple-btn" id="unlock-admin-btn" style="width: 100%; justify-content: center;">
                 <i class="fas fa-unlock"></i> Unlock Panel
             </button>
-            <button class="nav-btn" onclick="closeAdminAuth()" style="margin-top: 12px; width: 100%; border-radius: 12px;">
+            <button class="nav-btn" id="cancel-admin-btn" style="margin-top: 12px; width: 100%; border-radius: 12px;">
                 Cancel
             </button>
         </div>
@@ -1330,21 +1342,21 @@
                     <i class="fas fa-crown"></i>
                     Mega Admin Panel
                 </div>
-                <button class="modal-close" onclick="closeAdminPanel()">
+                <button class="modal-close" id="close-admin-panel">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             <div class="modal-tabs">
-                <button class="modal-tab active" onclick="switchTab('global')">
+                <button class="modal-tab active" data-tab="global">
                     <i class="fas fa-globe"></i> Global & Timer
                 </button>
-                <button class="modal-tab" onclick="switchTab('channels')">
+                <button class="modal-tab" data-tab="channels">
                     <i class="fas fa-paper-plane"></i> Channels
                 </button>
-                <button class="modal-tab" onclick="switchTab('notices')">
+                <button class="modal-tab" data-tab="notices">
                     <i class="fas fa-bullhorn"></i> Notices
                 </button>
-                <button class="modal-tab" onclick="switchTab('resources')">
+                <button class="modal-tab" data-tab="resources">
                     <i class="fas fa-file-alt"></i> Resources
                 </button>
             </div>
@@ -1375,7 +1387,7 @@
                         <label class="form-label">Exam Date & Time</label>
                         <input type="datetime-local" class="form-input" id="admin-exam-date">
                     </div>
-                    <button class="btn-primary ripple-btn" onclick="saveGlobalSettings()" style="margin-top: 10px;">
+                    <button class="btn-primary ripple-btn" id="save-global-btn" style="margin-top: 10px;">
                         <i class="fas fa-save"></i> Save Global Settings
                     </button>
                 </div>
@@ -1385,7 +1397,7 @@
                     <div id="channels-list">
                         <!-- Populated dynamically -->
                     </div>
-                    <button class="btn-primary ripple-btn" onclick="saveChannels()" style="margin-top: 20px;">
+                    <button class="btn-primary ripple-btn" id="save-channels-btn" style="margin-top: 20px;">
                         <i class="fas fa-save"></i> Save All Channels
                     </button>
                 </div>
@@ -1395,10 +1407,10 @@
                     <div id="notices-list">
                         <!-- Populated dynamically -->
                     </div>
-                    <button class="add-btn" onclick="addNoticeField()">
+                    <button class="add-btn" id="add-notice-btn">
                         <i class="fas fa-plus"></i> Add New Notice
                     </button>
-                    <button class="btn-primary ripple-btn" onclick="saveNotices()" style="margin-top: 20px;">
+                    <button class="btn-primary ripple-btn" id="save-notices-btn" style="margin-top: 20px;">
                         <i class="fas fa-save"></i> Save All Notices
                     </button>
                 </div>
@@ -1408,10 +1420,10 @@
                     <div id="resources-admin-list">
                         <!-- Populated dynamically -->
                     </div>
-                    <button class="add-btn" onclick="addResourceField()">
+                    <button class="add-btn" id="add-resource-btn">
                         <i class="fas fa-plus"></i> Add New Resource
                     </button>
-                    <button class="btn-primary ripple-btn" onclick="saveResources()" style="margin-top: 20px;">
+                    <button class="btn-primary ripple-btn" id="save-resources-btn" style="margin-top: 20px;">
                         <i class="fas fa-save"></i> Save All Resources
                     </button>
                 </div>
@@ -1437,10 +1449,20 @@
             measurementId: "G-Q51PB50Q51"
         };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.database();
+        // Initialize Firebase with error handling
+        let app, auth, db;
+        let firebaseInitialized = false;
+
+        try {
+            app = firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            db = firebase.database();
+            firebaseInitialized = true;
+            console.log('Firebase initialized successfully');
+        } catch (err) {
+            console.error('Firebase init error:', err);
+            showToast('Firebase initialization failed. Using offline mode.', 'error');
+        }
 
         // ==================== HARDCODED DATA ====================
         const subjectsData = [
@@ -1670,10 +1692,12 @@
         let quoteInterval;
         let countdownInterval;
         let currentQuote = 0;
+        let initTimeout;
 
         // ==================== PARTICLE CANVAS ====================
         function initParticles() {
             const canvas = document.getElementById('particle-canvas');
+            if (!canvas) return;
             const ctx = canvas.getContext('2d');
             let particles = [];
             let mouse = { x: null, y: null };
@@ -1707,7 +1731,6 @@
                     if (this.y > canvas.height) this.y = 0;
                     if (this.y < 0) this.y = canvas.height;
                     
-                    // Mouse interaction
                     if (mouse.x != null) {
                         let dx = mouse.x - this.x;
                         let dy = mouse.y - this.y;
@@ -1737,7 +1760,6 @@
                     p.draw();
                 });
                 
-                // Connect particles
                 for (let i = 0; i < particles.length; i++) {
                     for (let j = i; j < particles.length; j++) {
                         let dx = particles[i].x - particles[j].x;
@@ -1773,79 +1795,112 @@
             button.appendChild(circle);
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.ripple-btn').forEach(btn => {
-                btn.addEventListener('click', createRipple);
-            });
-        });
-
         // ==================== AUTH ====================
         function signInWithGoogle(e) {
             if(e) createRipple(e);
+            if (!firebaseInitialized) {
+                showToast('Firebase not initialized. Check your connection.', 'error');
+                return;
+            }
             const provider = new firebase.auth.GoogleAuthProvider();
             auth.signInWithPopup(provider).catch(err => {
                 showToast('Login failed: ' + err.message, 'error');
+                console.error('Auth error:', err);
             });
         }
 
         function signOut() {
             if(confirm('Are you sure you want to logout?')) {
-                auth.signOut();
+                if (firebaseInitialized) {
+                    auth.signOut();
+                }
             }
         }
 
-        auth.onAuthStateChanged(user => {
+        function handleAuthState(user) {
             if (user) {
                 currentUser = user;
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('main-app').style.display = 'block';
-                document.getElementById('user-avatar').src = user.photoURL || 'https://ui-avatars.com/api/?name=' + user.displayName;
-                document.getElementById('loading-overlay').classList.add('hidden');
+                document.getElementById('user-avatar').src = user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.displayName || 'User');
                 
-                // Load data from Firebase
+                hideLoading();
                 loadAllData();
                 initParticles();
                 initQuotes();
                 renderSubjects();
+                renderResources();
             } else {
                 currentUser = null;
                 document.getElementById('login-screen').style.display = 'flex';
                 document.getElementById('main-app').style.display = 'none';
-                document.getElementById('loading-overlay').classList.add('hidden');
+                hideLoading();
             }
-        });
+        }
+
+        // ==================== LOADING OVERLAY ====================
+        function hideLoading() {
+            const overlay = document.getElementById('loading-overlay');
+            if (overlay) {
+                overlay.classList.add('hidden');
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                }, 500);
+            }
+        }
 
         // ==================== FIREBASE DATA SYNC ====================
         function loadAllData() {
+            if (!firebaseInitialized || !db) {
+                console.log('Firebase not available, using default data');
+                applyGlobalSettings();
+                updateSubjectTelegramLinks();
+                renderNotices();
+                renderResources();
+                return;
+            }
+
             // Global Settings
-            db.ref('settings/global').on('value', snap => {
+            db.ref('settings/global').once('value').then(snap => {
                 if (snap.exists()) {
                     appData.global = { ...appData.global, ...snap.val() };
                 }
                 applyGlobalSettings();
+            }).catch(err => {
+                console.error('Global load error:', err);
+                applyGlobalSettings();
             });
 
             // Channels
-            db.ref('settings/channels').on('value', snap => {
+            db.ref('settings/channels').once('value').then(snap => {
                 if (snap.exists()) {
                     appData.channels = { ...appData.channels, ...snap.val() };
                 }
                 updateSubjectTelegramLinks();
+            }).catch(err => {
+                console.error('Channels load error:', err);
+                updateSubjectTelegramLinks();
             });
 
             // Notices
-            db.ref('settings/notices').on('value', snap => {
+            db.ref('settings/notices').once('value').then(snap => {
                 if (snap.exists()) {
                     appData.notices = snap.val();
                 }
                 renderNotices();
+            }).catch(err => {
+                console.error('Notices load error:', err);
+                renderNotices();
             });
 
             // Resources
-            db.ref('settings/resources').on('value', snap => {
+            db.ref('settings/resources').once('value').then(snap => {
                 if (snap.exists()) {
                     appData.resources = snap.val();
                 }
+                renderResources();
+            }).catch(err => {
+                console.error('Resources load error:', err);
                 renderResources();
             });
         }
@@ -1879,11 +1934,18 @@
                 const target = new Date(targetDate).getTime();
                 const diff = target - now;
 
+                const daysEl = document.getElementById('days');
+                const hoursEl = document.getElementById('hours');
+                const minutesEl = document.getElementById('minutes');
+                const secondsEl = document.getElementById('seconds');
+
+                if (!daysEl || !hoursEl || !minutesEl || !secondsEl) return;
+
                 if (diff <= 0) {
-                    document.getElementById('days').textContent = '00';
-                    document.getElementById('hours').textContent = '00';
-                    document.getElementById('minutes').textContent = '00';
-                    document.getElementById('seconds').textContent = '00';
+                    daysEl.textContent = '00';
+                    hoursEl.textContent = '00';
+                    minutesEl.textContent = '00';
+                    secondsEl.textContent = '00';
                     return;
                 }
 
@@ -1892,10 +1954,10 @@
                 const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-                document.getElementById('days').textContent = String(days).padStart(2, '0');
-                document.getElementById('hours').textContent = String(hours).padStart(2, '0');
-                document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
-                document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+                daysEl.textContent = String(days).padStart(2, '0');
+                hoursEl.textContent = String(hours).padStart(2, '0');
+                minutesEl.textContent = String(minutes).padStart(2, '0');
+                secondsEl.textContent = String(seconds).padStart(2, '0');
             }
             
             update();
@@ -1905,6 +1967,7 @@
         // ==================== QUOTES CAROUSEL ====================
         function initQuotes() {
             const dotsContainer = document.getElementById('quote-dots');
+            if (!dotsContainer) return;
             dotsContainer.innerHTML = '';
             
             quotesData.forEach((_, idx) => {
@@ -1915,6 +1978,7 @@
             });
 
             showQuote(0);
+            if (quoteInterval) clearInterval(quoteInterval);
             quoteInterval = setInterval(() => {
                 currentQuote = (currentQuote + 1) % quotesData.length;
                 showQuote(currentQuote);
@@ -1924,8 +1988,10 @@
         function showQuote(index) {
             currentQuote = index;
             const q = quotesData[index];
-            document.getElementById('quote-text').textContent = `"${q.text}"`;
-            document.getElementById('quote-author').textContent = `— ${q.author}`;
+            const textEl = document.getElementById('quote-text');
+            const authorEl = document.getElementById('quote-author');
+            if (textEl) textEl.textContent = `"${q.text}"`;
+            if (authorEl) authorEl.textContent = `— ${q.author}`;
             
             document.querySelectorAll('.quote-dot').forEach((dot, i) => {
                 dot.classList.toggle('active', i === index);
@@ -1935,6 +2001,7 @@
         // ==================== RENDER SUBJECTS ====================
         function renderSubjects() {
             const grid = document.getElementById('subjects-grid');
+            if (!grid) return;
             grid.innerHTML = '';
 
             subjectsData.forEach((sub, idx) => {
@@ -1998,56 +2065,11 @@
         // ==================== RENDER NOTICES ====================
         function renderNotices() {
             const scroll = document.getElementById('notices-scroll');
+            if (!scroll) return;
             scroll.innerHTML = '';
             
             appData.notices.forEach(notice => {
                 const pill = document.createElement('div');
                 pill.className = 'notice-pill';
                 const tagClass = `tag-${notice.tag.toLowerCase()}`;
-                pill.innerHTML = `
-                    <span class="notice-tag ${tagClass}">${notice.tag}</span>
-                    <span>${notice.text}</span>
-                `;
-                scroll.appendChild(pill);
-            });
-        }
-
-        // ==================== RENDER RESOURCES ====================
-        function renderResources() {
-            const grid = document.getElementById('resources-grid');
-            grid.innerHTML = '';
-
-            appData.resources.forEach((res, idx) => {
-                const card = document.createElement('a');
-                card.className = 'resource-card glass neon-border';
-                card.href = res.link || '#';
-                card.target = '_blank';
-                card.style.animationDelay = `${idx * 0.1}s`;
-                
-                card.innerHTML = `
-                    <span class="resource-emoji">${res.emoji}</span>
-                    <div class="resource-title">${res.title}</div>
-                    <div class="resource-subtitle">${res.subtitle}</div>
-                `;
-                
-                grid.appendChild(card);
-            });
-        }
-
-        // ==================== THEME TOGGLE ====================
-        function toggleTheme() {
-            const body = document.body;
-            const icon = document.getElementById('theme-icon');
-            
-            if (body.getAttribute('data-theme') === 'dark') {
-                body.setAttribute('data-theme', 'light');
-                icon.className = 'fas fa-sun';
-            } else {
-                body.setAttribute('data-theme', 'dark');
-                icon.className = 'fas fa-moon';
-            }
-        }
-
-        // ==================== ADMIN PANEL ====================
-        function openAdminAuth() {
-            document.getElementById('admin-auth-modal').class
+                pill.innerHTML =
