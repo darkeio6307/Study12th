@@ -2072,4 +2072,337 @@
                 const pill = document.createElement('div');
                 pill.className = 'notice-pill';
                 const tagClass = `tag-${notice.tag.toLowerCase()}`;
-                pill.innerHTML =
+                pill.innerHTML = `
+                    <span class="="notice-tag ${tagClass}">${notice.tag}</span>
+                    <span>${notice.text}</span>
+                `;
+                scroll.appendChild(pill);
+            });
+        }
+
+        // ==================== RENDER RESOURCES ====================
+        function renderResources() {
+            const grid = document.getElementById('resources-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            appData.resources.forEach((res, idx) => {
+                const card = document.createElement('a');
+                card.className = 'resource-card glass neon-border';
+                card.href = res.link || '#';
+                card.target = '_blank';
+                card.style.animationDelay = `${idx * 0.1}s`;
+                
+                card.innerHTML = `
+                    <span class="resource-emoji">${res.emoji}</span>
+                    <div class="resource-title">${res.title}</div>
+                    <div class="resource-subtitle">${res.subtitle}</div>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+
+        // ==================== THEME TOGGLE ====================
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.setAttribute('data-theme', 'light');
+                if (icon) icon.className = 'fas fa-sun';
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                if (icon) icon.className = 'fas fa-moon';
+            }
+        }
+
+        // ==================== ADMIN PANEL ====================
+        function openAdminAuth() {
+            document.getElementById('admin-auth-modal').classList.add('active');
+            setTimeout(() => document.getElementById('admin-password').focus(), 100);
+        }
+
+        function closeAdminAuth() {
+            document.getElementById('admin-auth-modal').classList.remove('active');
+            document.getElementById('admin-password').value = '';
+        }
+
+        function verifyAdminPassword() {
+            const password = document.getElementById('admin-password').value;
+            if (password === 'admin123') {
+                closeAdminAuth();
+                openAdminPanel();
+                showToast('Admin panel unlocked!', 'success');
+            } else {
+                showToast('Incorrect password!', 'error');
+            }
+        }
+
+        function openAdminPanel() {
+            document.getElementById('admin-modal').classList.add('active');
+            populateAdminFields();
+        }
+
+        function closeAdminPanel() {
+            document.getElementById('admin-modal').classList.remove('active');
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.modal-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.tab === tabName);
+            });
+            document.querySelectorAll('.tab-panel').forEach(panel => {
+                panel.classList.toggle('active', panel.id === 'tab-' + tabName);
+            });
+        }
+
+        function populateAdminFields() {
+            // Global
+            document.getElementById('admin-site-name').value = appData.global.siteName || '';
+            document.getElementById('admin-page-title').value = appData.global.pageTitle || '';
+            document.getElementById('admin-hero-title').value = appData.global.heroTitle || '';
+            document.getElementById('admin-hero-subtitle').value = appData.global.heroSubtitle || '';
+            document.getElementById('admin-exam-date').value = appData.global.examDate || '';
+
+            // Channels
+            const channelsList = document.getElementById('channels-list');
+            channelsList.innerHTML = '';
+            subjectsData.forEach(sub => {
+                const div = document.createElement('div');
+                div.className = 'form-group';
+                div.innerHTML = `
+                    <label class="form-label">${sub.name} Telegram Link</label>
+                    <input type="url" class="form-input channel-input" data-subject="${sub.id}" placeholder="https://t.me/..." value="${appData.channels[sub.id] || ''}">
+                `;
+                channelsList.appendChild(div);
+            });
+
+            // Notices
+            renderAdminNotices();
+
+            // Resources
+            renderAdminResources();
+        }
+
+        function renderAdminNotices() {
+            const list = document.getElementById('notices-list');
+            list.innerHTML = '';
+            appData.notices.forEach((notice, idx) => {
+                const div = document.createElement('div');
+                div.className = 'notice-item';
+                div.innerHTML = `
+                    <input type="text" class="form-input notice-text" placeholder="Notice text..." value="${notice.text}">
+                    <select class="tag-select notice-tag-select">
+                        <option value="NEW" ${notice.tag === 'NEW' ? 'selected' : ''}>NEW</option>
+                        <option value="IMP" ${notice.tag === 'IMP' ? 'selected' : ''}>IMP</option>
+                        <option value="INFO" ${notice.tag === 'INFO' ? 'selected' : ''}>INFO</option>
+                        <option value="TIP" ${notice.tag === 'TIP' ? 'selected' : ''}>TIP</option>
+                    </select>
+                    <button class="btn-icon" onclick="removeNotice(${idx})"><i class="fas fa-trash"></i></button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function addNoticeField() {
+            appData.notices.push({ text: '', tag: 'INFO' });
+            renderAdminNotices();
+        }
+
+        function removeNotice(index) {
+            appData.notices.splice(index, 1);
+            renderAdminNotices();
+        }
+
+        function saveNotices() {
+            const items = document.querySelectorAll('.notice-item');
+            const notices = [];
+            items.forEach(item => {
+                const text = item.querySelector('.notice-text').value;
+                const tag = item.querySelector('.notice-tag-select').value;
+                if (text.trim()) notices.push({ text, tag });
+            });
+            appData.notices = notices;
+            
+            if (firebaseInitialized && db) {
+                db.ref('settings/notices').set(notices)
+                    .then(() => showToast('Notices saved to cloud!', 'success'))
+                    .catch(err => showToast('Save failed: ' + err.message, 'error'));
+            } else {
+                showToast('Notices saved locally (Firebase offline)', 'info');
+            }
+            renderNotices();
+        }
+
+        function renderAdminResources() {
+            const list = document.getElementById('resources-admin-list');
+            list.innerHTML = '';
+            appData.resources.forEach((res, idx) => {
+                const div = document.createElement('div');
+                div.className = 'resource-admin-item';
+                div.innerHTML = `
+                    <input type="text" class="form-input res-emoji" placeholder="Emoji" value="${res.emoji}" style="max-width: 80px;">
+                    <input type="text" class="form-input res-title" placeholder="Title" value="${res.title}">
+                    <input type="text" class="form class="form-input res-title" placeholder="Title" value="${res.title}">
+                    <input type="text" class="form-input res-subtitle" placeholder="Subtitle" value="${res.subtitle}">
+                    <input type="url" class="form-input res-link" placeholder="Link" value="${res.link}">
+                    <button class="btn-icon" onclick="removeResource(${idx})"><i class="fas fa-trash"></i></button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function addResourceField() {
+            appData.resources.push({ emoji: '📄', title: '', subtitle: '', link: '' });
+            renderAdminResources();
+        }
+
+        function removeResource(index) {
+            appData.resources.splice(index, 1);
+            renderAdminResources();
+        }
+
+        function saveResources() {
+            const items = document.querySelectorAll('.resource-admin-item');
+            const resources = [];
+            items.forEach(item => {
+                const emoji = item.querySelector('.res-emoji').value;
+                const title = item.querySelector('.res-title').value;
+                const subtitle = item.querySelector('.res-subtitle').value;
+                const link = item.querySelector('.res-link').value;
+                if (title.trim()) resources.push({ emoji, title, subtitle, link });
+            });
+            appData.resources = resources;
+            
+            if (firebaseInitialized && db) {
+                db.ref('settings/resources').set(resources)
+                    .then(() => showToast('Resources saved to cloud!', 'success'))
+                    .catch(err => showToast('Save failed: ' + err.message, 'error'));
+            } else {
+                showToast('Resources saved locally (Firebase offline)', 'info');
+            }
+            renderResources();
+        }
+
+        function saveGlobalSettings() {
+            appData.global = {
+                siteName: document.getElementById('admin-site-name').value || 'StudyKai',
+                pageTitle: document.getElementById('admin-page-title').value || 'StudyKai — 12th UP Board',
+                heroTitle: document.getElementById('admin-hero-title').value || 'Master Your Board Exams',
+                heroSubtitle: document.getElementById('admin-hero-subtitle').value || 'Your success story starts here.',
+                examDate: document.getElementById('admin-exam-date').value || '2026-02-20T08:00'
+            };
+            
+            if (firebaseInitialized && db) {
+                db.ref('settings/global').set(appData.global)
+                    .then(() => {
+                        showToast('Global settings saved!', 'success');
+                        applyGlobalSettings();
+                    })
+                    .catch(err => showToast('Save failed: ' + err.message, 'error'));
+            } else {
+                showToast('Settings saved locally (Firebase offline)', 'info');
+                applyGlobalSettings();
+            }
+        }
+
+        function saveChannels() {
+            const inputs = document.querySelectorAll('.channel-input');
+            inputs.forEach(input => {
+                const subject = input.dataset.subject;
+                appData.channels[subject] = input.value;
+            });
+            
+            if (firebaseInitialized && db) {
+                db.ref('settings/channels').set(appData.channels)
+                    .then(() => {
+                        showToast('Channels saved!', 'success');
+                        updateSubjectTelegramLinks();
+                    })
+                    .catch(err => showToast('Save failed: ' + err.message, 'error'));
+            } else {
+                showToast('Channels saved locally (Firebase offline)', 'info');
+                updateSubjectTelegramLinks();
+            }
+        }
+
+        // ==================== TOAST ====================
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const msgEl = document.getElementById('toast-message');
+            const icon = toast.querySelector('i');
+            
+            toast.className = 'toast ' + type;
+            msgEl.textContent = message;
+            
+            if (type === 'success') icon.className = 'fas fa-check-circle';
+            else if (type === 'error') icon.className = 'fas fa-exclamation-circle';
+            else icon.className = 'fas fa-info-circle';
+            
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // ==================== EVENT LISTENERS ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            // Setup ripple buttons
+            document.querySelectorAll('.ripple-btn').forEach(btn => {
+                btn.addEventListener('click', createRipple);
+            });
+
+            // Auth buttons
+            document.getElementById('google-login-btn').addEventListener('click', signInWithGoogle);
+            document.getElementById('user-avatar').addEventListener('click', signOut);
+            document.getElementById('theme-toggle-btn').addEventListener('click', toggleTheme);
+            document.getElementById('admin-btn').addEventListener('click', openAdminAuth);
+
+            // Admin auth
+            document.getElementById('unlock-admin-btn').addEventListener('click', verifyAdminPassword);
+            document.getElementById('cancel-admin-btn').addEventListener('click', closeAdminAuth);
+            document.getElementById('admin-password').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') verifyAdminPassword();
+            });
+
+            // Admin panel
+            document.getElementById('close-admin-panel').addEventListener('click', closeAdminPanel);
+            document.querySelectorAll('.modal-tab').forEach(tab => {
+                tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+            });
+
+            // Save buttons
+            document.getElementById('save-global-btn').addEventListener('click', saveGlobalSettings);
+            document.getElementById('save-channels-btn').addEventListener('click', saveChannels);
+            document.getElementById('save-notices-btn').addEventListener('click', saveNotices);
+            document.getElementById('save-resources-btn').addEventListener('click', saveResources);
+
+            // Add buttons
+            document.getElementById('add-notice-btn').addEventListener('click', addNoticeField);
+            document.getElementById('add-resource-btn').addEventListener('click', addResourceField);
+
+            // Close modals on overlay click
+            document.getElementById('admin-auth-modal').addEventListener('click', (e) => {
+                if (e.target === e.currentTarget) closeAdminAuth();
+            });
+            document.getElementById('admin-modal').addEventListener('click', (e) => {
+                if (e.target === e.currentTarget) closeAdminPanel();
+            });
+
+            // Firebase auth state
+            if (firebaseInitialized && auth) {
+                auth.onAuthStateChanged(handleAuthState);
+            } else {
+                // Fallback: show login screen after short delay
+                setTimeout(() => {
+                    hideLoading();
+                }, 1000);
+            }
+
+            // Safety timeout: hide loading after 5 seconds no matter what
+            initTimeout = setTimeout(() => {
+                hideLoading();
+            }, 5000);
+        });
+    </script>
+</body>
+</html>
