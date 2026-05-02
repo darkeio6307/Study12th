@@ -1,798 +1,2053 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title id="pageTitle">StudyKai — 12th UP Board</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Nunito:wght@300;400;600;700;800&family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
-<style>
-/* ==========================================================================
-   CSS VARIABLES & GLOBAL RESET
-   ========================================================================== */
-:root {
-  --bg: #05050a; --bg2: #0a0a14; --bg3: #13132a; 
-  --card: rgba(20, 20, 35, 0.4); --card-border: rgba(124, 106, 247, 0.15);
-  --glass: rgba(255, 255, 255, 0.03); --glass-border: rgba(255, 255, 255, 0.08);
-  --text: #ffffff; --text2: #a0a0c0;
-  --accent: #7c6af7; --accent2: #f76aaa; --accent3: #6af7d0; --accent4: #f7c06a;
-  --neon: #b06af7; --shadow: rgba(124,106,247,0.4); --red: #ff4d4d; --green: #00e676;
-}
-[data-theme="light"] {
-  --bg: #f5f5fa; --bg2: #ebebf5; --bg3: #dcdcf0; 
-  --card: rgba(255, 255, 255, 0.8); --card-border: rgba(124, 106, 247, 0.2);
-  --glass: rgba(255, 255, 255, 0.9); --glass-border: rgba(100, 100, 200, 0.2);
-  --text: #1a1a2e; --text2: #555577; --shadow: rgba(124,106,247,0.2);
-}
-*{margin:0;padding:0;box-sizing:border-box;}
-html{scroll-behavior:smooth;}
-body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;transition:background 0.4s,color 0.4s;}
-#bgCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0.6;}
-::-webkit-scrollbar{width:8px;}
-::-webkit-scrollbar-track{background:var(--bg);}
-::-webkit-scrollbar-thumb{background:linear-gradient(var(--accent), var(--accent2));border-radius:10px;}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyKai — 12th UP Board</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
-/* ==========================================================================
-   GATEKEEPER: FULL SCREEN LOGIN PAGE
-   ========================================================================== */
-#loginScreen {
-  position: fixed; inset: 0; z-index: 9999;
-  background: rgba(5,5,10,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  display: flex; align-items: center; justify-content: center; flex-direction: column;
-  transition: opacity 0.6s ease;
-}
-.login-card {
-  background: var(--card); border: 1px solid var(--card-border);
-  padding: 40px; border-radius: 30px; text-align: center; max-width: 400px; width: 90%;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 0 0 1px var(--glass-border);
-  animation: scaleUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-.login-logo {
-  font-family: 'Orbitron', monospace; font-size: 2.5rem; font-weight: 900;
-  background: linear-gradient(135deg, var(--accent), var(--accent2), var(--accent3));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px;
-}
-.login-sub { color: var(--text2); font-size: 0.9rem; margin-bottom: 30px; line-height: 1.5; }
-.btn-google {
-  display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%;
-  background: #fff; color: #333; border: none; padding: 14px; border-radius: 16px;
-  font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 1rem; cursor: pointer;
-  transition: all 0.3s; box-shadow: 0 8px 20px rgba(255,255,255,0.1);
-}
-.btn-google:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(255,255,255,0.2); }
-.btn-google img { width: 24px; height: 24px; }
+    <style>
+        :root {
+            --bg-dark: #0a0a0f;
+            --bg-card: rgba(20, 20, 35, 0.6);
+            --bg-glass: rgba(255, 255, 255, 0.05);
+            --border-glass: rgba(255, 255, 255, 0.1);
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --accent: #22d3ee;
+            --accent-glow: rgba(34, 211, 238, 0.3);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --neon-purple: #a855f7;
+            --neon-pink: #ec4899;
+            --neon-blue: #3b82f6;
+        }
 
-/* MAIN APP WRAPPER (Hidden until logged in) */
-#mainApp { display: none; opacity: 0; transition: opacity 0.6s ease; position: relative; z-index: 1; }
+        [data-theme="light"] {
+            --bg-dark: #f1f5f9;
+            --bg-card: rgba(255, 255, 255, 0.7);
+            --bg-glass: rgba(255, 255, 255, 0.6);
+            --border-glass: rgba(0, 0, 0, 0.08);
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+        }
 
-/* ==========================================================================
-   NAVIGATION
-   ========================================================================== */
-nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-  background: rgba(10,10,20,0.6); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-  border-bottom: 1px solid var(--glass-border); padding: 0 24px; height: 70px;
-  display: flex; align-items: center; justify-content: space-between; transition: all 0.3s;
-}
-[data-theme="light"] nav{background:rgba(240,240,255,0.7);}
-.nav-logo { font-family: 'Orbitron', monospace; font-size: 1.5rem; font-weight: 900; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; letter-spacing: 1px;}
-.nav-links { display: flex; gap: 15px; }
-.nav-links a { color: var(--text2); font-size: 0.9rem; font-weight: 700; text-decoration: none; padding: 8px 16px; border-radius: 20px; transition: all 0.3s; }
-.nav-links a:hover { color: var(--text); background: var(--glass); transform: translateY(-2px); }
-.nav-right { display: flex; gap: 15px; align-items: center; }
-#themeBtn { background: var(--glass); border: 1px solid var(--glass-border); color: var(--text); width: 42px; height: 42px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
-#themeBtn:hover { background: var(--accent); border-color: var(--accent); transform: rotate(15deg); }
-#userProfile { display: flex; align-items: center; gap: 10px; cursor: pointer; background: var(--glass); padding: 5px 15px 5px 5px; border-radius: 30px; border: 1px solid var(--glass-border); transition: all 0.3s; }
-#userProfile:hover { border-color: var(--accent); background: rgba(124,106,247,0.1); }
-#userPic { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--accent); object-fit: cover; }
-#userName { font-size: 0.85rem; font-weight: 700; }
-.hamburger { display: none; flex-direction: column; gap: 6px; cursor: pointer; padding: 4px; }
-.hamburger span { width: 24px; height: 2px; background: var(--text); border-radius: 2px; transition: all 0.3s; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-/* MOBILE MENU */
-.mobile-menu { display: none; position: fixed; top: 70px; left: 0; right: 0; z-index: 999; background: rgba(10,10,20,0.98); backdrop-filter: blur(30px); padding: 20px; border-bottom: 1px solid var(--glass-border); flex-direction: column; gap: 10px; }
-.mobile-menu.open { display: flex; animation: slideDown 0.3s ease forwards; }
-.mobile-menu a { color: var(--text2); text-decoration: none; padding: 12px 20px; border-radius: 12px; font-weight: 700; font-size: 1rem; background: var(--glass); }
-.mobile-menu a:hover { background: var(--accent); color: #fff; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            transition: background 0.5s ease;
+        }
 
-/* ==========================================================================
-   HERO SECTION
-   ========================================================================== */
-.hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 100px 24px 60px; text-align: center; }
-.hero-inner { max-width: 900px; position: relative; }
-.hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(106, 247, 208, 0.1); border: 1px solid rgba(106, 247, 208, 0.3); border-radius: 50px; padding: 8px 20px; margin-bottom: 24px; font-size: 0.8rem; font-weight: 800; color: var(--accent3); letter-spacing: 2px; animation: fadeUp 0.6s ease both; box-shadow: 0 0 20px rgba(106,247,208,0.1); }
-.hero-badge .dot { width: 8px; height: 8px; background: var(--accent3); border-radius: 50%; animation: pulse 2s infinite; }
-.hero-title { font-family: 'Orbitron', monospace; font-size: clamp(2.5rem, 8vw, 5rem); font-weight: 900; line-height: 1.1; margin-bottom: 16px; animation: fadeUp 0.6s 0.1s ease both; }
-.hero-title .line1 { background: linear-gradient(135deg, var(--accent), var(--neon), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 10px rgba(124,106,247,0.3)); }
-.hero-title .line2 { color: var(--text); }
-.hero-jp { font-family: 'Noto Sans JP', sans-serif; font-size: 1rem; color: var(--accent4); letter-spacing: 5px; margin-bottom: 24px; font-weight: 700; animation: fadeUp 0.6s 0.15s ease both; }
-.hero-sub { font-size: 1.1rem; color: var(--text2); line-height: 1.8; max-width: 600px; margin: 0 auto 40px; animation: fadeUp 0.6s 0.2s ease both; }
-.hero-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; animation: fadeUp 0.6s 0.25s ease both; }
-.btn-primary { background: linear-gradient(135deg, var(--accent), var(--neon)); color: #fff; border: none; padding: 15px 35px; border-radius: 50px; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 1rem; cursor: pointer; transition: all 0.3s; box-shadow: 0 10px 30px var(--shadow); text-decoration: none; }
-.btn-primary:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 15px 40px var(--shadow); }
-.btn-secondary { background: var(--glass); border: 1px solid var(--glass-border); color: var(--text); padding: 15px 35px; border-radius: 50px; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 1rem; cursor: pointer; transition: all 0.3s; text-decoration: none; backdrop-filter: blur(10px); }
-.btn-secondary:hover { background: rgba(255,255,255,0.1); transform: translateY(-3px); }
-.hero-stats { display: flex; gap: 40px; justify-content: center; margin-top: 60px; flex-wrap: wrap; animation: fadeUp 0.6s 0.3s ease both; padding: 20px; background: var(--card); border-radius: 24px; border: 1px solid var(--card-border); backdrop-filter: blur(10px); }
-.stat { text-align: center; }
-.stat-num { font-family: 'Orbitron', monospace; font-size: 2.2rem; font-weight: 900; background: linear-gradient(135deg, var(--accent3), var(--accent4)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.stat-label { font-size: 0.8rem; color: var(--text2); font-weight: 800; letter-spacing: 1.5px; margin-top: 5px; }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Outfit', sans-serif;
+        }
 
-/* ==========================================================================
-   COUNTDOWN SECTION
-   ========================================================================== */
-.countdown-section { padding: 0 24px 60px; display: flex; justify-content: center; }
-.countdown-card { background: linear-gradient(135deg, var(--card), rgba(20,20,35,0.8)); border: 1px solid var(--accent); box-shadow: 0 0 30px rgba(124,106,247,0.15); backdrop-filter: blur(20px); border-radius: 24px; padding: 30px 50px; display: flex; align-items: center; gap: 40px; flex-wrap: wrap; justify-content: center; }
-.countdown-label { font-size: 0.9rem; color: var(--accent2); font-weight: 800; letter-spacing: 3px; }
-.countdown-units { display: flex; gap: 15px; }
-.cu { text-align: center; min-width: 65px; background: var(--bg3); padding: 10px; border-radius: 16px; border: 1px solid var(--glass-border); }
-.cu-num { font-family: 'Orbitron', monospace; font-size: 2.2rem; font-weight: 900; color: #fff; text-shadow: 0 0 10px var(--accent); }
-.cu-label { font-size: 0.7rem; color: var(--accent3); font-weight: 800; letter-spacing: 1px; margin-top: 4px; }
-.cu-sep { font-family: 'Orbitron', monospace; font-size: 2rem; color: var(--accent); align-self: center; opacity: 0.7; padding-bottom: 20px;}
+        /* Canvas Background */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
 
-/* ==========================================================================
-   GENERAL SECTIONS & GRID
-   ========================================================================== */
-.section { padding: 80px 24px; }
-.section-header { text-align: center; margin-bottom: 60px; }
-.section-tag { display: inline-block; font-size: 0.8rem; font-weight: 800; letter-spacing: 3px; color: var(--accent4); background: rgba(247, 192, 106, 0.1); border: 1px solid rgba(247, 192, 106, 0.2); border-radius: 50px; padding: 6px 18px; margin-bottom: 16px; }
-.section-title { font-family: 'Orbitron', monospace; font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 900; color: #fff; }
-.section-sub { color: var(--text2); font-size: 1rem; margin-top: 10px; font-weight: 600; }
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
 
-.subjects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; max-width: 1200px; margin: 0 auto; }
-.subject-card { background: var(--card); border: 1px solid var(--card-border); border-radius: 24px; padding: 28px; cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden; backdrop-filter: blur(10px); }
-.subject-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, transparent, rgba(255,255,255,0.05)); opacity: 0; transition: opacity 0.4s; }
-.subject-card:hover::before { opacity: 1; }
-.subject-card:hover { transform: translateY(-8px); border-color: var(--accent); box-shadow: 0 15px 40px var(--shadow); }
-.sc-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; }
-.sc-icon { width: 60px; height: 60px; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 2rem; flex-shrink: 0; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2); }
-.sc-badge { font-size: 0.75rem; font-weight: 900; letter-spacing: 1px; padding: 6px 14px; border-radius: 50px; border: 2px solid; background: rgba(0,0,0,0.2); }
-.sc-name { font-family: 'Orbitron', monospace; font-size: 1.2rem; font-weight: 800; margin-bottom: 8px; color: #fff; }
-.sc-desc { font-size: 0.9rem; color: var(--text2); line-height: 1.6; margin-bottom: 20px; }
-.sc-meta { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
-.sc-chip { font-size: 0.75rem; font-weight: 800; padding: 6px 12px; border-radius: 50px; background: var(--bg3); border: 1px solid var(--glass-border); color: var(--text); }
-.sc-actions { display: flex; gap: 12px; }
-.btn-join { flex: 1; background: linear-gradient(135deg, var(--accent), var(--neon)); color: #fff; border: none; padding: 12px; border-radius: 14px; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.9rem; cursor: pointer; transition: all 0.3s; }
-.btn-join:hover { box-shadow: 0 6px 20px var(--shadow); transform: translateY(-2px); filter: brightness(1.1); }
-.btn-info { background: var(--bg3); border: 1px solid var(--glass-border); color: var(--text); padding: 12px 18px; border-radius: 14px; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.9rem; cursor: pointer; transition: all 0.3s; }
-.btn-info:hover { background: var(--glass); border-color: var(--accent); }
+        /* Glassmorphism Base */
+        .glass {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
 
-/* EXPAND PANEL INSIDE CARD */
-.expand-panel { max-height: 0; overflow: hidden; transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
-.expand-panel.open { max-height: 800px; }
-.ep-inner { border-top: 1px solid var(--card-border); margin-top: 20px; padding-top: 20px; }
-.ep-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-.ep-tab { padding: 6px 16px; border-radius: 50px; font-size: 0.8rem; font-weight: 800; cursor: pointer; border: 1px solid var(--glass-border); color: var(--text2); background: var(--bg3); transition: all 0.3s; }
-.ep-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 4px 15px var(--shadow); }
-.ep-content { display: none; animation: fadeIn 0.4s ease; }
-.ep-content.active { display: block; }
-.ep-content h4 { font-size: 0.9rem; font-weight: 900; color: var(--accent3); margin-bottom: 12px; letter-spacing: 1px; }
-.ep-list { list-style: none; }
-.ep-list li { font-size: 0.85rem; color: var(--text); padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: flex-start; gap: 10px; }
-.ep-list li::before { content: '◈'; color: var(--accent); font-size: 0.8rem; margin-top: 2px;}
-.ep-tip { background: rgba(124,106,247,0.1); border: 1px solid rgba(124,106,247,0.3); border-left: 4px solid var(--accent); border-radius: 12px; padding: 12px 16px; font-size: 0.85rem; color: var(--text); line-height: 1.6; margin-bottom: 12px; }
+        .glass-strong {
+            background: var(--bg-card);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--border-glass);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+        }
 
-/* ==========================================================================
-   RESOURCES & NOTICES
-   ========================================================================== */
-.resources-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; max-width: 1100px; margin: 0 auto; }
-.res-card { background: var(--card); border: 1px solid var(--card-border); border-radius: 20px; padding: 25px; text-align: center; transition: all 0.3s; cursor: pointer; text-decoration: none; color: inherit; display: block; backdrop-filter: blur(10px); }
-.res-card:hover { border-color: var(--accent4); transform: translateY(-5px); box-shadow: 0 10px 30px rgba(247,192,106,0.15); background: rgba(247,192,106,0.05); }
-.res-icon { font-size: 2.8rem; margin-bottom: 16px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3)); }
-.res-title { font-weight: 900; font-size: 1.1rem; margin-bottom: 8px; color: #fff; }
-.res-sub { font-size: 0.85rem; color: var(--text2); line-height: 1.5; }
+        /* Neon Glow */
+        .neon-border {
+            position: relative;
+        }
+        .neon-border::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: inherit;
+            padding: 2px;
+            background: linear-gradient(135deg, var(--primary), var(--accent), var(--neon-purple));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .neon-border:hover::before {
+            opacity: 1;
+        }
 
-.notice-board { max-width: 900px; margin: 0 auto; background: var(--card); border: 1px solid var(--card-border); border-radius: 24px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
-.nb-header { background: linear-gradient(135deg, var(--accent), var(--neon)); padding: 20px 30px; display: flex; align-items: center; gap: 15px; }
-.nb-header h3 { font-family: 'Orbitron', monospace; font-size: 1.1rem; font-weight: 800; color: #fff; letter-spacing: 1px; }
-.nb-body { padding: 10px 30px 30px; }
-.notice-item { display: flex; gap: 16px; padding: 20px 0; border-bottom: 1px solid var(--card-border); align-items: flex-start; transition: background 0.3s; }
-.notice-item:hover { background: rgba(255,255,255,0.02); border-radius: 12px; padding: 20px 10px; margin: 0 -10px; }
-.notice-item:last-child { border-bottom: none; }
-.ni-date { font-family: 'Orbitron', monospace; font-size: 0.75rem; font-weight: 800; color: var(--accent2); padding-top: 3px; min-width: 65px; }
-.ni-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 6px; box-shadow: 0 0 10px var(--accent); }
-.ni-text { font-size: 0.95rem; color: var(--text); line-height: 1.6; }
-.ni-tag { font-size: 0.7rem; font-weight: 900; padding: 3px 10px; border-radius: 50px; margin-left: 10px; display: inline-block; letter-spacing: 1px; }
-.tag-new { background: rgba(106,247,160,0.15); color: var(--green); border: 1px solid rgba(106,247,160,0.4); }
-.tag-imp { background: rgba(247,106,106,0.15); color: var(--red); border: 1px solid rgba(247,106,106,0.4); }
-.tag-info { background: rgba(124,106,247,0.15); color: var(--accent); border: 1px solid rgba(124,106,247,0.4); }
+        /* Ripple Effect */
+        .ripple-btn {
+            position: relative;
+            overflow: hidden;
+        }
+        .ripple-btn .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.4);
+            transform: scale(0);
+            animation: ripple-animation 0.6s linear;
+            pointer-events: none;
+        }
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
 
-/* ==========================================================================
-   QUOTES CAROUSEL
-   ========================================================================== */
-.quotes-section { padding: 60px 24px; background: linear-gradient(to bottom, transparent, rgba(124,106,247,0.05), transparent); }
-.quote-carousel { max-width: 800px; margin: 0 auto; text-align: center; position: relative; padding: 40px; background: var(--card); border: 1px solid var(--card-border); border-radius: 30px; backdrop-filter: blur(10px); }
-.quote-slide { display: none; animation: scaleIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-.quote-slide.active { display: block; }
-.quote-text { font-size: clamp(1.2rem, 3vw, 1.6rem); font-style: italic; color: #fff; line-height: 1.8; margin-bottom: 24px; font-weight: 600; }
-.quote-text::before, .quote-text::after { content: '"'; color: var(--accent); font-size: 2.5rem; line-height: 0; vertical-align: -0.4em; padding: 0 5px; }
-.quote-author { font-family: 'Orbitron', monospace; font-size: 0.9rem; color: var(--accent2); font-weight: 800; letter-spacing: 2px; }
-.quote-dots { display: flex; gap: 10px; justify-content: center; margin-top: 30px; }
-.qdot { width: 8px; height: 8px; border-radius: 50%; background: var(--text2); opacity: 0.3; cursor: pointer; transition: all 0.4s; }
-.qdot.active { background: var(--accent); opacity: 1; width: 24px; border-radius: 4px; box-shadow: 0 0 10px var(--accent); }
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px var(--accent-glow); }
+            50% { box-shadow: 0 0 40px var(--accent-glow), 0 0 60px var(--accent-glow); }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
 
-/* ==========================================================================
-   FOOTER & MISC
-   ========================================================================== */
-footer { position: relative; z-index: 1; background: var(--bg2); border-top: 1px solid var(--card-border); padding: 60px 24px 30px; margin-top: 40px; }
-.footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; max-width: 1100px; margin: 0 auto 40px; }
-.footer-col h4 { font-family: 'Orbitron', monospace; font-size: 0.9rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 20px; font-weight: 900; }
-.footer-col a, .footer-col p { display: block; font-size: 0.9rem; color: var(--text2); text-decoration: none; margin-bottom: 12px; transition: color 0.3s; font-weight: 600; }
-.footer-col a:hover { color: #fff; transform: translateX(5px); }
-.footer-bottom { text-align: center; padding-top: 30px; border-top: 1px solid var(--card-border); font-size: 0.85rem; color: var(--text2); font-weight: 600; }
+        .animate-slide-up {
+            animation: slideUp 0.6s ease forwards;
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
 
-.toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px); z-index: 4000; background: var(--bg3); border: 1px solid var(--glass-border); border-radius: 50px; padding: 12px 25px; font-size: 0.9rem; font-weight: 800; opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); pointer-events: none; box-shadow: 0 10px 30px rgba(0,0,0,0.5); color: #fff; white-space: nowrap; }
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-.toast.success { border-color: var(--green); box-shadow: 0 10px 30px rgba(0,230,118,0.2); }
-.toast.error { border-color: var(--red); box-shadow: 0 10px 30px rgba(255,77,77,0.2); }
+        /* Login Screen */
+        #login-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #16213e 100%);
+        }
 
-.progress-bar { position: fixed; top: 0; left: 0; height: 4px; z-index: 2000; background: linear-gradient(90deg, var(--accent), var(--neon), var(--accent2)); transition: width 0.1s ease-out; box-shadow: 0 0 10px var(--accent); }
-.back-top { position: fixed; bottom: 30px; right: 30px; z-index: 500; width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--neon)); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; opacity: 0; transition: all 0.4s; box-shadow: 0 10px 25px var(--shadow); border: none; transform: translateY(20px); }
-.back-top.show { opacity: 1; transform: translateY(0); }
-.back-top:hover { transform: translateY(-5px) scale(1.1); }
+        .login-container {
+            text-align: center;
+            padding: 60px 50px;
+            border-radius: 24px;
+            max-width: 480px;
+            width: 90%;
+            position: relative;
+            overflow: hidden;
+        }
 
-/* ==========================================================================
-   ADMIN MEGA DASHBOARD MODALS
-   ========================================================================== */
-.modal-overlay { position: fixed; inset: 0; z-index: 3000; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); display: none; align-items: center; justify-content: center; padding: 20px; }
-.modal-overlay.open { display: flex; animation: fadeIn 0.3s ease; }
-.modal { background: var(--bg2); border: 1px solid var(--accent); border-radius: 30px; padding: 35px; width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.6), inset 0 0 20px rgba(124,106,247,0.1); animation: scaleUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-.modal::-webkit-scrollbar { width: 6px; }
-.modal::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
-.modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; border-bottom: 1px solid var(--card-border); padding-bottom: 15px; }
-.modal-title { font-family: 'Orbitron', monospace; font-size: 1.3rem; font-weight: 900; color: #fff; text-shadow: 0 0 10px var(--accent); }
-.modal-close { background: var(--bg3); border: 1px solid var(--glass-border); color: var(--text); width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
-.modal-close:hover { background: var(--red); border-color: var(--red); transform: rotate(90deg); color: #fff; }
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, var(--primary), var(--accent), transparent 30%);
+            animation: rotate 4s linear infinite;
+            opacity: 0.15;
+        }
 
-.admin-tabs { display: flex; gap: 12px; margin-bottom: 30px; overflow-x: auto; padding-bottom: 10px; }
-.admin-tab-btn { background: var(--bg3); border: 1px solid var(--glass-border); color: var(--text2); padding: 10px 20px; border-radius: 16px; font-weight: 800; font-size: 0.9rem; cursor: pointer; white-space: nowrap; transition: all 0.3s; font-family: 'Nunito', sans-serif; }
-.admin-tab-btn.active { background: linear-gradient(135deg, var(--accent), var(--neon)); color: white; border-color: transparent; box-shadow: 0 5px 15px var(--shadow); }
-.admin-tab-btn:hover:not(.active) { background: var(--card); color: #fff; }
-.admin-panel-section { display: none; animation: fadeIn 0.4s ease; }
-.admin-panel-section.active { display: block; }
-.admin-section { margin-bottom: 30px; background: rgba(0,0,0,0.2); padding: 20px; border-radius: 20px; border: 1px solid var(--card-border); }
-.admin-section h3 { font-size: 0.9rem; font-weight: 900; color: var(--accent3); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px; }
+        @keyframes rotate {
+            100% { transform: rotate(360deg); }
+        }
 
-.form-group { margin-bottom: 18px; }
-.form-group label { font-size: 0.8rem; font-weight: 800; color: var(--text2); display: block; margin-bottom: 8px; letter-spacing: 1px; }
-.form-group select, .form-group input, .form-group textarea { width: 100%; background: var(--bg); border: 1px solid var(--glass-border); color: #fff; padding: 14px 18px; border-radius: 16px; font-family: 'Nunito', sans-serif; font-size: 0.95rem; outline: none; transition: all 0.3s; }
-.form-group select:focus, .form-group input:focus, .form-group textarea:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(124,106,247,0.2); background: #000; }
-.btn-save { width: 100%; background: linear-gradient(135deg, var(--accent), var(--neon)); color: #fff; border: none; padding: 16px; border-radius: 16px; font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 1rem; cursor: pointer; transition: all 0.3s; letter-spacing: 1px; text-transform: uppercase; }
-.btn-save:hover { box-shadow: 0 8px 25px var(--shadow); transform: translateY(-2px); filter: brightness(1.2); }
-.btn-danger { background: rgba(255,77,77,0.1); color: var(--red); border: 1px solid rgba(255,77,77,0.3); padding: 8px 16px; border-radius: 12px; cursor: pointer; font-weight: 800; font-size: 0.85rem; transition: all 0.3s; }
-.btn-danger:hover { background: var(--red); color: #fff; box-shadow: 0 4px 15px rgba(255,77,77,0.3); }
+        .login-content {
+            position: relative;
+            z-index: 1;
+        }
 
-.list-item { display: flex; align-items: center; justify-content: space-between; background: var(--bg); border: 1px solid var(--glass-border); border-radius: 16px; padding: 15px 20px; margin-bottom: 12px; transition: all 0.3s; }
-.list-item:hover { border-color: var(--accent); background: rgba(124,106,247,0.05); }
-.li-details { flex: 1; padding-right: 15px; }
-.li-title { font-weight: 800; font-size: 1rem; color: #fff; margin-bottom: 4px; }
-.li-sub { font-size: 0.8rem; color: var(--text2); word-break: break-all; }
+        .login-logo {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-light), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
 
-.auth-input { width: 100%; background: var(--bg); border: 1px solid var(--glass-border); color: #fff; padding: 16px; border-radius: 16px; font-family: 'Nunito', sans-serif; font-size: 1.2rem; outline: none; text-align: center; letter-spacing: 8px; font-weight: 900; margin-bottom: 10px; }
-.auth-input:focus { border-color: var(--accent); box-shadow: 0 0 20px rgba(124,106,247,0.3); }
-.auth-hint { font-size: 0.8rem; color: var(--text2); text-align: center; margin-bottom: 20px; }
+        .login-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+        }
 
-/* ==========================================================================
-   ANIMATIONS & COLORS
-   ========================================================================== */
-@keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes scaleUp { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-@keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-@keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.4); } }
-@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-.float { animation: float 4s ease-in-out infinite; }
-.reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-.reveal.visible { opacity: 1; transform: translateY(0); }
+        .google-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 32px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid var(--border-glass);
+            border-radius: 50px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
 
-/* Card Gradients & Borders */
-.s1{background:linear-gradient(135deg,rgba(124,106,247,0.1),rgba(124,106,247,0.02));border-color:rgba(124,106,247,0.3)!important;} .bc1{color:var(--accent);border-color:rgba(124,106,247,0.4);} .ic1{background:rgba(124,106,247,0.2);color:var(--accent);}
-.s2{background:linear-gradient(135deg,rgba(247,106,170,0.1),rgba(247,106,170,0.02));border-color:rgba(247,106,170,0.3)!important;} .bc2{color:var(--accent2);border-color:rgba(247,106,170,0.4);} .ic2{background:rgba(247,106,170,0.2);color:var(--accent2);}
-.s3{background:linear-gradient(135deg,rgba(106,247,208,0.1),rgba(106,247,208,0.02));border-color:rgba(106,247,208,0.3)!important;} .bc3{color:var(--accent3);border-color:rgba(106,247,208,0.4);} .ic3{background:rgba(106,247,208,0.2);color:var(--accent3);}
-.s4{background:linear-gradient(135deg,rgba(247,192,106,0.1),rgba(247,192,106,0.02));border-color:rgba(247,192,106,0.3)!important;} .bc4{color:var(--accent4);border-color:rgba(247,192,106,0.4);} .ic4{background:rgba(247,192,106,0.2);color:var(--accent4);}
-.s5{background:linear-gradient(135deg,rgba(106,170,247,0.1),rgba(106,170,247,0.02));border-color:rgba(106,170,247,0.3)!important;} .bc5{color:#6aaaf7;border-color:rgba(106,170,247,0.4);} .ic5{background:rgba(106,170,247,0.2);color:#6aaaf7;}
-.s6{background:linear-gradient(135deg,rgba(170,247,106,0.1),rgba(170,247,106,0.02));border-color:rgba(170,247,106,0.3)!important;} .bc6{color:#aaf76a;border-color:rgba(170,247,106,0.4);} .ic6{background:rgba(170,247,106,0.2);color:#aaf76a;}
-.s7{background:linear-gradient(135deg,rgba(247,106,106,0.1),rgba(247,106,106,0.02));border-color:rgba(247,106,106,0.3)!important;} .bc7{color:var(--red);border-color:rgba(247,106,106,0.4);} .ic7{background:rgba(247,106,106,0.2);color:var(--red);}
+        .google-btn:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.3);
+        }
 
-@media(max-width:768px){
-  .nav-links{display:none;} .hamburger{display:flex;}
-  .hero-title{font-size: 2.8rem;} .hero-stats{gap:20px; padding:15px;}
-  .subjects-grid{grid-template-columns:1fr;} .countdown-card{padding:20px; gap:20px;}
-  .modal{padding:25px;}
-}
-</style>
+        .google-btn img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .login-features {
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .login-feature {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .login-feature i {
+            color: var(--accent);
+        }
+
+        /* Main App */
+        #main-app {
+            display: none;
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 16px 0;
+            backdrop-filter: blur(20px);
+            background: rgba(10, 10, 15, 0.8);
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-light), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-brand i {
+            font-size: 1.8rem;
+            -webkit-text-fill-color: var(--accent);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .nav-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid var(--border-glass);
+            background: var(--bg-glass);
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .nav-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            transform: scale(1.1);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.1);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 80px 24px 60px;
+            max-width: 1400px;
+            margin: 0 auto;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 50px;
+            color: var(--primary-light);
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 24px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary-light) 50%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+        }
+
+        /* Countdown Timer */
+        .countdown-section {
+            max-width: 900px;
+            margin: 0 auto 60px;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        .countdown-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+
+        .countdown-timer {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .countdown-item {
+            min-width: 100px;
+            padding: 20px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-glass);
+            transition: all 0.3s ease;
+        }
+
+        .countdown-item:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 10px 30px rgba(34, 211, 238, 0.1);
+        }
+
+        .countdown-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .countdown-unit {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        /* Quotes Carousel */
+        .quotes-section {
+            max-width: 800px;
+            margin: 0 auto 60px;
+            padding: 0 24px;
+        }
+
+        .quote-card {
+            padding: 30px 40px;
+            border-radius: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quote-card::before {
+            content: '"';
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            font-size: 6rem;
+            color: rgba(99, 102, 241, 0.1);
+            font-family: serif;
+            line-height: 1;
+        }
+
+        .quote-text {
+            font-size: 1.25rem;
+            font-style: italic;
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .quote-author {
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .quote-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .quote-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--border-glass);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quote-dot.active {
+            background: var(--accent);
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        /* Notices Marquee */
+        .notices-bar {
+            max-width: 1400px;
+            margin: 0 auto 40px;
+            padding: 0 24px;
+        }
+
+        .notice-scroll {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            padding: 10px 0;
+            scrollbar-width: none;
+        }
+
+        .notice-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .notice-pill {
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: 1px solid var(--border-glass);
+            background: var(--bg-glass);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .notice-pill:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+        }
+
+        .notice-tag {
+            padding: 2px 10px;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .tag-new { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .tag-imp { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .tag-info { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        .tag-tip { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+
+        /* Subjects Grid */
+        .subjects-section {
+            max-width: 1400px;
+            margin: 0 auto 60px;
+            padding: 0 24px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-title i {
+            color: var(--accent);
+        }
+
+        .subjects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 24px;
+        }
+
+        .subject-card {
+            border-radius: 20px;
+            padding: 28px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .subject-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        .subject-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--subject-color), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .subject-card:hover::after {
+            opacity: 1;
+        }
+
+        .subject-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .subject-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--subject-color), transparent);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .subject-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .subject-chapters {
+            margin-bottom: 16px;
+        }
+
+        .chapter-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .chapter-item:last-child {
+            border-bottom: none;
+        }
+
+        .chapter-item i {
+            color: var(--subject-color);
+            margin-top: 3px;
+            font-size: 0.7rem;
+        }
+
+        .subject-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .subject-stats {
+            display: flex;
+            gap: 16px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .subject-stats span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .telegram-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 50px;
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .telegram-btn:hover {
+            background: rgba(59, 130, 246, 0.25);
+            transform: scale(1.05);
+        }
+
+        .subject-tips {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 12px;
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .subject-tips i {
+            color: var(--warning);
+            margin-right: 6px;
+        }
+
+        /* Resources Section */
+        .resources-section {
+            max-width: 1400px;
+            margin: 0 auto 80px;
+            padding: 0 24px;
+        }
+
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .resource-card {
+            padding: 24px;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .resource-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+        }
+
+        .resource-emoji {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .resource-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .resource-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Admin Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-container {
+            width: 100%;
+            max-width: 900px;
+            max-height: 90vh;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.4s ease;
+        }
+
+        .modal-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid var(--border-glass);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .modal-title i {
+            color: var(--warning);
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid var(--border-glass);
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+
+        .modal-tabs {
+            display: flex;
+            gap: 4px;
+            padding: 16px 32px 0;
+            border-bottom: 1px solid var(--border-glass);
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .modal-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .modal-tab {
+            padding: 10px 20px;
+            border-radius: 10px 10px 0 0;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            border-bottom: 2px solid transparent;
+        }
+
+        .modal-tab:hover {
+            color: var(--text-primary);
+            background: rgba(255,255,255,0.03);
+        }
+
+        .modal-tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+            background: rgba(34, 211, 238, 0.05);
+        }
+
+        .modal-body {
+            padding: 32px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border-glass);
+            background: rgba(255,255,255,0.03);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: rgba(148, 163, 184, 0.5);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 28px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+        }
+
+        .notice-item, .resource-admin-item {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 12px;
+            align-items: center;
+            padding: 16px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-glass);
+            margin-bottom: 12px;
+        }
+
+        .tag-select {
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-glass);
+            background: rgba(255,255,255,0.05);
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid var(--border-glass);
+            background: transparent;
+            color: var(--danger);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .btn-icon:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .add-btn {
+            margin-top: 16px;
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: 2px dashed var(--border-glass);
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .add-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(34, 211, 238, 0.05);
+        }
+
+        /* Password Modal */
+        .password-modal {
+            max-width: 400px;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .password-modal h3 {
+            margin-bottom: 8px;
+            font-size: 1.3rem;
+        }
+
+        .password-modal p {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            font-size: 0.9rem;
+        }
+
+        .password-input {
+            margin-bottom: 20px;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            color: var(--text-primary);
+            font-weight: 500;
+            z-index: 2000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s ease;
+            backdrop-filter: blur(20px);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success { border-left: 4px solid var(--success); }
+        .toast.error { border-left: 4px solid var(--danger); }
+        .toast.info { border-left: 4px solid var(--accent); }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px 24px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-glass);
+            margin-top: 40px;
+        }
+
+        .footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .subjects-grid {
+                grid-template-columns: 1fr;
+            }
+            .countdown-timer {
+                gap: 10px;
+            }
+            .countdown-item {
+                min-width: 70px;
+                padding: 14px;
+            }
+            .countdown-value {
+                font-size: 1.8rem;
+            }
+            .modal-container {
+                max-height: 95vh;
+                border-radius: 20px 20px 0 0;
+                position: absolute;
+                bottom: 0;
+                width: 100%;
+            }
+            .modal-overlay.active {
+                align-items: flex-end;
+            }
+            .section-header {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-dark);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .loading-overlay.hidden {
+            display: none;
+        }
+    </style>
 </head>
-<body>
+<body data-theme="dark">
 
-<div class="progress-bar" id="progressBar"></div>
-<canvas id="bgCanvas"></canvas>
-<div class="toast" id="toast"></div>
-
-<div id="loginScreen">
-  <div class="login-card">
-    <div class="login-logo">StudyKai</div>
-    <p class="login-sub">Welcome to the ultimate UP Board 12th platform. Sign in to unlock your 81%+ target journey!</p>
-    <button class="btn-google" onclick="studentLogin()">
-      <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg"><g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)"><path fill="#4285F4" d="M -3.264 51.509 C -3.264 50.719 -3.334 49.969 -3.454 49.239 L -14.754 49.239 L -14.754 53.749 L -8.284 53.749 C -8.574 55.229 -9.424 56.479 -10.684 57.329 L -10.684 60.329 L -6.824 60.329 C -4.564 58.239 -3.264 55.159 -3.264 51.509 Z"/><path fill="#34A853" d="M -14.754 63.239 C -11.514 63.239 -8.804 62.159 -6.824 60.329 L -10.684 57.329 C -11.764 58.049 -13.134 58.489 -14.754 58.489 C -17.884 58.489 -20.534 56.379 -21.484 53.529 L -25.464 53.529 L -25.464 56.619 C -23.494 60.539 -19.444 63.239 -14.754 63.239 Z"/><path fill="#FBBC05" d="M -21.484 53.529 C -21.734 52.809 -21.864 52.039 -21.864 51.239 C -21.864 50.439 -21.724 49.669 -21.484 48.949 L -21.484 45.859 L -25.464 45.859 C -26.284 47.479 -26.754 49.299 -26.754 51.239 C -26.754 53.179 -26.284 54.999 -25.464 56.619 L -21.484 53.529 Z"/><path fill="#EA4335" d="M -14.754 43.989 C -12.984 43.989 -11.404 44.599 -10.154 45.789 L -6.734 41.939 C -8.804 40.009 -11.514 38.989 -14.754 38.989 C -19.444 38.989 -23.494 41.689 -25.464 45.859 L -21.484 48.949 C -20.534 46.099 -17.884 43.989 -14.754 43.989 Z"/></g></svg>
-      Sign in with Google
-    </button>
-  </div>
-</div>
-
-<div id="mainApp">
-
-  <nav>
-    <a href="#" class="nav-logo" id="dispSiteName">StudyKai</a>
-    <div class="nav-links">
-      <a href="#subjects">Subjects</a>
-      <a href="#resources">Resources</a>
-      <a href="#notices">Notices</a>
-    </div>
-    <div class="nav-right">
-      <button id="themeBtn" title="Toggle Theme">🌙</button>
-      <div id="userProfile" onclick="studentLogout()" title="Click to Logout">
-        <img id="userPic" src="" alt="Profile">
-        <span id="userName" style="display:none;"></span>
-      </div>
-      <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
-    </div>
-  </nav>
-  <div class="mobile-menu" id="mobileMenu">
-    <a href="#subjects" onclick="closeMobile()">📚 Subjects</a>
-    <a href="#resources" onclick="closeMobile()">📂 Resources</a>
-    <a href="#notices" onclick="closeMobile()">📌 Notices</a>
-  </div>
-
-  <section class="hero">
-    <div class="hero-inner">
-      <div class="hero-badge float"><span class="dot"></span><span id="dispHeroBadge">UP BOARD 12TH — 2025-26</span></div>
-      <div class="hero-title">
-        <div class="line1" id="dispHeroTitle1">勉強 StudyKai</div>
-        <div class="line2" id="dispHeroTitle2">Master Your Board</div>
-      </div>
-      <div class="hero-jp">あなたの夢を追いかけろ — Chase Your Dream</div>
-      <p class="hero-sub" id="dispHeroSub">The ultimate anime-powered study platform for UP Board Class 12. Notes, chapters, exam tips & live classes — all in one place.</p>
-      <div class="hero-btns">
-        <a href="#subjects" class="btn-primary">🚀 Start Studying</a>
-        <a href="#resources" class="btn-secondary">📂 Notes & Resources</a>
-      </div>
-      <div class="hero-stats">
-        <div class="stat"><div class="stat-num" id="ctr1">7</div><div class="stat-label">SUBJECTS</div></div>
-        <div class="stat"><div class="stat-num" id="ctr2">120+</div><div class="stat-label">CHAPTERS</div></div>
-        <div class="stat"><div class="stat-num" id="ctr3">500+</div><div class="stat-label">NOTES</div></div>
-        <div class="stat"><div class="stat-num" id="ctr4">10K+</div><div class="stat-label">STUDENTS</div></div>
-      </div>
-    </div>
-  </section>
-
-  <div class="countdown-section reveal">
-    <div class="countdown-card">
-      <div>
-        <div class="countdown-label">⏳ UP BOARD EXAM COUNTDOWN</div>
-        <div style="font-size:0.8rem;color:var(--text2);margin-top:6px;font-weight:700;">Target: 81%+ Score! Stay Ready!</div>
-      </div>
-      <div class="countdown-units">
-        <div class="cu"><div class="cu-num" id="cd-days">--</div><div class="cu-label">DAYS</div></div><div class="cu-sep">:</div>
-        <div class="cu"><div class="cu-num" id="cd-hrs">--</div><div class="cu-label">HRS</div></div><div class="cu-sep">:</div>
-        <div class="cu"><div class="cu-num" id="cd-min">--</div><div class="cu-label">MIN</div></div><div class="cu-sep">:</div>
-        <div class="cu"><div class="cu-num" id="cd-sec">--</div><div class="cu-label">SEC</div></div>
-      </div>
-    </div>
-  </div>
-
-  <section class="section" id="subjects">
-    <div class="section-header reveal">
-      <div class="section-tag">📚 CURRICULUM</div>
-      <div class="section-title">Choose Your Subject</div>
-      <div class="section-sub">Detailed chapters, topper tips, and official Telegram groups.</div>
-    </div>
-    <div class="subjects-grid" id="subjectsGrid"></div>
-  </section>
-
-  <div class="quotes-section reveal">
-    <div class="section-header"><div class="section-tag">✨ MOTIVATION</div></div>
-    <div class="quote-carousel">
-      <div class="quote-slide active"><p class="quote-text">Success is not about being the best. It is about always getting better.</p><div class="quote-author">— SHIKAMARU NARA</div></div>
-      <div class="quote-slide"><p class="quote-text">If you don't take risks, you can't create a future.</p><div class="quote-author">— MONKEY D. LUFFY</div></div>
-      <div class="quote-slide"><p class="quote-text">Hard work is worthless for those that don't believe in themselves.</p><div class="quote-author">— NARUTO UZUMAKI</div></div>
-      <div class="quote-slide"><p class="quote-text">A lesson without pain is meaningless. That's because no one can gain without sacrificing something.</p><div class="quote-author">— EDWARD ELRIC</div></div>
-      <div class="quote-slide"><p class="quote-text">Whatever you lose, you'll find it again. But what you throw away you'll never get back.</p><div class="quote-author">— KENSHIN HIMURA</div></div>
-      <div class="quote-slide"><p class="quote-text">Knowing you're inferior to others... is the first step in improving yourself.</p><div class="quote-author">— VEGETA</div></div>
-      <div class="quote-dots" id="quoteDots"></div>
-    </div>
-  </div>
-
-  <section class="section" id="resources">
-    <div class="section-header reveal">
-      <div class="section-tag">📂 RESOURCES</div>
-      <div class="section-title">Study Materials</div>
-      <div class="section-sub">Download high-quality PDFs, handwritten notes & previous papers.</div>
-    </div>
-    <div class="resources-grid" id="resourcesGrid"></div>
-  </section>
-
-  <section class="notice-section" id="notices">
-    <div class="section-header reveal">
-      <div class="section-tag">📌 NOTICES</div>
-      <div class="section-title">Notice Board</div>
-      <div class="section-sub">Latest board updates and platform announcements.</div>
-    </div>
-    <div class="notice-board reveal">
-      <div class="nb-header"><span>📢</span><h3>IMPORTANT ANNOUNCEMENTS</h3></div>
-      <div class="nb-body" id="noticeBoard"></div>
-    </div>
-  </section>
-
-  <footer>
-    <div class="footer-grid">
-      <div class="footer-col">
-        <h4 id="dispFooterSiteName">STUDYKAI</h4>
-        <p style="line-height:1.8;">The ultimate UP Board 12th study platform. Anime-powered learning for every student.</p>
-      </div>
-      <div class="footer-col">
-        <h4>SUBJECTS</h4>
-        <a href="#subjects">Physics</a><a href="#subjects">Chemistry</a><a href="#subjects">Mathematics</a><a href="#subjects">Biology</a>
-      </div>
-      <div class="footer-col">
-        <h4>RESOURCES</h4>
-        <a href="#resources">Previous Papers</a><a href="#resources">Model Papers</a><a href="#resources">Syllabus</a><a href="#resources">Notes</a>
-      </div>
-      <div class="footer-col">
-        <h4>CONNECT</h4>
-        <a href="#">📱 Telegram Community</a><a href="#">▶️ YouTube Channel</a><a href="#">📸 Instagram</a>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      Made with <span>❤️</span> for UP Board Students · StudyKai © 2026 ·
-      <span style="cursor:pointer;color:var(--text2);font-size:1.2rem;margin-left:10px;" onclick="openAdminAuth()" title="Admin Login">⚙</span>
-    </div>
-  </footer>
-
-  <button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
-
-</div> <div class="modal-overlay" id="authModal">
-  <div class="modal" style="max-width:400px;">
-    <div class="modal-header"><div class="modal-title">⚙️ ADMIN ACCESS</div><button class="modal-close" onclick="closeModal('authModal')">✕</button></div>
-    <p style="font-size:0.9rem;color:var(--text2);margin-bottom:20px;text-align:center;">Enter master password to access Cloud Dashboard.</p>
-    <input type="password" class="auth-input" id="adminPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkAuth()">
-    <div class="auth-hint">Default password: <strong style="color:var(--accent)">admin123</strong></div>
-    <button class="btn-save" onclick="checkAuth()">UNLOCK DASHBOARD</button>
-  </div>
-</div>
-
-<div class="modal-overlay" id="adminModal">
-  <div class="modal">
-    <div class="modal-header"><div class="modal-title">☁️ CLOUD DASHBOARD</div><button class="modal-close" onclick="closeModal('adminModal')">✕</button></div>
-    
-    <div class="admin-tabs">
-      <button class="admin-tab-btn active" onclick="switchAdminTab('tab-global', this)">🌐 Global</button>
-      <button class="admin-tab-btn" onclick="switchAdminTab('tab-channels', this)">📺 Channels</button>
-      <button class="admin-tab-btn" onclick="switchAdminTab('tab-notices', this)">📌 Notices</button>
-      <button class="admin-tab-btn" onclick="switchAdminTab('tab-resources', this)">📂 Notes</button>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p style="color: var(--text-secondary);">Initializing StudyKai...</p>
     </div>
 
-    <div class="admin-panel-section active" id="tab-global">
-      <div class="admin-section">
-        <h3>🌐 Edit Website Identity</h3>
-        <div class="form-group"><label>SITE NAME (Logo)</label><input type="text" id="setSiteName"></div>
-        <div class="form-group"><label>PAGE TITLE (Browser Tab)</label><input type="text" id="setPageTitle"></div>
-        <div class="form-group"><label>HERO BADGE TEXT</label><input type="text" id="setHeroBadge"></div>
-        <div class="form-group"><label>MAIN HERO TITLE</label><input type="text" id="setHeroTitle1"></div>
-        <div class="form-group"><label>HERO SUBTITLE DESCRIPTION</label><textarea id="setHeroSub" rows="3"></textarea></div>
-        <button class="btn-save" onclick="saveGlobalSettings()">💾 UPDATE SITE</button>
-      </div>
-    </div>
+    <!-- Particle Canvas -->
+    <canvas id="particle-canvas"></canvas>
 
-    <div class="admin-panel-section" id="tab-channels">
-      <div class="admin-section">
-        <h3>➕ Assign Telegram Channels</h3>
-        <div class="form-group">
-          <label>SELECT SUBJECT</label>
-          <select id="chSubject">
-            <option value="">-- Choose Subject --</option>
-            <option value="physics">Physics</option><option value="chemistry">Chemistry</option><option value="mathematics">Mathematics</option><option value="biology">Biology</option><option value="english">English</option><option value="hindi">Hindi</option><option value="computer">Computer Science</option>
-          </select>
+    <!-- Login Screen -->
+    <div id="login-screen">
+        <div class="login-container glass-strong">
+            <div class="login-content">
+                <div class="login-logo">StudyKai</div>
+                <p class="login-subtitle">12th UP Board — Your Ultimate Study Companion</p>
+                <button class="google-btn ripple-btn" onclick="signInWithGoogle(event)">
+                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google">
+                    Continue with Google
+                </button>
+                <div class="login-features">
+                    <div class="login-feature">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Secure Cloud Sync</span>
+                    </div>
+                    <div class="login-feature">
+                        <i class="fas fa-bolt"></i>
+                        <span>Real-time Updates</span>
+                    </div>
+                    <div class="login-feature">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span>Premium Resources</span>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="form-group"><label>CHANNEL LINK</label><input type="url" id="chLink" placeholder="https://t.me/..."></div>
-        <div class="form-group"><label>BUTTON DISPLAY NAME</label><input type="text" id="chName" placeholder="e.g. Join Physics Group"></div>
-        <button class="btn-save" onclick="saveChannel()">💾 SAVE CHANNEL</button>
-      </div>
-      <div class="admin-section"><h3>📋 ACTIVE CHANNELS</h3><div id="channelList"></div></div>
     </div>
 
-    <div class="admin-panel-section" id="tab-notices">
-      <div class="admin-section">
-        <h3>➕ Publish New Notice</h3>
-        <div class="form-group"><label>NOTICE TAG</label><select id="notTag"><option value="NEW">NEW (Green)</option><option value="IMP">IMPORTANT (Red)</option><option value="INFO">INFO (Purple)</option><option value="TIP">TIP (Yellow)</option></select></div>
-        <div class="form-group"><label>NOTICE TEXT</label><textarea id="notText" rows="3" placeholder="Write announcement here..."></textarea></div>
-        <button class="btn-save" onclick="addNotice()">📢 PUBLISH NOTICE</button>
-      </div>
-      <div class="admin-section"><h3>📋 MANAGE NOTICES</h3><div id="adminNoticesList"></div></div>
+    <!-- Main App -->
+    <div id="main-app">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-brand">
+                    <i class="fas fa-atom"></i>
+                    <span id="nav-site-name">StudyKai</span>
+                </div>
+                <div class="nav-actions">
+                    <button class="nav-btn ripple-btn" onclick="toggleTheme()" title="Toggle Theme">
+                        <i class="fas fa-moon" id="theme-icon"></i>
+                    </button>
+                    <button class="nav-btn ripple-btn" onclick="openAdminAuth()" title="Admin Panel">
+                        <i class="fas fa-crown"></i>
+                    </button>
+                    <img id="user-avatar" class="user-avatar" src="" alt="Profile" title="Logout" onclick="signOut()">
+                </div>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-badge animate-slide-up">
+                <i class="fas fa-sparkles"></i>
+                <span>UP Board Class 12 — 2025-26 Session</span>
+            </div>
+            <h1 class="hero-title animate-slide-up" id="hero-title">Master Your Board Exams</h1>
+            <p class="hero-subtitle animate-slide-up" id="hero-subtitle">
+                Comprehensive study materials, chapter-wise breakdowns, and premium resources for all your subjects. Your success story starts here.
+            </p>
+        </section>
+
+        <!-- Countdown Timer -->
+        <section class="countdown-section glass-strong" id="countdown-section">
+            <div class="countdown-label">Exam Countdown</div>
+            <div class="countdown-timer" id="countdown-timer">
+                <div class="countdown-item">
+                    <div class="countdown-value" id="days">00</div>
+                    <div class="countdown-unit">Days</div>
+                </div>
+                <div class="countdown-item">
+                    <div class="countdown-value" id="hours">00</div>
+                    <div class="countdown-unit">Hours</div>
+                </div>
+                <div class="countdown-item">
+                    <div class="countdown-value" id="minutes">00</div>
+                    <div class="countdown-unit">Minutes</div>
+                </div>
+                <div class="countdown-item">
+                    <div class="countdown-value" id="seconds">00</div>
+                    <div class="countdown-unit">Seconds</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quotes Carousel -->
+        <section class="quotes-section">
+            <div class="quote-card glass" id="quote-card">
+                <p class="quote-text" id="quote-text">"The future belongs to those who believe in the beauty of their dreams."</p>
+                <p class="quote-author" id="quote-author">— Eleanor Roosevelt</p>
+            </div>
+            <div class="quote-dots" id="quote-dots"></div>
+        </section>
+
+        <!-- Notices Bar -->
+        <section class="notices-bar">
+            <div class="notice-scroll" id="notices-scroll">
+                <!-- Populated dynamically -->
+            </div>
+        </section>
+
+        <!-- Subjects Section -->
+        <section class="subjects-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-book-open"></i>
+                    Your Subjects
+                </h2>
+            </div>
+            <div class="subjects-grid" id="subjects-grid">
+                <!-- Populated dynamically -->
+            </div>
+        </section>
+
+        <!-- Resources Section -->
+        <section class="resources-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-folder-open"></i>
+                    Premium Resources
+                </h2>
+            </div>
+            <div class="resources-grid" id="resources-grid">
+                <!-- Populated dynamically -->
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Made with <i class="fas fa-heart" style="color: var(--danger);"></i> for UP Board Students</p>
+            <p style="margin-top: 8px; font-size: 0.8rem;">StudyKai — 12th UP Board Pro Max Edition</p>
+        </footer>
     </div>
 
-    <div class="admin-panel-section" id="tab-resources">
-      <div class="admin-section">
-        <h3>➕ Upload Resource Link</h3>
-        <div class="form-group"><label>EMOJI ICON</label><input type="text" id="resIcon" placeholder="e.g. 📄, 📝, 🏆"></div>
-        <div class="form-group"><label>RESOURCE TITLE</label><input type="text" id="resTitle" placeholder="e.g. Physics Topper Notes"></div>
-        <div class="form-group"><label>SHORT DESCRIPTION</label><input type="text" id="resSub" placeholder="e.g. Handwriiten PDF for 2026"></div>
-        <div class="form-group"><label>DOWNLOAD LINK</label><input type="url" id="resLink" placeholder="Google Drive or PDF URL"></div>
-        <button class="btn-save" onclick="addResource()">📂 ADD RESOURCE</button>
-      </div>
-      <div class="admin-section"><h3>📋 MANAGE RESOURCES</h3><div id="adminResourcesList"></div></div>
-    </div>
-  </div>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-
-<script>
-// ---------------------------------------------------------
-// FIREBASE CONFIGURATION
-// ---------------------------------------------------------
-const firebaseConfig = {
-  apiKey: "AIzaSyC-psUKqTO9u5kCuA3OUqWT63Ey0IvDei4",
-  authDomain: "study-ae01d.firebaseapp.com",
-  projectId: "study-ae01d",
-  storageBucket: "study-ae01d.firebasestorage.app",
-  messagingSenderId: "198271524977",
-  appId: "1:198271524977:web:d54ad6d58cd6c5c4103bd0",
-  measurementId: "G-Q51PB50Q51"
-};
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-const auth = firebase.auth();
-const googleProvider = new firebase.auth.GoogleAuthProvider();
-
-// ---------------------------------------------------------
-// GATEKEEPER: LOGIN SYSTEM
-// ---------------------------------------------------------
-auth.onAuthStateChanged((user) => {
-  if (user) {
-    // User is signed in. Hide login, show app.
-    document.getElementById('loginScreen').style.opacity = '0';
-    setTimeout(() => {
-      document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('mainApp').style.display = 'block';
-      setTimeout(() => document.getElementById('mainApp').style.opacity = '1', 50);
-    }, 600);
-    
-    // Set profile details
-    document.getElementById('userPic').src = user.photoURL || 'https://via.placeholder.com/34';
-    const firstName = user.displayName ? user.displayName.split(' ')[0] : 'Student';
-    document.getElementById('userName').innerText = firstName;
-    showToast(`Welcome back to StudyKai, ${firstName}!`, 'success');
-  } else {
-    // User is signed out. Show login, hide app.
-    document.getElementById('mainApp').style.display = 'none';
-    document.getElementById('mainApp').style.opacity = '0';
-    document.getElementById('loginScreen').style.display = 'flex';
-    document.getElementById('loginScreen').style.opacity = '1';
-  }
-});
-
-function studentLogin() {
-  auth.signInWithPopup(googleProvider).catch(error => {
-    showToast('Login error: ' + error.message, 'error');
-  });
-}
-
-function studentLogout() {
-  if(confirm("Logout from StudyKai?")) {
-    auth.signOut().then(() => {
-      showToast('Logged out securely.', 'success');
-    });
-  }
-}
-
-// ---------------------------------------------------------
-// CLOUD DATA MANAGEMENT
-// ---------------------------------------------------------
-let cloudData = { settings: {}, channels: {}, notices: {}, resources: {} };
-
-db.ref('studykai_db').on('value', (snapshot) => {
-  cloudData = snapshot.val() || { settings:{}, channels:{}, notices:{}, resources:{} };
-  if(!cloudData.settings) cloudData.settings = {};
-  if(!cloudData.channels) cloudData.channels = {};
-  if(!cloudData.notices) cloudData.notices = {};
-  if(!cloudData.resources) cloudData.resources = {};
-  
-  applyGlobalSettings();
-  renderSubjects();
-  renderNoticesUI();
-  renderResourcesUI();
-
-  if(document.getElementById('adminModal').classList.contains('open')){
-    renderChannelList(); renderAdminNotices(); renderAdminResources();
-  }
-});
-
-function applyGlobalSettings(){
-  const s = cloudData.settings;
-  document.title = s.pageTitle || "StudyKai — 12th UP Board";
-  document.getElementById('dispSiteName').innerText = s.siteName || "StudyKai";
-  document.getElementById('dispFooterSiteName').innerText = s.siteName || "STUDYKAI";
-  document.getElementById('dispHeroBadge').innerText = s.heroBadge || "UP BOARD 12TH — 2025-26";
-  document.getElementById('dispHeroTitle1').innerText = s.heroTitle1 || "勉強 StudyKai";
-  document.getElementById('dispHeroSub').innerText = s.heroSub || "The ultimate anime-powered study platform for UP Board Class 12. Notes, chapters, exam tips & live classes — all in one place.";
-  
-  // Fill inputs
-  document.getElementById('setSiteName').value = s.siteName || "StudyKai";
-  document.getElementById('setPageTitle').value = s.pageTitle || "StudyKai — 12th UP Board";
-  document.getElementById('setHeroBadge').value = s.heroBadge || "UP BOARD 12TH — 2025-26";
-  document.getElementById('setHeroTitle1').value = s.heroTitle1 || "勉強 StudyKai";
-  document.getElementById('setHeroSub').value = s.heroSub || "The ultimate anime-powered study platform for UP Board Class 12. Notes, chapters, exam tips & live classes — all in one place.";
-}
-
-function renderNoticesUI(){
-  const board = document.getElementById('noticeBoard');
-  const notices = Object.values(cloudData.notices);
-  if(!notices.length){ board.innerHTML='<div style="padding:15px;color:var(--text2);text-align:center;font-weight:700;">No active notices.</div>'; return; }
-  
-  board.innerHTML = notices.sort((a,b)=>b.ts-a.ts).map(n=>{
-    let col='tag-info', dot='var(--accent)';
-    if(n.tag==='NEW'){col='tag-new';dot='var(--green)';} if(n.tag==='IMP'){col='tag-imp';dot='var(--red)';} if(n.tag==='TIP')dot='var(--accent4)';
-    return `<div class="notice-item"><div class="ni-date">${n.tag}</div><div class="ni-dot" style="background:${dot}"></div><div class="ni-text">${n.text} <span class="ni-tag ${col}">${n.tag}</span></div></div>`;
-  }).join('');
-}
-
-function renderResourcesUI(){
-  const grid = document.getElementById('resourcesGrid');
-  const res = Object.values(cloudData.resources);
-  if(!res.length){ grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--text2);padding:40px;background:var(--card);border-radius:20px;font-weight:800;">Admin will add study materials here soon.</div>'; return; }
-  
-  grid.innerHTML = res.sort((a,b)=>b.ts-a.ts).map(r=>`
-    <a href="${r.link}" target="_blank" class="res-card reveal"><div class="res-icon">${r.icon}</div><div class="res-title">${r.title}</div><div class="res-sub">${r.sub}</div></a>
-  `).join(''); setupReveal();
-}
-
-// ---------------------------------------------------------
-// HARDCODED SUBJECTS & SYLLABUS
-// ---------------------------------------------------------
-const SUBJECTS = [
-  { id:'physics',name:'Physics',emoji:'⚛️',desc:'Explore electrostatics, optics, modern physics and more with concept clarity.',chapters:['Electric Charges & Fields','Electrostatic Potential','Current Electricity','Moving Charges & Magnetism','Magnetism & Matter','Electromagnetic Induction','AC Circuits','EM Waves','Ray Optics','Wave Optics','Dual Nature of Radiation','Atoms','Nuclei','Semiconductors'],important:['Coulombs Law & Gauss Theorem','Kirchhoffs Laws & Wheatstone Bridge','Faradays Laws of EMI','Lens Maker Formula','Photoelectric Effect','Nuclear Fission','Logic Gates'],tips:['Focus on numericals in Electric Circuits and Optics','Draw neat diagrams for ray optics — marks guaranteed','Learn all formulas in a separate notebook'],marks:70,color:'s1',ic:'ic1',bc:'bc1'},
-  { id:'chemistry',name:'Chemistry',emoji:'🧪',desc:'Master organic reactions, solutions, electrochemistry, and biomolecules.',chapters:['Solutions','Electrochemistry','Chemical Kinetics','d & f Block Elements','Coordination Compounds','Haloalkanes & Haloarenes','Alcohols, Phenols & Ethers','Aldehydes & Ketones','Carboxylic Acids','Amines','Biomolecules'],important:['Raoults Law & Colligative Properties','Nernst Equation & Electrolytic Cells','Rate Law','IUPAC Nomenclature','SN1 & SN2 Reactions','Aldol Condensation & Cannizzaro'],tips:['Organic reactions: make reaction flowcharts','Inorganic — memorize d-block properties','Electrochemistry formulae are highly scoring'],marks:70,color:'s2',ic:'ic2',bc:'bc2'},
-  { id:'mathematics',name:'Mathematics',emoji:'📐',desc:'From Calculus to Vectors — build strong problem-solving skills.',chapters:['Relations & Functions','Inverse Trigonometry','Matrices','Determinants','Continuity & Differentiability','Applications of Derivatives','Integrals','Application of Integrals','Differential Equations','Vector Algebra','3D Geometry','Linear Programming','Probability'],important:['Maxima & Minima','Integration by Parts & Substitution','Determinant Expansion','Bayes Theorem','Dot & Cross Product','Angle Between Lines in 3D'],tips:['Practice 10 integration problems daily','Determinants & Matrices — guaranteed 10 marks','3D Geometry formula sheet is must'],marks:100,color:'s3',ic:'ic3',bc:'bc3'},
-  { id:'biology',name:'Biology',emoji:'🧬',desc:'Study reproduction, genetics, ecology and biotech comprehensively.',chapters:['Sexual Reproduction in Flowering Plants','Human Reproduction','Reproductive Health','Principles of Inheritance','Molecular Basis of Inheritance','Evolution','Human Health & Disease','Microbes in Human Welfare','Biotechnology: Principles','Biotech Applications','Organisms & Populations','Ecosystem','Biodiversity'],important:['Meiosis & Fertilization','Mendelian Laws & Dihybrid Cross','DNA Replication','PCR & Recombinant DNA','Food Chains','Adaptive Immunity'],tips:['Diagrams are worth 2-3 marks each — practice all','Genetics: Punnett squares must be perfect','Biotechnology chapter is highly scoring'],marks:70,color:'s4',ic:'ic4',bc:'bc4'},
-  { id:'english',name:'English',emoji:'📖',desc:'Strengthen reading comprehension, writing skills, grammar, and literature.',chapters:['The Last Lesson','Lost Spring','Deep Water','The Rattrap','Indigo','Poets & Pancakes','The Interview','Going Places','My Mother at Sixty-Six','An Elementary School Classroom','Keeping Quiet','A Thing of Beauty'],important:['Flamingo: All prose chapters summary','Letter & Application Writing Format','Notice & Poster Writing','Grammar: Reported Speech & Voice'],tips:['Letter writing format is guaranteed 5 marks','Read each prose lesson summary carefully','Answer in complete sentences — no bullet points'],marks:100,color:'s5',ic:'ic5',bc:'bc5'},
-  { id:'hindi',name:'Hindi',emoji:'📜',desc:'गद्य, पद्य, व्याकरण और लेखन — हिन्दी में पूर्ण अंक प्राप्त करने की तैयारी।',chapters:['भक्तिन','बाजार दर्शन','काले मेघा पानी दे','पहलवान की ढोलक','चार्ली चैप्लिन','नमक','शिरीष के फूल','कवितावली','लक्ष्मण मूर्छा','रुबाइयाँ','गज़ल','उषा'],important:['निबंध लेखन — सभी प्रकार','पत्र-लेखन: औपचारिक व अनौपचारिक','संधि, समास, अलंकार','काव्यांश की सप्रसंग व्याख्या','लेखकों का परिचय'],tips:['गद्यांश की व्याख्या — सप्रसंग लिखें','निबंध: 400-500 शब्द, बिंदुवार लिखें','पत्र का format याद रखें — guaranteed marks'],marks:100,color:'s6',ic:'ic6',bc:'bc6'},
-  { id:'computer',name:'Computer Science',emoji:'💻',desc:'Learn Python, databases, networking and Boolean logic.',chapters:['Python Fundamentals Revision','File Handling in Python','Exception Handling','Stack & Queue in Python','MySQL — Databases','SQL Queries','Interface Python with MySQL','Computer Networks','Data Communication','Boolean Logic'],important:['File Handling: read/write modes','SQL: SELECT, JOIN, GROUP BY','Python: Functions, Lists','Stack Push/Pop operations','Network Topologies','Boolean K-Map'],tips:['Python programs: practice at least 20 programs','SQL queries are guaranteed 8-10 marks','Simplify Boolean equations using K-Map'],marks:70,color:'s7',ic:'ic7',bc:'bc7'}
-];
-
-function renderSubjects(){
-  const grid = document.getElementById('subjectsGrid'); grid.innerHTML = '';
-  SUBJECTS.forEach((s,i)=>{
-    const ch = cloudData.channels[s.id];
-    const card = document.createElement('div'); card.className = `subject-card ${s.color} reveal`; card.style.animationDelay = (i*0.05)+'s';
-    card.innerHTML = `
-      <div class="sc-top"><div class="sc-icon ${s.ic}">${s.emoji}</div><span class="sc-badge ${s.bc}">${s.marks} MARKS</span></div>
-      <div class="sc-name">${s.name}</div><div class="sc-desc">${s.desc}</div>
-      <div class="sc-meta"><span class="sc-chip">📚 ${s.chapters.length} Chapters</span><span class="sc-chip">⭐ ${s.important.length} Important</span></div>
-      <div class="sc-actions">
-        <button class="btn-join" onclick="joinClass('${s.id}')">📲 ${ch?ch.name:'Join Class'}</button>
-        <button class="btn-info" onclick="toggleExpand('${s.id}',event)">📖 Syllabus</button>
-      </div>
-      <div class="expand-panel" id="ep-${s.id}">
-        <div class="ep-inner">
-          <div class="ep-tabs">
-            <div class="ep-tab active" onclick="switchTab('${s.id}','chapters',this)">Chapters</div>
-            <div class="ep-tab" onclick="switchTab('${s.id}','important',this)">Key Topics</div>
-            <div class="ep-tab" onclick="switchTab('${s.id}','tips',this)">Tips</div>
-          </div>
-          <div class="ep-content active" id="${s.id}-chapters"><h4>ALL CHAPTERS</h4><ul class="ep-list">${s.chapters.map(c=>`<li>${c}</li>`).join('')}</ul></div>
-          <div class="ep-content" id="${s.id}-important"><h4>IMPORTANT TOPICS</h4><ul class="ep-list">${s.important.map(t=>`<li>${t}</li>`).join('')}</ul></div>
-          <div class="ep-content" id="${s.id}-tips"><h4>EXAM TIPS</h4>${s.tips.map(t=>`<div class="ep-tip">💡 <strong>Tip:</strong> ${t}</div>`).join('')}</div>
+    <!-- Admin Auth Modal -->
+    <div id="admin-auth-modal" class="modal-overlay">
+        <div class="modal-container glass-strong password-modal">
+            <h3><i class="fas fa-lock" style="color: var(--warning);"></i> Admin Access</h3>
+            <p>Enter the master password to unlock the cloud dashboard</p>
+            <input type="password" class="form-input password-input" id="admin-password" placeholder="Enter password..." onkeypress="if(event.key==='Enter')verifyAdminPassword()">
+            <button class="btn-primary ripple-btn" onclick="verifyAdminPassword()" style="width: 100%; justify-content: center;">
+                <i class="fas fa-unlock"></i> Unlock Panel
+            </button>
+            <button class="nav-btn" onclick="closeAdminAuth()" style="margin-top: 12px; width: 100%; border-radius: 12px;">
+                Cancel
+            </button>
         </div>
-      </div>
-    `;
-    grid.appendChild(card);
-  }); setupReveal();
-}
+    </div>
 
-function toggleExpand(id,e){ e.stopPropagation(); document.getElementById('ep-'+id).classList.toggle('open'); }
-function switchTab(id,tab,el){
-  const t=el.parentElement.querySelectorAll('.ep-tab'); t.forEach(x=>x.classList.remove('active')); el.classList.add('active');
-  const c=el.closest('.ep-inner').querySelectorAll('.ep-content'); c.forEach(x=>x.classList.remove('active')); document.getElementById(id+'-'+tab).classList.add('active');
-}
-function joinClass(id){
-  const ch = cloudData.channels[id];
-  if(ch && ch.link) window.open(ch.link,'_blank'); else showToast('Channel link not added by Admin yet.','error');
-}
+    <!-- Admin Panel Modal -->
+    <div id="admin-modal" class="modal-overlay">
+        <div class="modal-container glass-strong">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fas fa-crown"></i>
+                    Mega Admin Panel
+                </div>
+                <button class="modal-close" onclick="closeAdminPanel()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-tabs">
+                <button class="modal-tab active" onclick="switchTab('global')">
+                    <i class="fas fa-globe"></i> Global & Timer
+                </button>
+                <button class="modal-tab" onclick="switchTab('channels')">
+                    <i class="fas fa-paper-plane"></i> Channels
+                </button>
+                <button class="modal-tab" onclick="switchTab('notices')">
+                    <i class="fas fa-bullhorn"></i> Notices
+                </button>
+                <button class="modal-tab" onclick="switchTab('resources')">
+                    <i class="fas fa-file-alt"></i> Resources
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Global & Timer Tab -->
+                <div class="tab-panel active" id="tab-global">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Site Name</label>
+                            <input type="text" class="form-input" id="admin-site-name" placeholder="StudyKai">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Page Title</label>
+                            <input type="text" class="form-input" id="admin-page-title" placeholder="StudyKai — 12th UP Board">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Hero Title</label>
+                            <input type="text" class="form-input" id="admin-hero-title" placeholder="Master Your Board Exams">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Hero Subtitle</label>
+                            <input type="text" class="form-input" id="admin-hero-subtitle" placeholder="Your success story starts here...">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Exam Date & Time</label>
+                        <input type="datetime-local" class="form-input" id="admin-exam-date">
+                    </div>
+                    <button class="btn-primary ripple-btn" onclick="saveGlobalSettings()" style="margin-top: 10px;">
+                        <i class="fas fa-save"></i> Save Global Settings
+                    </button>
+                </div>
 
-// ---------------------------------------------------------
-// ADMIN PANEL LOGIC
-// ---------------------------------------------------------
-function openAdminAuth(){ document.getElementById('adminPass').value=''; openModal('authModal'); }
-function checkAuth(){
-  if(document.getElementById('adminPass').value === (localStorage.getItem('sk_adminpass')||'admin123')){
-    closeModal('authModal'); setTimeout(()=>openModal('adminModal'), 300);
-  } else { showToast('Incorrect Master Password!','error'); }
-}
-function switchAdminTab(id,el){
-  document.querySelectorAll('.admin-tab-btn').forEach(b=>b.classList.remove('active')); el.classList.add('active');
-  document.querySelectorAll('.admin-panel-section').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active');
-}
+                <!-- Channels Tab -->
+                <div class="tab-panel" id="tab-channels">
+                    <div id="channels-list">
+                        <!-- Populated dynamically -->
+                    </div>
+                    <button class="btn-primary ripple-btn" onclick="saveChannels()" style="margin-top: 20px;">
+                        <i class="fas fa-save"></i> Save All Channels
+                    </button>
+                </div>
 
-// Save DB Operations
-function saveGlobalSettings(){
-  db.ref('studykai_db/settings').update({
-    siteName: document.getElementById('setSiteName').value, pageTitle: document.getElementById('setPageTitle').value,
-    heroBadge: document.getElementById('setHeroBadge').value, heroTitle1: document.getElementById('setHeroTitle1').value, heroSub: document.getElementById('setHeroSub').value
-  }).then(()=>showToast('Site Identity Updated!','success')).catch(e=>showToast('Error: '+e.message,'error'));
-}
-function saveChannel(){
-  const sub=document.getElementById('chSubject').value, link=document.getElementById('chLink').value, name=document.getElementById('chName').value;
-  if(sub&&link&&name) db.ref('studykai_db/channels/'+sub).set({link,name}).then(()=>{
-    document.getElementById('chSubject').value=''; document.getElementById('chLink').value=''; document.getElementById('chName').value=''; showToast('Channel Saved!','success');
-  }); else showToast('Please fill all channel fields','error');
-}
-function addNotice(){
-  const tag=document.getElementById('notTag').value, text=document.getElementById('notText').value;
-  if(text) db.ref('studykai_db/notices').push({tag,text,ts:Date.now()}).then(()=>{document.getElementById('notText').value=''; showToast('Notice Published!','success');}); else showToast('Notice text required','error');
-}
-function addResource(){
-  const icon=document.getElementById('resIcon').value||'📄', title=document.getElementById('resTitle').value, sub=document.getElementById('resSub').value, link=document.getElementById('resLink').value;
-  if(title&&link) db.ref('studykai_db/resources').push({icon,title,sub,link,ts:Date.now()}).then(()=>{document.getElementById('resTitle').value=''; document.getElementById('resSub').value=''; document.getElementById('resLink').value=''; showToast('Resource Linked!','success');}); else showToast('Title and Link required','error');
-}
+                <!-- Notices Tab -->
+                <div class="tab-panel" id="tab-notices">
+                    <div id="notices-list">
+                        <!-- Populated dynamically -->
+                    </div>
+                    <button class="add-btn" onclick="addNoticeField()">
+                        <i class="fas fa-plus"></i> Add New Notice
+                    </button>
+                    <button class="btn-primary ripple-btn" onclick="saveNotices()" style="margin-top: 20px;">
+                        <i class="fas fa-save"></i> Save All Notices
+                    </button>
+                </div>
 
-// Render DB Lists in Admin
-function renderChannelList(){
-  document.getElementById('channelList').innerHTML = Object.keys(cloudData.channels).map(k=>`<div class="list-item"><div class="li-details"><div class="li-title">${cloudData.channels[k].name} <span style="color:var(--accent);font-size:0.7rem;">(${k})</span></div><div class="li-sub">${cloudData.channels[k].link}</div></div><button class="btn-danger" onclick="db.ref('studykai_db/channels/${k}').remove()">Del</button></div>`).join('');
-}
-function renderAdminNotices(){
-  document.getElementById('adminNoticesList').innerHTML = Object.keys(cloudData.notices).map(k=>`<div class="list-item"><div class="li-details"><div class="li-title">[${cloudData.notices[k].tag}]</div><div class="li-sub">${cloudData.notices[k].text}</div></div><button class="btn-danger" onclick="db.ref('studykai_db/notices/${k}').remove()">Del</button></div>`).join('');
-}
-function renderAdminResources(){
-  document.getElementById('adminResourcesList').innerHTML = Object.keys(cloudData.resources).map(k=>`<div class="list-item"><div class="li-details"><div class="li-title">${cloudData.resources[k].icon} ${cloudData.resources[k].title}</div><div class="li-sub">${cloudData.resources[k].link}</div></div><button class="btn-danger" onclick="db.ref('studykai_db/resources/${k}').remove()">Del</button></div>`).join('');
-}
+                <!-- Resources Tab -->
+                <div class="tab-panel" id="tab-resources">
+                    <div id="resources-admin-list">
+                        <!-- Populated dynamically -->
+                    </div>
+                    <button class="add-btn" onclick="addResourceField()">
+                        <i class="fas fa-plus"></i> Add New Resource
+                    </button>
+                    <button class="btn-primary ripple-btn" onclick="saveResources()" style="margin-top: 20px;">
+                        <i class="fas fa-save"></i> Save All Resources
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-// ---------------------------------------------------------
-// UI INTERACTIONS & ANIMATIONS
-// ---------------------------------------------------------
-function openModal(id){document.getElementById(id).classList.add('open');}
-function closeModal(id){document.getElementById(id).classList.remove('open');}
-document.querySelectorAll('.modal-overlay').forEach(m=>{ m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}); });
-function showToast(m,t='success'){const x=document.getElementById('toast');x.textContent=m;x.className='toast show '+t;setTimeout(()=>x.classList.remove('show'),3500);}
+    <!-- Toast -->
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toast-message">Operation successful</span>
+    </div>
 
-// Particle Canvas Background
-const cvs=document.getElementById('bgCanvas'), ctx=cvs.getContext('2d'); let p=[], W, H;
-function rs(){W=cvs.width=window.innerWidth; H=cvs.height=window.innerHeight;} window.addEventListener('resize',rs); rs();
-class Prt{
-  constructor(){this.rst(true);}
-  rst(i){this.x=Math.random()*W;this.y=i?Math.random()*H:H+10;this.s=Math.random()*3+1;this.sp=Math.random()*0.5+0.2;this.op=Math.random()*0.5+0.1;this.c=['#7c6af7','#f76aaa','#6af7d0','#f7c06a','#b06af7'][Math.floor(Math.random()*5)];this.d=(Math.random()-0.5)*0.5;this.w=Math.random()*Math.PI*2;this.ws=Math.random()*0.02+0.01;}
-  upd(){this.y-=this.sp;this.w+=this.ws;this.x+=Math.sin(this.w)*0.8+this.d;if(this.y<-10||this.x<-10||this.x>W+10)this.rst(false);}
-  drw(){ctx.save();ctx.globalAlpha=this.op;ctx.fillStyle=this.c;ctx.shadowColor=this.c;ctx.shadowBlur=8;ctx.beginPath();ctx.arc(this.x,this.y,this.s,0,Math.PI*2);ctx.fill();ctx.restore();}
-}
-for(let i=0;i<100;i++)p.push(new Prt());
-function anim(){ctx.clearRect(0,0,W,H);p.forEach(x=>{x.upd();x.drw();});requestAnimationFrame(anim);} anim();
+    <script>
+        // ==================== FIREBASE CONFIG ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyC-psUKqTO9u5kCuA3OUqWT63Ey0IvDei4",
+            authDomain: "study-ae01d.firebaseapp.com",
+            projectId: "study-ae01d",
+            storageBucket: "study-ae01d.firebasestorage.app",
+            messagingSenderId: "198271524977",
+            appId: "1:198271524977:web:d54ad6d58cd6c5c4103bd0",
+            measurementId: "G-Q51PB50Q51"
+        };
 
-// Quotes logic
-const qd=document.getElementById('quoteDots'), qs=document.querySelectorAll('.quote-slide');
-for(let i=0;i<qs.length;i++)qd.innerHTML+=`<div class="qdot ${i===0?'active':''}" onclick="goQ(${i})"></div>`;
-let cq=0; function goQ(n){qs.forEach(s=>s.classList.remove('active'));document.querySelectorAll('.qdot').forEach(d=>d.classList.remove('active'));qs[n].classList.add('active');document.querySelectorAll('.qdot')[n].classList.add('active');cq=n;}
-setInterval(()=>{cq=(cq+1)%qs.length;goQ(cq);},5000);
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
 
-// Scroll & Reveal
-function setupReveal(){ const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible');})},{threshold:0.1}); document.querySelectorAll('.reveal').forEach(el=>obs.observe(el)); }
-window.addEventListener('scroll',()=>{ document.getElementById('progressBar').style.width=(window.scrollY/(document.body.scrollHeight-window.innerHeight)*100)+'%'; document.getElementById('backTop').classList.toggle('show',window.scrollY>400); });
+        // ==================== HARDCODED DATA ====================
+        const subjectsData = [
+            {
+                id: 'physics',
+                name: 'Physics',
+                icon: 'fa-atom',
+                color: '#f59e0b',
+                chapters: [
+                    'Electrostatics (Electric Charges & Fields)',
+                    'Electric Potential & Capacitance',
+                    'Current Electricity',
+                    'Moving Charges & Magnetism',
+                    'Magnetism & Matter',
+                    'Electromagnetic Induction',
+                    'Alternating Current',
+                    'Electromagnetic Waves',
+                    'Ray Optics & Optical Instruments',
+                    'Wave Optics (Interference, Diffraction)',
+                    'Dual Nature of Radiation & Matter',
+                    'Atoms (Bohr Model, Spectra)',
+                    'Nuclei (Radioactivity, Nuclear Reactions)',
+                    'Semiconductor Electronics'
+                ],
+                importantTopics: ['Gauss Theorem', 'Kirchhoff Laws', 'Lens Formula', 'Young Double Slit', 'Photoelectric Effect', 'Nuclear Fission/Fusion'],
+                tips: 'Focus on derivations and numericals. Practice previous year questions daily.',
+                telegram: ''
+            },
+            {
+                id: 'chemistry',
+                name: 'Chemistry',
+                icon: 'fa-flask',
+                color: '#22c55e',
+                chapters: [
+                    'The Solid State (Crystal Lattices)',
+                    'Solutions (Raoult Law, Colligative)',
+                    'Electrochemistry (Nernst Equation)',
+                    'Chemical Kinetics (Rate Laws)',
+                    'Surface Chemistry (Adsorption, Catalysis)',
+                    'General Principles of Isolation',
+                    'p-Block Elements (Group 15-18)',
+                    'd & f-Block Elements',
+                    'Coordination Compounds',
+                    'Haloalkanes & Haloarenes',
+                    'Alcohols, Phenols & Ethers',
+                    'Aldehydes, Ketones & Carboxylic Acids',
+                    'Amines (Diazonium Salts)',
+                    'Biomolecules (Proteins, DNA, RNA)',
+                    'Polymers & Chemistry in Everyday Life'
+                ],
+                importantTopics: ['Nernst Equation', 'Rate Constant Calculations', 'IUPAC Nomenclature', 'Reaction Mechanisms', 'Coordination Chemistry'],
+                tips: 'Organic chemistry is scoring — focus on name reactions and mechanisms.',
+                telegram: ''
+            },
+            {
+                id: 'maths',
+                name: 'Mathematics',
+                icon: 'fa-square-root-variable',
+                color: '#3b82f6',
+                chapters: [
+                    'Relations & Functions (Types, Composition)',
+                    'Inverse Trigonometric Functions',
+                    'Matrices (Types, Operations, Inverse)',
+                    'Determinants (Properties, Applications)',
+                    'Continuity & Differentiability',
+                    'Application of Derivatives',
+                    'Integrals (Substitution, Parts, Partial)',
+                    'Application of Integrals (Area)',
+                    'Differential Equations',
+                    'Vector Algebra (Dot, Cross Product)',
+                    'Three Dimensional Geometry',
+                    'Linear Programming',
+                    'Probability (Bayes Theorem, Distribution)'
+                ],
+                importantTopics: ['Matrix Inverse', 'Maxima/Minima', 'Integration by Parts', 'Area Under Curves', 'Linear Programming Graphical'],
+                tips: 'Practice NCERT exemplar and previous 10 years papers. Time management is key.',
+                telegram: ''
+            },
+            {
+                id: 'biology',
+                name: 'Biology',
+                icon: 'fa-dna',
+                color: '#ec4899',
+                chapters: [
+                    'Reproduction in Organisms',
+                    'Sexual Reproduction in Flowering Plants',
+                    'Human Reproduction',
+                    'Reproductive Health',
+                    'Principles of Inheritance & Variation',
+                    'Molecular Basis of Inheritance (DNA)',
+                    'Evolution (Natural Selection)',
+                    'Human Health & Disease',
+                    'Strategies for Enhancement in Food',
+                    'Microbes in Human Welfare',
+                    'Biotechnology: Principles & Processes',
+                    'Biotechnology & its Applications',
+                    'Organisms & Populations',
+                    'Ecosystem (Energy Flow, Pyramids)',
+                    'Biodiversity & Conservation',
+                    'Environmental Issues'
+                ],
+                importantTopics: ['Mendelian Genetics', 'DNA Replication', 'Central Dogma', 'Ecological Pyramids', 'Biotech Tools (PCR, rDNA)'],
+                tips: 'Diagrams carry marks! Practice neat labeled diagrams for every chapter.',
+                telegram: ''
+            },
+            {
+                id: 'english',
+                name: 'English',
+                icon: 'fa-book',
+                color: '#8b5cf6',
+                chapters: [
+                    'The Last Lesson (Alphonse Daudet)',
+                    'Lost Spring (Anees Jung)',
+                    'Deep Water (William Douglas)',
+                    'The Rattrap (Selma Lagerlöf)',
+                    'Indigo (Louis Fischer)',
+                    'Poets & Pancakes (Asokamitran)',
+                    'The Interview (Christopher Silvester)',
+                    'Going Places (A.R. Barton)',
+                    'My Mother at Sixty-Six (Kamala Das)',
+                    'An Elementary School... (Stephen Spender)',
+                    'Keeping Quiet (Pablo Neruda)',
+                    'A Thing of Beauty (John Keats)',
+                    'A Roadside Stand (Robert Frost)',
+                    'Aunt Jennifer\'s Tigers (Adrienne Rich)'
+                ],
+                importantTopics: ['Long Reading Text', 'Writing: Article/Report', 'Grammar: Modals, Clauses', 'Literature: Theme & Character'],
+                tips: 'Read the supplementary reader thoroughly. Practice writing formats (letters, reports, articles).',
+                telegram: ''
+            },
+            {
+                id: 'hindi',
+                name: 'Hindi',
+                icon: 'fa-om',
+                color: '#f97316',
+                chapters: [
+                    'आत्मकथ्य (हरिवंश राय बच्चन)',
+                    'पद (मीरा बाई)',
+                    'राम लक्ष्मण-परशुराम संवाद (तुलसीदास)',
+                    'कविता के बहाने (कुँवर नारायण)',
+                    'कैमरे में बंद अपाहिज (साहिर लुधियानवी)',
+                    'उषा (यशपाल)',
+                    'माता का आँचल (शिवपूजन सहाय)',
+                    'जीवन का सपना (सुदर्शन)',
+                    'क anyayan (जयशंकर प्रसाद)',
+                    'सबसे खतरनाक (पाश)',
+                    'आँखें फिरी (सरोज स्मृति)',
+                    'कवितावली (तुलसीदास)',
+                    'गीताग्रंथ',
+                    'नवलिका (मन्नू भंडारी)',
+                    'संस्मरण (बाबू गुलाब राय)'
+                ],
+                importantTopics: ['गद्यांश अवबोधन', 'पद्यांश अवबोधन', 'निबंध लेखन', 'व्याकरण: संधि, समास'],
+                tips: 'Hindi grammar (व्याकरण) is scoring. Focus on essay and letter writing formats.',
+                telegram: ''
+            },
+            {
+                id: 'computer',
+                name: 'Computer',
+                icon: 'fa-laptop-code',
+                color: '#06b6d4',
+                chapters: [
+                    'Object Oriented Programming (C++)',
+                    'Data File Handling in C++',
+                    'Pointers in C++',
+                    'Data Structures (Arrays, Stacks, Queues)',
+                    'Database Concepts (RDBMS, SQL)',
+                    'SQL Commands (DDL, DML, DCL)',
+                    'Networking Concepts (OSI, TCP/IP)',
+                    'HTML & Web Designing',
+                    'Cyber Security & Ethics',
+                    'Open Source Software',
+                    'Trends in IT (Cloud, AI, IoT)'
+                ],
+                importantTopics: ['Class & Object Programming', 'SQL Queries (JOIN, GROUP BY)', 'Stack/Queue Implementation', 'HTML Tags & Forms'],
+                tips: 'Practice writing C++ programs and SQL queries by hand. Output questions are frequently asked.',
+                telegram: ''
+            }
+        ];
 
-// Buttons Ripple
-document.addEventListener('click',e=>{
-  const b=e.target.closest('.btn-join,.btn-primary,.btn-save,.btn-google'); if(!b)return;
-  const r=document.createElement('span'); r.className='ripple'; const c=b.getBoundingClientRect(); const s=Math.max(c.width,c.height);
-  r.style.cssText=`width:${s}px;height:${s}px;left:${e.clientX-c.left-s/2}px;top:${e.clientY-c.top-s/2}px;`; b.style.position='relative';b.style.overflow='hidden'; b.appendChild(r); setTimeout(()=>r.remove(),600);
-});
+        const quotesData = [
+            { text: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
+            { text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill" },
+            { text: "Don't watch the clock; do what it does. Keep going.", author: "Sam Levenson" },
+            { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+            { text: "Education is the most powerful weapon which you can use to change the world.", author: "Nelson Mandela" },
+            { text: "Your time is limited, don't waste it living someone else's life.", author: "Steve Jobs" },
+            { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+            { text: "It always seems impossible until it's done.", author: "Nelson Mandela" },
+            { text: "The expert in anything was once a beginner.", author: "Helen Hayes" },
+            { text: "Dream big and dare to fail.", author: "Norman Vaughan" }
+        ];
 
-// Mobile Nav & Theme
-document.getElementById('hamburger').onclick=()=>document.getElementById('mobileMenu').classList.toggle('open'); function closeMobile(){document.getElementById('mobileMenu').classList.remove('open');}
-const tb=document.getElementById('themeBtn'); let isD=localStorage.getItem('sk_theme')!=='light';
-function apT(){document.documentElement.setAttribute('data-theme',isD?'dark':'light');tb.textContent=isD?'🌙':'☀️';} apT();
-tb.onclick=()=>{isD=!isD;localStorage.setItem('sk_theme',isD?'dark':'light');apT();};
+        // ==================== STATE ====================
+        let currentUser = null;
+        let appData = {
+            global: {
+                siteName: 'StudyKai',
+                pageTitle: 'StudyKai — 12th UP Board',
+                heroTitle: 'Master Your Board Exams',
+                heroSubtitle: 'Comprehensive study materials, chapter-wise breakdowns, and premium resources for all your subjects. Your success story starts here.',
+                examDate: '2026-02-20T08:00'
+            },
+            channels: {
+                physics: 'https://t.me/studykai_physics',
+                chemistry: 'https://t.me/studykai_chemistry',
+                maths: 'https://t.me/studykai_maths',
+                biology: 'https://t.me/studykai_biology',
+                english: 'https://t.me/studykai_english',
+                hindi: 'https://t.me/studykai_hindi',
+                computer: 'https://t.me/studykai_computer'
+            },
+            notices: [
+                { text: 'Physics practical exam scheduled for Feb 15', tag: 'IMP' },
+                { text: 'New Chemistry notes uploaded!', tag: 'NEW' },
+                { text: 'Mathematics formula sheet available', tag: 'TIP' },
+                { text: 'Board exam pattern updated for 2026', tag: 'INFO' }
+            ],
+            resources: [
+                { emoji: '📚', title: 'NCERT Solutions', subtitle: 'Complete solved exercises for all subjects', link: 'https://drive.google.com' },
+                { emoji: '📝', title: 'Previous Year Papers', subtitle: 'Last 10 years UP Board papers with solutions', link: 'https://drive.google.com' },
+                { emoji: '🎯', title: 'Sample Papers 2026', subtitle: 'Official UP Board model test papers', link: 'https://drive.google.com' },
+                { emoji: '🧪', title: 'Practical File PDFs', subtitle: 'Ready-to-submit practical records', link: 'https://drive.google.com' }
+            ]
+        };
 
-console.log('%c StudyKai Pro 📚 ', 'background:#7c6af7;color:white;font-size:16px;padding:8px 16px;border-radius:8px;font-weight:bold;');
-</script>
-</body>
-</html>
+        let quoteInterval;
+        let countdownInterval;
+        let currentQuote = 0;
+
+        // ==================== PARTICLE CANVAS ====================
+        function initParticles() {
+            const canvas = document.getElementById('particle-canvas');
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            let mouse = { x: null, y: null };
+
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            resize();
+            window.addEventListener('resize', resize);
+
+            window.addEventListener('mousemove', (e) => {
+                mouse.x = e.x;
+                mouse.y = e.y;
+            });
+
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.size = Math.random() * 2 + 0.5;
+                    this.speedX = Math.random() * 1 - 0.5;
+                    this.speedY = Math.random() * 1 - 0.5;
+                    this.color = `rgba(${100 + Math.random() * 100}, ${150 + Math.random() * 100}, 255, ${Math.random() * 0.5 + 0.1})`;
+                }
+                update() {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+                    if (this.x > canvas.width) this.x = 0;
+                    if (this.x < 0) this.x = canvas.width;
+                    if (this.y > canvas.height) this.y = 0;
+                    if (this.y < 0) this.y = canvas.height;
+                    
+                    // Mouse interaction
+                    if (mouse.x != null) {
+                        let dx = mouse.x - this.x;
+                        let dy = mouse.y - this.y;
+                        let distance = Math.sqrt(dx * dx + dy * dy);
+                        if (distance < 100) {
+                            this.x -= dx * 0.02;
+                            this.y -= dy * 0.02;
+                        }
+                    }
+                }
+                draw() {
+                    ctx.fillStyle = this.color;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            for (let i = 0; i < 80; i++) {
+                particles.push(new Particle());
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    p.update();
+                    p.draw();
+                });
+                
+                // Connect particles
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i; j < particles.length; j++) {
+                        let dx = particles[i].x - particles[j].x;
+                        let dy = particles[i].y - particles[j].y;
+                        let distance = Math.sqrt(dx * dx + dy * dy);
+                        if (distance < 100) {
+                            ctx.beginPath();
+                            ctx.strokeStyle = `rgba(100, 150, 255, ${0.1 * (1 - distance / 100)})`;
+                            ctx.lineWidth = 0.5;
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        // ==================== RIPPLE EFFECT ====================
+        function createRipple(event) {
+            const button = event.currentTarget;
+            const circle = document.createElement('span');
+            const diameter = Math.max(button.clientWidth, button.clientHeight);
+            const radius = diameter / 2;
+            circle.style.width = circle.style.height = `${diameter}px`;
+            circle.style.left = `${event.clientX - button.getBoundingClientRect().left - radius}px`;
+            circle.style.top = `${event.clientY - button.getBoundingClientRect().top - radius}px`;
+            circle.classList.add('ripple');
+            const existing = button.getElementsByClassName('ripple')[0];
+            if (existing) existing.remove();
+            button.appendChild(circle);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.ripple-btn').forEach(btn => {
+                btn.addEventListener('click', createRipple);
+            });
+        });
+
+        // ==================== AUTH ====================
+        function signInWithGoogle(e) {
+            if(e) createRipple(e);
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider).catch(err => {
+                showToast('Login failed: ' + err.message, 'error');
+            });
+        }
+
+        function signOut() {
+            if(confirm('Are you sure you want to logout?')) {
+                auth.signOut();
+            }
+        }
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-app').style.display = 'block';
+                document.getElementById('user-avatar').src = user.photoURL || 'https://ui-avatars.com/api/?name=' + user.displayName;
+                document.getElementById('loading-overlay').classList.add('hidden');
+                
+                // Load data from Firebase
+                loadAllData();
+                initParticles();
+                initQuotes();
+                renderSubjects();
+            } else {
+                currentUser = null;
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('main-app').style.display = 'none';
+                document.getElementById('loading-overlay').classList.add('hidden');
+            }
+        });
+
+        // ==================== FIREBASE DATA SYNC ====================
+        function loadAllData() {
+            // Global Settings
+            db.ref('settings/global').on('value', snap => {
+                if (snap.exists()) {
+                    appData.global = { ...appData.global, ...snap.val() };
+                }
+                applyGlobalSettings();
+            });
+
+            // Channels
+            db.ref('settings/channels').on('value', snap => {
+                if (snap.exists()) {
+                    appData.channels = { ...appData.channels, ...snap.val() };
+                }
+                updateSubjectTelegramLinks();
+            });
+
+            // Notices
+            db.ref('settings/notices').on('value', snap => {
+                if (snap.exists()) {
+                    appData.notices = snap.val();
+                }
+                renderNotices();
+            });
+
+            // Resources
+            db.ref('settings/resources').on('value', snap => {
+                if (snap.exists()) {
+                    appData.resources = snap.val();
+                }
+                renderResources();
+            });
+        }
+
+        function applyGlobalSettings() {
+            const g = appData.global;
+            document.getElementById('nav-site-name').textContent = g.siteName || 'StudyKai';
+            document.title = g.pageTitle || 'StudyKai — 12th UP Board';
+            document.getElementById('hero-title').textContent = g.heroTitle || 'Master Your Board Exams';
+            document.getElementById('hero-subtitle').textContent = g.heroSubtitle || 'Comprehensive study materials...';
+            
+            if (g.examDate) {
+                startCountdown(g.examDate);
+            }
+        }
+
+        function updateSubjectTelegramLinks() {
+            subjectsData.forEach(sub => {
+                const link = appData.channels[sub.id];
+                if (link) sub.telegram = link;
+            });
+            renderSubjects();
+        }
+
+        // ==================== COUNTDOWN TIMER ====================
+        function startCountdown(targetDate) {
+            if (countdownInterval) clearInterval(countdownInterval);
+            
+            function update() {
+                const now = new Date().getTime();
+                const target = new Date(targetDate).getTime();
+                const diff = target - now;
+
+                if (diff <= 0) {
+                    document.getElementById('days').textContent = '00';
+                    document.getElementById('hours').textContent = '00';
+                    document.getElementById('minutes').textContent = '00';
+                    document.getElementById('seconds').textContent = '00';
+                    return;
+                }
+
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                document.getElementById('days').textContent = String(days).padStart(2, '0');
+                document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+                document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+                document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+            }
+            
+            update();
+            countdownInterval = setInterval(update, 1000);
+        }
+
+        // ==================== QUOTES CAROUSEL ====================
+        function initQuotes() {
+            const dotsContainer = document.getElementById('quote-dots');
+            dotsContainer.innerHTML = '';
+            
+            quotesData.forEach((_, idx) => {
+                const dot = document.createElement('div');
+                dot.className = 'quote-dot' + (idx === 0 ? ' active' : '');
+                dot.onclick = () => showQuote(idx);
+                dotsContainer.appendChild(dot);
+            });
+
+            showQuote(0);
+            quoteInterval = setInterval(() => {
+                currentQuote = (currentQuote + 1) % quotesData.length;
+                showQuote(currentQuote);
+            }, 5000);
+        }
+
+        function showQuote(index) {
+            currentQuote = index;
+            const q = quotesData[index];
+            document.getElementById('quote-text').textContent = `"${q.text}"`;
+            document.getElementById('quote-author').textContent = `— ${q.author}`;
+            
+            document.querySelectorAll('.quote-dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+        }
+
+        // ==================== RENDER SUBJECTS ====================
+        function renderSubjects() {
+            const grid = document.getElementById('subjects-grid');
+            grid.innerHTML = '';
+
+            subjectsData.forEach((sub, idx) => {
+                const card = document.createElement('div');
+                card.className = 'subject-card glass-strong neon-border';
+                card.style.setProperty('--subject-color', sub.color);
+                card.style.animationDelay = `${idx * 0.1}s`;
+                card.classList.add('animate-slide-up');
+
+                const chaptersHtml = sub.chapters.slice(0, 5).map(ch => `
+                    <div class="chapter-item">
+                        <i class="fas fa-chevron-right"></i>
+                        <span>${ch}</span>
+                    </div>
+                `).join('');
+
+                const moreChapters = sub.chapters.length > 5 ? 
+                    `<div class="chapter-item" style="color: var(--accent); font-weight: 600;">
+                        <i class="fas fa-ellipsis-h"></i>
+                        <span>+${sub.chapters.length - 5} more chapters</span>
+                    </div>` : '';
+
+                const importantHtml = sub.importantTopics.map(t => 
+                    `<span style="display: inline-block; padding: 4px 10px; margin: 4px; border-radius: 20px; background: ${sub.color}15; color: ${sub.color}; font-size: 0.8rem; border: 1px solid ${sub.color}30;">${t}</span>`
+                ).join('');
+
+                card.innerHTML = `
+                    <div class="subject-header">
+                        <div class="subject-icon" style="background: linear-gradient(135deg, ${sub.color}30, transparent);">
+                            <i class="fas ${sub.icon}" style="color: ${sub.color};"></i>
+                        </div>
+                        <div>
+                            <div class="subject-name">${sub.name}</div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary);">${sub.chapters.length} Chapters</div>
+                        </div>
+                    </div>
+                    <div class="subject-chapters">
+                        ${chaptersHtml}
+                        ${moreChapters}
+                    </div>
+                    <div style="margin: 12px 0;">
+                        ${importantHtml}
+                    </div>
+                    <div class="subject-tips">
+                        <i class="fas fa-lightbulb"></i>
+                        ${sub.tips}
+                    </div>
+                    <div class="subject-footer">
+                        <div class="subject-stats">
+                            <span><i class="fas fa-book"></i> ${sub.chapters.length}</span>
+                            <span><i class="fas fa-star"></i> ${sub.importantTopics.length} Key</span>
+                        </div>
+                        ${sub.telegram ? `<a href="${sub.telegram}" target="_blank" class="telegram-btn"><i class="fab fa-telegram"></i> Channel</a>` : ''}
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        // ==================== RENDER NOTICES ====================
+        function renderNotices() {
+            const scroll = document.getElementById('notices-scroll');
+            scroll.innerHTML = '';
+            
+            appData.notices.forEach(notice => {
+                const pill = document.createElement('div');
+                pill.className = 'notice-pill';
+                const tagClass = `tag-${notice.tag.toLowerCase()}`;
+                pill.innerHTML = `
+                    <span class="notice-tag ${tagClass}">${notice.tag}</span>
+                    <span>${notice.text}</span>
+                `;
+                scroll.appendChild(pill);
+            });
+        }
+
+        // ==================== RENDER RESOURCES ====================
+        function renderResources() {
+            const grid = document.getElementById('resources-grid');
+            grid.innerHTML = '';
+
+            appData.resources.forEach((res, idx) => {
+                const card = document.createElement('a');
+                card.className = 'resource-card glass neon-border';
+                card.href = res.link || '#';
+                card.target = '_blank';
+                card.style.animationDelay = `${idx * 0.1}s`;
+                
+                card.innerHTML = `
+                    <span class="resource-emoji">${res.emoji}</span>
+                    <div class="resource-title">${res.title}</div>
+                    <div class="resource-subtitle">${res.subtitle}</div>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+
+        // ==================== THEME TOGGLE ====================
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.setAttribute('data-theme', 'light');
+                icon.className = 'fas fa-sun';
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                icon.className = 'fas fa-moon';
+            }
+        }
+
+        // ==================== ADMIN PANEL ====================
+        function openAdminAuth() {
+            document.getElementById('admin-auth-modal').class
