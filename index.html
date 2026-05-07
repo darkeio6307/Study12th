@@ -570,54 +570,59 @@
         }
 
         window.askGemini = async () => {
-            const input = document.getElementById('ai-input');
-            const chat = document.getElementById('chat-box');
-            const btn = document.getElementById('ai-btn');
-            const q = input.value.trim();
-            if(!q) return;
+    const input = document.getElementById('ai-input');
+    const chat = document.getElementById('chat-box');
+    const btn = document.getElementById('ai-btn');
+    const q = input.value.trim();
+    if(!q) return;
 
-            // Add user message
-            chat.innerHTML += `<div class="flex items-start gap-3 flex-row-reverse animate-slideUp"><div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs mt-1 shadow-sm"><i class="fa-solid fa-user"></i></div><div class="bg-blue-600 text-white p-3.5 rounded-2xl rounded-tr-none shadow-md text-sm max-w-[85%]">${q}</div></div>`;
-            input.value = ""; 
-            chat.scrollTop = chat.scrollHeight;
-            input.disabled = true; btn.disabled = true;
-            
-            // Add loader
-            const loaderId = "ld-" + Date.now();
-            chat.innerHTML += `<div id="${loaderId}" class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white mt-1 shadow-sm"><i class="fa-solid fa-sparkles text-xs"></i></div><div class="bg-white p-4 rounded-2xl rounded-tl-none shadow-sm text-sm border border-gray-100"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div></div>`;
-            chat.scrollTop = chat.scrollHeight;
+    // User Message
+    chat.innerHTML += `<div class="flex items-start gap-3 flex-row-reverse animate-slideUp"><div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs mt-1 shadow-sm"><i class="fa-solid fa-user"></i></div><div class="bg-blue-600 text-white p-3.5 rounded-2xl rounded-tr-none shadow-md text-sm max-w-[85%]">${q}</div></div>`;
+    input.value = ""; 
+    chat.scrollTop = chat.scrollHeight;
+    input.disabled = true; btn.disabled = true;
+    
+    // Loader
+    const loaderId = "ld-" + Date.now();
+    chat.innerHTML += `<div id="${loaderId}" class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white mt-1 shadow-sm"><i class="fa-solid fa-sparkles text-xs"></i></div><div class="bg-white p-4 rounded-2xl rounded-tl-none shadow-sm text-sm border border-gray-100"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div></div>`;
+    chat.scrollTop = chat.scrollHeight;
 
-            try {
-                // DIRECT API FETCH TO GEMINI
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-                    method: "POST", 
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ 
-                        contents: [{ 
-                            parts: [{ 
-                                text: "You are an expert tutor for 12th Class Science students in India. Explain this clearly and simply in Hindi/Hinglish language. Do not use complex markdown, just basic bold text where needed. Question: " + q 
-                            }] 
-                        }] 
-                    })
-                });
+    try {
+        // YAHAN MODEL CHANGE KIYA HAI -> 'gemini-pro' (100% stable)
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
+            method: "POST", 
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                contents: [{ 
+                    parts: [{ 
+                        text: "You are an expert tutor for 12th Class Science students. Explain this clearly and simply in Hindi/Hinglish language. Do not use complex formatting. Question: " + q 
+                    }] 
+                }] 
+            })
+        });
 
-                if(!res.ok) throw new Error("API Limit Reached");
+        if(!res.ok) {
+            const errInfo = await res.json();
+            console.log("Google API Error: ", errInfo);
+            throw new Error(`Error: ${res.status}`);
+        }
 
-                const data = await res.json();
-                let reply = data.candidates[0].content.parts[0].text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
-                
-                document.getElementById(loaderId).remove();
-                chat.innerHTML += `<div class="flex items-start gap-3 animate-slideUp"><div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white mt-1 shadow-sm"><i class="fa-solid fa-robot text-xs"></i></div><div class="bg-white p-4 rounded-2xl rounded-tl-none shadow-sm text-sm text-gray-800 max-w-[90%] leading-relaxed border border-gray-100">${reply}</div></div>`;
-            } catch (error) {
-                console.error("Gemini Direct Error:", error);
-                document.getElementById(loaderId).remove();
-                chat.innerHTML += `<div class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center text-white mt-1 shadow-sm"><i class="fa-solid fa-triangle-exclamation text-xs"></i></div><div class="bg-red-50 p-3.5 rounded-2xl rounded-tl-none text-red-600 text-sm max-w-[85%] border border-red-200 shadow-sm"><b>Connection Failed!</b><br>API Key ka quota khatam ho gaya hai. Kripya naya account use karein.</div></div>`;
-            } finally {
-                input.disabled = false; btn.disabled = false;
-                chat.scrollTop = chat.scrollHeight;
-                input.focus();
-            }
-        };
+        const data = await res.json();
+        let reply = data.candidates[0].content.parts[0].text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+        
+        document.getElementById(loaderId).remove();
+        chat.innerHTML += `<div class="flex items-start gap-3 animate-slideUp"><div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white mt-1 shadow-sm"><i class="fa-solid fa-robot text-xs"></i></div><div class="bg-white p-4 rounded-2xl rounded-tl-none shadow-sm text-sm text-gray-800 max-w-[90%] leading-relaxed border border-gray-100">${reply}</div></div>`;
+    } catch (error) {
+        console.error("AI Direct Error:", error);
+        document.getElementById(loaderId).remove();
+        chat.innerHTML += `<div class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center text-white mt-1 shadow-sm"><i class="fa-solid fa-triangle-exclamation text-xs"></i></div><div class="bg-red-50 p-3.5 rounded-2xl rounded-tl-none text-red-600 text-sm max-w-[85%] border border-red-200 shadow-sm"><b>Error Aa Gaya!</b><br>Kuch technical dikkat hai. ⚙️ Console check karo.</div></div>`;
+    } finally {
+        input.disabled = false; btn.disabled = false;
+        chat.scrollTop = chat.scrollHeight;
+        input.focus();
+    }
+};
+
 
         // Timer Logic
         setInterval(() => {
