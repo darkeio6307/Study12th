@@ -1,148 +1,317 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyGram Pro - 12th Science</title>
+    <title>StudyGram Pro | 12th Science Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        .glass { background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); }
-        .section { display: none; transition: all 0.3s ease; }
-        .active-section { display: block; animation: fadeIn 0.4s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .ai-glow { box-shadow: 0 0 20px rgba(139, 92, 246, 0.5); }
+        body { font-family: 'Poppins', sans-serif; overflow-x: hidden; }
+        
+        /* Advanced Glassmorphism */
+        .glass { 
+            background: rgba(255, 255, 255, 0.4); 
+            backdrop-filter: blur(16px); 
+            -webkit-backdrop-filter: blur(16px); 
+            border: 1px solid rgba(255, 255, 255, 0.5); 
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+        .glass-dark {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Smooth Transitions & Animations */
+        .section { display: none; opacity: 0; transform: translateY(20px); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .active-section { display: block; opacity: 1; transform: translateY(0); animation: slideUp 0.5s ease forwards; }
+        
+        @keyframes slideUp { 
+            0% { opacity: 0; transform: translateY(30px); } 
+            100% { opacity: 1; transform: translateY(0); } 
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.5); transform: scale(1); }
+            50% { box-shadow: 0 0 35px rgba(139, 92, 246, 0.8); transform: scale(1.05); }
+        }
+        @keyframes typing {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .ai-glow { animation: pulse-glow 3s infinite; }
+        .typing-dot { display: inline-block; width: 6px; height: 6px; background: #8b5cf6; border-radius: 50%; margin: 0 2px; animation: typing 1.4s infinite ease-in-out both; }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Toast Notifications */
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+        .toast { padding: 12px 20px; border-radius: 12px; color: white; font-weight: 500; font-size: 14px; display: flex; items-center; gap: 10px; transform: translateX(120%); transition: transform 0.3s ease; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .toast.show { transform: translateX(0); }
+        .toast.success { background: #10b981; }
+        .toast.error { background: #ef4444; }
+        .toast.info { background: #6366f1; }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-100 to-blue-200 min-h-screen pb-24 font-sans">
+<body class="bg-[url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop')] bg-cover bg-center bg-fixed min-h-screen pb-24 text-gray-800">
+    
+    <div class="fixed inset-0 bg-gradient-to-br from-indigo-100/80 via-white/80 to-purple-200/80 z-[-1] backdrop-blur-sm"></div>
 
-    <div id="login-screen" class="fixed inset-0 z-[200] bg-white flex flex-col items-center justify-center p-6 text-center">
-        <div class="w-24 h-24 bg-indigo-600 rounded-3xl flex items-center justify-center text-white text-4xl mb-6 shadow-xl">
-            <i class="fa-solid fa-graduation-cap"></i>
+    <div id="toast-container"></div>
+
+    <div id="login-screen" class="fixed inset-0 z-[200] bg-white flex flex-col items-center justify-center p-6 text-center transition-opacity duration-500">
+        <div class="relative w-32 h-32 mb-8 group">
+            <div class="absolute inset-0 bg-indigo-600 rounded-full blur-2xl opacity-50 group-hover:opacity-75 transition-opacity duration-500"></div>
+            <div class="relative w-full h-full bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-[2rem] rotate-45 flex items-center justify-center text-white text-5xl shadow-2xl hover:rotate-0 transition-transform duration-500">
+                <i class="fa-solid fa-atom -rotate-45 group-hover:rotate-0 transition-transform duration-500"></i>
+            </div>
         </div>
-        <h1 class="text-3xl font-bold text-gray-800">StudyGram <span class="text-indigo-600">Pro</span></h1>
-        <p class="text-gray-500 mb-8">12th Science Student Hub</p>
-        <button id="login-btn" class="w-full max-w-xs bg-white border border-gray-300 py-3 rounded-2xl flex items-center justify-center gap-3 font-semibold shadow-sm active:scale-95 transition-all">
-            <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-6"> Login with Google
+        <h1 class="text-4xl font-extrabold text-gray-900 tracking-tight mb-2">StudyGram <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Pro</span></h1>
+        <p class="text-gray-500 font-medium mb-10 text-lg">The Ultimate 12th Science Hub</p>
+        
+        <button id="login-btn" class="group relative w-full max-w-sm bg-white border border-gray-200 py-4 rounded-2xl flex items-center justify-center gap-4 font-bold text-gray-700 shadow-lg hover:shadow-xl hover:-translate-y-1 active:scale-95 transition-all overflow-hidden">
+            <div class="absolute inset-0 w-full h-full bg-gradient-to-r from-indigo-50 to-purple-50 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-500 ease-in-out"></div>
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-7 relative z-10"> 
+            <span class="relative z-10">Continue with Google</span>
         </button>
     </div>
 
-    <nav class="sticky top-0 z-50 glass px-4 py-3 flex justify-between items-center">
-        <h2 class="text-xl font-bold italic text-indigo-700">StudyGram</h2>
-        <div class="flex gap-4">
-            <button onclick="switchTab('admin')" class="text-gray-400"><i class="fa-solid fa-lock"></i></button>
-            <button id="menu-open" class="text-xl"><i class="fa-solid fa-bars-staggered"></i></button>
+    <nav class="sticky top-0 z-50 glass px-6 py-4 flex justify-between items-center m-4 rounded-3xl">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center text-white text-sm">
+                <i class="fa-solid fa-book-open"></i>
+            </div>
+            <h2 class="text-xl font-bold tracking-wide text-gray-900">StudyGram</h2>
+        </div>
+        <div class="flex gap-4 items-center">
+            <button onclick="switchTab('admin')" class="w-10 h-10 rounded-full bg-white/50 flex items-center justify-center hover:bg-white transition-colors text-gray-600"><i class="fa-solid fa-shield-halved"></i></button>
+            <button id="menu-open" class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white shadow-md hover:bg-indigo-700 transition-colors"><i class="fa-solid fa-bars-staggered"></i></button>
         </div>
     </nav>
 
-    <div id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-white shadow-2xl z-[150] transform -translate-x-full transition-transform duration-300 p-6">
+    <div id="sidebar" class="fixed inset-y-0 left-0 w-80 bg-white shadow-[20px_0_50px_rgba(0,0,0,0.1)] z-[150] transform -translate-x-full transition-transform duration-500 ease-in-out rounded-r-[3rem] p-8 flex flex-col">
         <div class="flex justify-between items-center mb-10">
-            <span class="font-bold text-xl">Menu</span>
-            <button id="menu-close" class="text-2xl text-red-500">&times;</button>
+            <h2 class="font-bold text-2xl text-gray-900">Menu</h2>
+            <button id="menu-close" class="w-10 h-10 rounded-full bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-100 transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
         </div>
-        <ul class="space-y-6 text-lg font-medium">
-            <li onclick="switchTab('home')" class="flex items-center gap-4"><i class="fa-solid fa-house"></i> Home</li>
-            <li onclick="switchTab('notes')" class="flex items-center gap-4"><i class="fa-solid fa-file-pdf"></i> Notes</li>
-            <li onclick="switchTab('notice')" class="flex items-center gap-4"><i class="fa-solid fa-bullhorn"></i> Notice</li>
-            <li onclick="switchTab('profile')" class="flex items-center gap-4"><i class="fa-solid fa-circle-user"></i> Profile</li>
-            <li onclick="switchTab('ai')" class="flex items-center gap-4 text-purple-600"><i class="fa-solid fa-wand-magic-sparkles"></i> Gemini AI</li>
+        <ul class="space-y-4 text-lg font-semibold flex-1">
+            <li onclick="switchTab('home')" class="p-4 rounded-2xl hover:bg-indigo-50 hover:text-indigo-600 cursor-pointer transition-colors flex items-center gap-4"><i class="fa-solid fa-house w-6"></i> Dashboard</li>
+            <li onclick="switchTab('notes')" class="p-4 rounded-2xl hover:bg-indigo-50 hover:text-indigo-600 cursor-pointer transition-colors flex items-center gap-4"><i class="fa-solid fa-file-pdf w-6"></i> Digital Notes</li>
+            <li onclick="switchTab('notice')" class="p-4 rounded-2xl hover:bg-indigo-50 hover:text-indigo-600 cursor-pointer transition-colors flex items-center gap-4"><i class="fa-solid fa-bullhorn w-6"></i> Board Notices</li>
+            <li onclick="switchTab('profile')" class="p-4 rounded-2xl hover:bg-indigo-50 hover:text-indigo-600 cursor-pointer transition-colors flex items-center gap-4"><i class="fa-solid fa-circle-user w-6"></i> My Profile</li>
+            <li onclick="switchTab('ai')" class="p-4 rounded-2xl bg-gradient-to-r from-purple-50 to-indigo-50 text-purple-700 cursor-pointer border border-purple-100 flex items-center gap-4 mt-8"><i class="fa-solid fa-wand-magic-sparkles w-6"></i> Ask AI Tutor</li>
         </ul>
+        <div class="mt-auto pt-6 border-t border-gray-100 text-center text-sm text-gray-400">
+            v2.0 Advanced Edition
+        </div>
     </div>
 
-    <main class="p-4 max-w-md mx-auto">
+    <main class="p-4 max-w-lg mx-auto">
 
-        <div id="home" class="section active-section space-y-5">
-            <div class="glass p-5 rounded-3xl flex items-center gap-4 shadow-sm">
-                <img id="user-img" src="" class="w-16 h-16 rounded-2xl border-2 border-white shadow-md">
-                <div>
-                    <h3 id="user-name" class="font-bold text-lg">Loading...</h3>
-                    <p class="text-xs text-gray-500 font-semibold uppercase tracking-wider">Class 12th • Science</p>
+        <div id="home" class="section active-section space-y-6">
+            <div class="glass p-6 rounded-[2rem] flex items-center gap-5 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl"></div>
+                <img id="user-img" src="https://via.placeholder.com/150" class="w-16 h-16 rounded-2xl border-2 border-white shadow-lg object-cover z-10">
+                <div class="z-10">
+                    <p class="text-sm text-gray-500 font-medium">Welcome back,</p>
+                    <h3 id="user-name" class="font-bold text-xl text-gray-900">Loading...</h3>
                 </div>
             </div>
 
-            <div class="bg-indigo-600 p-5 rounded-3xl text-white shadow-lg relative overflow-hidden">
-                <div class="relative z-10">
-                    <p class="text-indigo-100 text-sm">Days to Exams</p>
-                    <h2 id="countdown" class="text-3xl font-black mt-1">--d : --h</h2>
+            <div class="bg-gradient-to-br from-indigo-900 to-indigo-700 p-6 rounded-[2rem] text-white shadow-xl relative overflow-hidden group">
+                <div class="absolute top-[-50%] right-[-10%] w-64 h-64 bg-white/5 rounded-full blur-2xl group-hover:bg-white/10 transition-colors duration-500"></div>
+                <div class="relative z-10 flex justify-between items-end">
+                    <div>
+                        <p class="text-indigo-200 text-sm font-medium mb-1"><i class="fa-solid fa-stopwatch mr-1"></i> Board Exams 2025</p>
+                        <div class="flex gap-3 mt-2">
+                            <div class="bg-black/20 px-4 py-2 rounded-xl backdrop-blur-sm border border-white/10">
+                                <span id="count-days" class="text-3xl font-black">--</span><span class="text-xs ml-1 text-indigo-200">d</span>
+                            </div>
+                            <div class="bg-black/20 px-4 py-2 rounded-xl backdrop-blur-sm border border-white/10">
+                                <span id="count-hours" class="text-3xl font-black">--</span><span class="text-xs ml-1 text-indigo-200">h</span>
+                            </div>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-graduation-cap text-6xl text-white/10 absolute right-4 bottom-4 transform -rotate-12"></i>
                 </div>
-                <i class="fa-solid fa-clock absolute -right-4 -bottom-4 text-8xl text-indigo-500/30"></i>
             </div>
 
-            <div id="course-status" class="glass p-5 rounded-3xl space-y-4">
-                <h4 class="font-bold flex justify-between"><span>Course Progress</span> <i class="fa-solid fa-chart-line"></i></h4>
+            <div id="course-status" class="glass p-6 rounded-[2rem] space-y-5">
+                <div class="flex justify-between items-center">
+                    <h4 class="font-bold text-lg text-gray-800">Syllabus Coverage</h4>
+                    <div class="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center"><i class="fa-solid fa-chart-pie"></i></div>
                 </div>
+                <div class="animate-pulse flex space-x-4">
+                    <div class="flex-1 space-y-4 py-1">
+                        <div class="h-2 bg-gray-200 rounded"></div>
+                        <div class="h-2 bg-gray-200 rounded"></div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div id="notes" class="section space-y-4">
-            <h2 class="text-2xl font-bold">Subject-wise Notes</h2>
-            <div id="notes-list" class="space-y-3">
-                </div>
+        <div id="notes" class="section space-y-5">
+            <div class="flex justify-between items-center">
+                <h2 class="text-3xl font-black text-gray-900">Study Materials</h2>
+            </div>
+            
+            <div class="relative">
+                <input type="text" id="note-search" onkeyup="searchNotes()" placeholder="Search Physics, Chemistry..." class="w-full glass p-4 pl-12 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            </div>
+
+            <div id="notes-list" class="space-y-4">
+                <div class="text-center text-gray-400 py-10"><i class="fa-solid fa-spinner fa-spin text-3xl mb-2"></i><br>Fetching Notes...</div>
+            </div>
         </div>
 
         <div id="notice" class="section space-y-6">
-            <div>
-                <h2 class="text-2xl font-bold mb-4">Exam Seat & Schedule</h2>
-                <div id="exam-seat" class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-indigo-500">
-                    </div>
+            <h2 class="text-3xl font-black text-gray-900">Updates</h2>
+            
+            <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100 p-5 rounded-[2rem] shadow-sm relative overflow-hidden">
+                <div class="absolute left-0 top-0 bottom-0 w-2 bg-amber-400"></div>
+                <h3 class="font-bold text-amber-800 flex items-center gap-2 mb-2"><i class="fa-solid fa-triangle-exclamation"></i> Important Alert</h3>
+                <p class="text-sm text-amber-700 font-medium">Admit cards for practical exams will be distributed next week. Ensure fee clearance.</p>
             </div>
-            <div>
-                <h2 class="text-2xl font-bold mb-4">Latest Notices</h2>
-                <div id="notice-list" class="space-y-3"></div>
+
+            <div class="glass p-5 rounded-[2rem]">
+                <h3 class="font-bold text-gray-800 mb-4 border-b pb-2">Recent Notices</h3>
+                <div id="notice-list" class="space-y-4">
+                    <div class="flex gap-4 items-start">
+                        <div class="w-2 h-2 mt-2 rounded-full bg-indigo-500 flex-shrink-0"></div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 text-sm">Physics Pre-Board Schedule Updated</h4>
+                            <p class="text-xs text-gray-500 mt-1">12 Jan 2025</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div id="ai" class="section">
-            <div class="glass p-4 rounded-3xl h-[450px] flex flex-col">
-                <div id="chat-box" class="flex-1 overflow-y-auto space-y-3 p-2 text-sm">
-                    <div class="bg-white/50 p-3 rounded-2xl self-start max-w-[80%]">नमस्ते! मैं आपका Gemini AI ट्यूटर हूँ। विज्ञान का कोई भी सवाल पूछें।</div>
+            <div class="glass rounded-[2rem] h-[600px] flex flex-col shadow-2xl border border-white/60 overflow-hidden relative">
+                
+                <div class="bg-white/50 backdrop-blur-md p-4 flex items-center gap-4 border-b border-white/20 z-10">
+                    <div class="relative">
+                        <div class="w-12 h-12 bg-gradient-to-tr from-purple-600 to-indigo-600 rounded-full flex items-center justify-center text-white text-xl">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-900 leading-tight">Gemini Tutor</h3>
+                        <p class="text-xs text-green-600 font-semibold">Online • Ready to help</p>
+                    </div>
                 </div>
-                <div class="flex gap-2 mt-4">
-                    <input id="ai-input" type="text" placeholder="समीकरण पूछें..." class="flex-1 p-3 rounded-2xl border-none focus:ring-2 focus:ring-purple-400 outline-none shadow-inner">
-                    <button onclick="askGemini()" class="bg-purple-600 text-white w-12 h-12 rounded-2xl flex items-center justify-center"><i class="fa-solid fa-paper-plane"></i></button>
+
+                <div id="chat-box" class="flex-1 overflow-y-auto p-5 space-y-4 scroll-smooth">
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 flex-shrink-0"><i class="fa-solid fa-robot text-xs"></i></div>
+                        <div class="bg-white p-4 rounded-2xl rounded-tl-none shadow-sm text-sm text-gray-700 max-w-[85%] border border-gray-100">
+                            नमस्ते! मैं आपका Advanced AI ट्यूटर हूँ। Science (Physics, Chemistry, Math) का कोई भी मुश्किल सवाल पूछें। मैं उसे आसान हिंदी में समझाऊंगा! ✨
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-white/40 backdrop-blur-md border-t border-white/20">
+                    <form id="ai-form" class="flex gap-2 relative" onsubmit="event.preventDefault(); askGemini();">
+                        <input id="ai-input" type="text" placeholder="अपना सवाल यहाँ टाइप करें..." autocomplete="off" class="flex-1 py-4 pl-5 pr-12 rounded-2xl border border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none shadow-inner bg-white/80 font-medium transition-all">
+                        <button type="submit" id="ai-btn" class="absolute right-2 top-2 bottom-2 bg-purple-600 hover:bg-purple-700 text-white w-10 rounded-xl flex items-center justify-center transition-transform active:scale-90 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
 
-        <div id="profile" class="section space-y-4 text-center">
-            <img id="prof-img" src="" class="w-24 h-24 rounded-full mx-auto border-4 border-white shadow-xl">
-            <h2 id="prof-name" class="text-2xl font-bold">User Name</h2>
-            <div class="glass p-5 rounded-3xl text-left space-y-3">
-                <p><strong>Roll No:</strong> <span id="prof-roll">Pending</span></p>
-                <p><strong>Stream:</strong> Science (Fix)</p>
-                <p><strong>Subjects:</strong> Hin, Eng, Math, Phy, Chem, PE</p>
+        <div id="profile" class="section space-y-6">
+            <div class="glass p-8 rounded-[2rem] text-center relative mt-10">
+                <div class="absolute -top-12 left-1/2 transform -translate-x-1/2">
+                    <div class="relative">
+                        <img id="prof-img" src="https://via.placeholder.com/150" class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-xl bg-white">
+                        <div class="absolute bottom-0 right-0 bg-indigo-600 text-white w-8 h-8 rounded-full flex items-center justify-center border-2 border-white"><i class="fa-solid fa-pen text-xs"></i></div>
+                    </div>
+                </div>
+                
+                <div class="mt-12">
+                    <h2 id="prof-name" class="text-2xl font-black text-gray-900">Loading...</h2>
+                    <p class="text-indigo-600 font-semibold text-sm">Class 12th • PCM</p>
+                </div>
+
+                <div class="mt-8 bg-white/50 p-5 rounded-2xl text-left space-y-4">
+                    <div class="flex justify-between items-center border-b border-gray-200/50 pb-2">
+                        <span class="text-gray-500 text-sm font-medium"><i class="fa-solid fa-id-card w-5 text-center"></i> Roll No</span>
+                        <span class="font-bold text-gray-800" id="prof-roll">Generating...</span>
+                    </div>
+                    <div class="flex justify-between items-center border-b border-gray-200/50 pb-2">
+                        <span class="text-gray-500 text-sm font-medium"><i class="fa-solid fa-school w-5 text-center"></i> Board</span>
+                        <span class="font-bold text-gray-800">UP Board / CBSE</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-500 text-sm font-medium"><i class="fa-solid fa-book w-5 text-center"></i> Core Subjects</span>
+                        <span class="font-bold text-gray-800 text-sm text-right">Phy, Chem, Math, Eng, Hin</span>
+                    </div>
+                </div>
+
+                <button onclick="logout()" class="w-full mt-6 bg-red-50 hover:bg-red-100 text-red-600 py-4 rounded-2xl font-bold transition-colors flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Secure Logout
+                </button>
             </div>
-            <button onclick="logout()" class="w-full bg-red-100 text-red-600 py-3 rounded-2xl font-bold">Logout</button>
         </div>
 
         <div id="admin" class="section">
-            <div id="admin-auth" class="glass p-6 rounded-3xl text-center">
-                <h2 class="text-xl font-bold mb-4">Admin Access</h2>
-                <input id="admin-pass" type="password" placeholder="Enter Unlock Key" class="w-full p-3 rounded-xl mb-4 border">
-                <button onclick="unlockAdmin()" class="bg-indigo-600 text-white w-full py-3 rounded-xl font-bold">Unlock</button>
+            <div id="admin-auth" class="glass p-8 rounded-[2rem] text-center max-w-sm mx-auto mt-10">
+                <div class="w-16 h-16 bg-gray-900 rounded-full flex items-center justify-center mx-auto mb-6 text-white text-2xl shadow-lg">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Admin Portal</h2>
+                <p class="text-gray-500 text-sm mb-6">Restricted access area.</p>
+                
+                <input id="admin-pass" type="password" placeholder="Enter Master Key" class="w-full py-3 px-4 rounded-xl mb-4 border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none text-center tracking-widest font-mono">
+                
+                <button onclick="unlockAdmin()" class="bg-gray-900 hover:bg-black text-white w-full py-3 rounded-xl font-bold transition-colors">Verify & Unlock</button>
             </div>
 
             <div id="admin-controls" class="hidden space-y-6">
-                <div class="bg-white p-4 rounded-2xl shadow">
-                    <h3 class="font-bold mb-2 text-indigo-600">Add New Note</h3>
-                    <input id="note-title" placeholder="Title (e.g. Physics Ch-1)" class="w-full mb-2 p-2 border rounded">
-                    <input id="note-link" placeholder="PDF Drive Link" class="w-full mb-2 p-2 border rounded">
-                    <button onclick="uploadNote()" class="bg-green-500 text-white w-full py-2 rounded">Upload Note</button>
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-gray-900">Dashboard</h2>
+                    <button onclick="lockAdmin()" class="text-red-500 text-sm font-bold bg-red-50 px-3 py-1 rounded-lg">Lock</button>
                 </div>
+                
+                <div class="glass p-6 rounded-2xl border-l-4 border-indigo-600">
+                    <h3 class="font-bold text-lg mb-4 text-gray-800 flex items-center gap-2"><i class="fa-solid fa-cloud-arrow-up text-indigo-600"></i> Upload New Note</h3>
+                    <input id="note-title" placeholder="Material Title (e.g. Current Electricity PDF)" class="w-full mb-3 py-3 px-4 bg-white/80 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <input id="note-link" placeholder="Google Drive Shareable Link" class="w-full mb-4 py-3 px-4 bg-white/80 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    
+                    <button id="upload-btn" onclick="uploadNote()" class="bg-indigo-600 hover:bg-indigo-700 text-white w-full py-3 rounded-xl font-bold transition-transform active:scale-95 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-upload"></i> Publish to Database
+                    </button>
                 </div>
+            </div>
         </div>
 
     </main>
 
-    <div class="fixed bottom-0 left-0 right-0 glass h-20 flex justify-around items-center px-4 z-50">
-        <button onclick="switchTab('home')" class="text-2xl text-gray-400 hover:text-indigo-600"><i class="fa-solid fa-house"></i></button>
-        <button onclick="switchTab('notes')" class="text-2xl text-gray-400 hover:text-indigo-600"><i class="fa-solid fa-book-open"></i></button>
+    <div class="fixed bottom-4 left-4 right-4 glass-dark h-20 rounded-3xl flex justify-around items-center px-2 z-50 shadow-2xl">
+        <button onclick="switchTab('home')" class="nav-btn w-12 h-12 flex items-center justify-center text-xl text-gray-400 hover:text-white transition-colors" data-target="home"><i class="fa-solid fa-house"></i></button>
+        <button onclick="switchTab('notes')" class="nav-btn w-12 h-12 flex items-center justify-center text-xl text-gray-400 hover:text-white transition-colors" data-target="notes"><i class="fa-solid fa-book-open"></i></button>
         
-        <button onclick="switchTab('ai')" class="w-14 h-14 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-2xl -mt-10 border-4 border-slate-100 flex items-center justify-center text-white text-2xl shadow-lg ai-glow">
-            <i class="fa-solid fa-robot"></i>
-        </button>
+        <div class="relative -top-8">
+            <button onclick="switchTab('ai')" class="w-16 h-16 bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 rounded-full border-4 border-gray-900 flex items-center justify-center text-white text-2xl shadow-[0_10px_25px_rgba(139,92,246,0.5)] ai-glow transition-transform hover:scale-110 active:scale-95" data-target="ai">
+                <i class="fa-solid fa-robot"></i>
+            </button>
+        </div>
 
-        <button onclick="switchTab('notice')" class="text-2xl text-gray-400 hover:text-indigo-600"><i class="fa-solid fa-bell"></i></button>
-        <button onclick="switchTab('profile')" class="text-2xl text-gray-400 hover:text-indigo-600"><i class="fa-solid fa-user-ninja"></i></button>
+        <button onclick="switchTab('notice')" class="nav-btn w-12 h-12 flex items-center justify-center text-xl text-gray-400 hover:text-white transition-colors" data-target="notice"><i class="fa-solid fa-bell"></i></button>
+        <button onclick="switchTab('profile')" class="nav-btn w-12 h-12 flex items-center justify-center text-xl text-gray-400 hover:text-white transition-colors" data-target="profile"><i class="fa-solid fa-user-astronaut"></i></button>
     </div>
 
     <script type="module">
@@ -150,7 +319,8 @@
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-        // CONFIG
+        // 🚨 SECURITY NOTE: In a real production app, never expose APIs here. 
+        // Since this is client-side, we are using the provided config for functionality.
         const firebaseConfig = {
             apiKey: "AIzaSyC-psUKqTO9u5kCuA3OUqWT63Ey0IvDei4",
             authDomain: "study-ae01d.firebaseapp.com",
@@ -160,112 +330,345 @@
             messagingSenderId: "198271524977",
             appId: "1:198271524977:web:d54ad6d58cd6c5c4103bd0"
         };
+        const GEMINI_API_KEY = "AIzaSyAsOACgDOfBPKBQjYtIjH79_PHEHeBKK_E"; 
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getDatabase(app);
+        // Initialize App
+        let app, auth, db;
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getDatabase(app);
+        } catch (error) {
+            showToast("Firebase connection failed. Check Console.", "error");
+            console.error("Firebase Init Error:", error);
+        }
+
         const provider = new GoogleAuthProvider();
 
-        // UI ACTIONS
-        window.switchTab = (id) => {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active-section'));
-            document.getElementById(id).classList.add('active-section');
-            document.getElementById('sidebar').classList.add('-translate-x-full');
+        // Custom Toast System
+        window.showToast = (message, type = 'info') => {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            let icon = 'fa-circle-info';
+            if(type === 'success') icon = 'fa-check-circle';
+            if(type === 'error') icon = 'fa-triangle-exclamation';
+
+            toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+            container.appendChild(toast);
+            
+            // Trigger animation
+            setTimeout(() => toast.classList.add('show'), 10);
+            
+            // Remove
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
         };
 
+        // UI ACTIONS: Tab Switching
+        window.switchTab = (id) => {
+            // Remove active from all
+            document.querySelectorAll('.section').forEach(s => {
+                s.classList.remove('active-section');
+            });
+            
+            // Add to target
+            const target = document.getElementById(id);
+            if(target) target.classList.add('active-section');
+            
+            // Close Sidebar if open
+            document.getElementById('sidebar').classList.add('-translate-x-full');
+
+            // Update bottom nav active state
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if(btn.dataset.target === id) {
+                    btn.classList.add('text-indigo-400');
+                    btn.classList.remove('text-gray-400');
+                } else {
+                    btn.classList.remove('text-indigo-400');
+                    btn.classList.add('text-gray-400');
+                }
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        // Sidebar Toggles
         document.getElementById('menu-open').onclick = () => document.getElementById('sidebar').classList.remove('-translate-x-full');
         document.getElementById('menu-close').onclick = () => document.getElementById('sidebar').classList.add('-translate-x-full');
 
+        // Note Search Function
+        window.searchNotes = () => {
+            let input = document.getElementById('note-search').value.toLowerCase();
+            let items = document.querySelectorAll('.note-item');
+            items.forEach(item => {
+                let text = item.querySelector('h4').innerText.toLowerCase();
+                item.style.display = text.includes(input) ? "flex" : "none";
+            });
+        };
+
         // AUTH LOGIC
-        document.getElementById('login-btn').onclick = () => signInWithPopup(auth, provider);
-        window.logout = () => signOut(auth);
+        document.getElementById('login-btn').onclick = async () => {
+            try {
+                document.getElementById('login-btn').innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Connecting...`;
+                await signInWithPopup(auth, provider);
+                showToast("Login Successful!", "success");
+            } catch (error) {
+                showToast("Login Failed. Try again.", "error");
+                document.getElementById('login-btn').innerHTML = `<img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-7 relative z-10"> <span class="relative z-10">Continue with Google</span>`;
+            }
+        };
+
+        window.logout = async () => {
+            await signOut(auth);
+            showToast("Logged out securely", "info");
+        };
 
         onAuthStateChanged(auth, (user) => {
+            const loginScreen = document.getElementById('login-screen');
             if (user) {
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('user-name').innerText = user.displayName;
+                loginScreen.style.opacity = '0';
+                setTimeout(() => loginScreen.classList.add('hidden'), 500);
+                
+                // Populate User Data
+                document.getElementById('user-name').innerText = user.displayName.split(' ')[0]; // First name
                 document.getElementById('prof-name').innerText = user.displayName;
-                document.getElementById('user-img').src = user.photoURL;
-                document.getElementById('prof-img').src = user.photoURL;
-                loadData();
+                
+                // Generate a random roll number just for UI
+                let roll = "UP" + Math.floor(100000 + Math.random() * 900000);
+                document.getElementById('prof-roll').innerText = roll;
+
+                // Handle Image
+                const imgUrl = user.photoURL || 'https://via.placeholder.com/150';
+                document.getElementById('user-img').src = imgUrl;
+                document.getElementById('prof-img').src = imgUrl;
+                
+                loadDatabaseData();
             } else {
-                document.getElementById('login-screen').classList.remove('hidden');
+                loginScreen.classList.remove('hidden');
+                setTimeout(() => loginScreen.style.opacity = '1', 50);
             }
         });
 
         // LOAD DATA FROM FIREBASE
-        function loadData() {
-            // Load Notes
-            onValue(ref(db, 'public_data/notes'), (snapshot) => {
-                const list = document.getElementById('notes-list');
-                list.innerHTML = "";
-                snapshot.forEach(child => {
-                    const data = child.val();
-                    list.innerHTML += `
-                        <div class="glass p-4 rounded-2xl flex justify-between items-center">
-                            <div><h4 class="font-bold">${data.title}</h4><p class="text-xs text-gray-500">${data.date}</p></div>
-                            <a href="${data.link}" target="_blank" class="text-indigo-600 text-xl"><i class="fa-solid fa-circle-down"></i></a>
+        function loadDatabaseData() {
+            if(!db) return;
+
+            // Load Notes securely
+            try {
+                onValue(ref(db, 'public_data/notes'), (snapshot) => {
+                    const list = document.getElementById('notes-list');
+                    list.innerHTML = "";
+                    if(snapshot.exists()){
+                        snapshot.forEach(child => {
+                            const data = child.val();
+                            list.innerHTML += `
+                                <div class="note-item glass bg-white/60 p-4 rounded-2xl flex justify-between items-center hover:-translate-y-1 transition-transform shadow-sm border border-white">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-10 h-10 bg-red-100 text-red-500 rounded-xl flex items-center justify-center"><i class="fa-solid fa-file-pdf"></i></div>
+                                        <div>
+                                            <h4 class="font-bold text-gray-800">${data.title}</h4>
+                                            <p class="text-xs text-gray-500 font-medium">Added: ${data.date}</p>
+                                        </div>
+                                    </div>
+                                    <a href="${data.link}" target="_blank" class="w-10 h-10 bg-indigo-50 hover:bg-indigo-600 hover:text-white text-indigo-600 rounded-xl flex items-center justify-center transition-colors shadow-sm"><i class="fa-solid fa-arrow-down"></i></a>
+                                </div>`;
+                        });
+                    } else {
+                        list.innerHTML = `<div class="text-center text-gray-500 py-6 bg-white/50 rounded-2xl border border-dashed border-gray-300">No study materials available right now.</div>`;
+                    }
+                });
+
+                // Load Status
+                onValue(ref(db, 'public_data/status'), (snapshot) => {
+                    const box = document.getElementById('course-status');
+                    const data = snapshot.val() || { phy: 65, chem: 45, math: 80 };
+                    
+                    box.innerHTML = `
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="font-bold text-lg text-gray-800">Syllabus Coverage</h4>
+                            <div class="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center"><i class="fa-solid fa-chart-pie"></i></div>
+                        </div>
+                        <div class="space-y-4">
+                            <div>
+                                <p class="text-sm font-semibold text-gray-700 flex justify-between mb-1">Physics <span>${data.phy}%</span></p>
+                                <div class="h-2.5 bg-gray-100 rounded-full overflow-hidden shadow-inner"><div class="h-full bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full transition-all duration-1000" style="width:${data.phy}%"></div></div>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-700 flex justify-between mb-1">Chemistry <span>${data.chem}%</span></p>
+                                <div class="h-2.5 bg-gray-100 rounded-full overflow-hidden shadow-inner"><div class="h-full bg-gradient-to-r from-purple-400 to-pink-500 rounded-full transition-all duration-1000" style="width:${data.chem}%"></div></div>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-700 flex justify-between mb-1">Mathematics <span>${data.math}%</span></p>
+                                <div class="h-2.5 bg-gray-100 rounded-full overflow-hidden shadow-inner"><div class="h-full bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full transition-all duration-1000" style="width:${data.math}%"></div></div>
+                            </div>
                         </div>`;
                 });
-            });
-
-            // Load Progress
-            onValue(ref(db, 'public_data/status'), (snapshot) => {
-                const box = document.getElementById('course-status');
-                const data = snapshot.val() || { phy: 70, chem: 50 };
-                box.innerHTML = `<h4 class="font-bold flex justify-between"><span>Course Progress</span> <i class="fa-solid fa-chart-line"></i></h4>
-                    <div class="space-y-3 mt-3">
-                        <p class="text-xs flex justify-between">Physics <span>${data.phy}%</span></p>
-                        <div class="h-2 bg-white rounded-full overflow-hidden"><div class="h-full bg-indigo-500" style="width:${data.phy}%"></div></div>
-                        <p class="text-xs flex justify-between">Chemistry <span>${data.chem}%</span></p>
-                        <div class="h-2 bg-white rounded-full overflow-hidden"><div class="h-full bg-purple-500" style="width:${data.chem}%"></div></div>
-                    </div>`;
-            });
+            } catch(e) {
+                console.log("Database read error", e);
+            }
         }
 
         // ADMIN FUNCTIONS
         window.unlockAdmin = () => {
             const pass = document.getElementById('admin-pass').value;
-            if(pass === "Study786") { // ये आपका पासवर्ड है
+            if(pass === "Study786") { 
                 document.getElementById('admin-auth').classList.add('hidden');
                 document.getElementById('admin-controls').classList.remove('hidden');
-            } else { alert("Wrong Key!"); }
+                showToast("Admin Access Granted", "success");
+                document.getElementById('admin-pass').value = ""; // clear input
+            } else { 
+                showToast("Access Denied. Wrong Key!", "error"); 
+                document.getElementById('admin-pass').value = "";
+            }
         };
 
-        window.uploadNote = () => {
-            const title = document.getElementById('note-title').value;
-            const link = document.getElementById('note-link').value;
-            if(!title || !link) return;
-            push(ref(db, 'public_data/notes'), { title, link, date: new Date().toLocaleDateString() });
-            alert("Uploaded!");
+        window.lockAdmin = () => {
+            document.getElementById('admin-auth').classList.remove('hidden');
+            document.getElementById('admin-controls').classList.add('hidden');
+            showToast("Admin Portal Locked", "info");
+        }
+
+        window.uploadNote = async () => {
+            if(!db) { showToast("Database not connected", "error"); return; }
+            
+            const title = document.getElementById('note-title').value.trim();
+            const link = document.getElementById('note-link').value.trim();
+            const btn = document.getElementById('upload-btn');
+            
+            if(!title || !link) {
+                showToast("Please fill both fields", "error");
+                return;
+            }
+
+            try {
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Uploading...`;
+                btn.disabled = true;
+
+                await push(ref(db, 'public_data/notes'), { 
+                    title: title, 
+                    link: link, 
+                    date: new Date().toLocaleDateString('en-GB', {day: 'numeric', month: 'short', year: 'numeric'}) 
+                });
+                
+                showToast("Material Uploaded Successfully!", "success");
+                document.getElementById('note-title').value = "";
+                document.getElementById('note-link').value = "";
+            } catch (error) {
+                showToast("Upload Failed", "error");
+            } finally {
+                btn.innerHTML = `<i class="fa-solid fa-upload"></i> Publish to Database`;
+                btn.disabled = false;
+            }
         };
 
-        // GEMINI AI
+        // ADVANCED GEMINI AI LOGIC
         window.askGemini = async () => {
             const input = document.getElementById('ai-input');
             const chat = document.getElementById('chat-box');
-            if(!input.value) return;
+            const btn = document.getElementById('ai-btn');
+            const q = input.value.trim();
+            
+            if(!q) return;
 
-            const q = input.value;
-            chat.innerHTML += `<div class="bg-indigo-100 p-3 rounded-2xl self-end max-w-[80%] ml-auto">${q}</div>`;
+            // 1. Add User Message to UI
+            chat.innerHTML += `
+                <div class="flex items-start gap-3 flex-row-reverse animate-slideUp">
+                    <img src="${auth.currentUser ? auth.currentUser.photoURL : 'https://via.placeholder.com/150'}" class="w-8 h-8 rounded-full border border-gray-200 flex-shrink-0">
+                    <div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 rounded-2xl rounded-tr-none shadow-md text-sm max-w-[85%]">
+                        ${q}
+                    </div>
+                </div>`;
+            
             input.value = "";
-
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyAsOACgDOfBPKBQjYtIjH79_PHEHeBKK_E`, {
-                method: "POST",
-                body: JSON.stringify({ contents: [{ parts: [{ text: "Explain this for 12th science student in Hindi: " + q }] }] })
-            });
-            const data = await res.json();
-            const reply = data.candidates[0].content.parts[0].text;
-            chat.innerHTML += `<div class="bg-white/50 p-3 rounded-2xl self-start max-w-[80%]">${reply}</div>`;
+            chat.scrollTop = chat.scrollHeight; // Scroll to bottom
+            
+            // 2. Disable input & Add Typing Loader
+            input.disabled = true;
+            btn.disabled = true;
+            const loaderId = "loader-" + Date.now();
+            
+            chat.innerHTML += `
+                <div id="${loaderId}" class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 flex-shrink-0"><i class="fa-solid fa-robot text-xs"></i></div>
+                    <div class="bg-white p-4 rounded-2xl rounded-tl-none shadow-sm text-sm border border-gray-100 flex items-center">
+                        <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>
+                    </div>
+                </div>`;
             chat.scrollTop = chat.scrollHeight;
+
+            // 3. Fetch from Gemini API with Error Handling
+            try {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                        contents: [{ 
+                            parts: [{ 
+                                text: `You are an expert AI Tutor for Class 12th Science students in India (UP/CBSE Board). Explain the following question clearly and simply in Hinglish/Hindi. If it involves formulas, format them nicely. The user question is: ${q}` 
+                            }] 
+                        }] 
+                    })
+                });
+
+                if(!res.ok) throw new Error("API Limit reached or network error");
+
+                const data = await res.json();
+                let reply = data.candidates[0].content.parts[0].text;
+                
+                // Very basic markdown parsing for bold text
+                reply = reply.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                reply = reply.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                reply = reply.replace(/\n/g, '<br>');
+
+                // Remove loader and add response
+                document.getElementById(loaderId).remove();
+                
+                chat.innerHTML += `
+                    <div class="flex items-start gap-3 animate-slideUp">
+                        <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 flex-shrink-0"><i class="fa-solid fa-robot text-xs"></i></div>
+                        <div class="bg-white p-4 rounded-2xl rounded-tl-none shadow-sm text-sm text-gray-800 max-w-[90%] border border-gray-100 leading-relaxed">
+                            ${reply}
+                        </div>
+                    </div>`;
+                    
+            } catch (error) {
+                document.getElementById(loaderId).remove();
+                showToast("AI is sleeping. Check connection.", "error");
+                chat.innerHTML += `
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600 flex-shrink-0"><i class="fa-solid fa-triangle-exclamation text-xs"></i></div>
+                        <div class="bg-red-50 p-4 rounded-2xl rounded-tl-none text-red-600 text-sm max-w-[85%] border border-red-100">
+                            माफ़ करें, नेटवर्क समस्या के कारण मैं अभी जवाब नहीं दे पा रहा हूँ। कृपया दोबारा प्रयास करें।
+                        </div>
+                    </div>`;
+            } finally {
+                // Re-enable input
+                input.disabled = false;
+                btn.disabled = false;
+                input.focus();
+                chat.scrollTop = chat.scrollHeight;
+            }
         };
 
-        // Exam Timer
+        // Advanced Exam Timer Logic
         setInterval(() => {
-            const diff = new Date("2025-02-15") - new Date();
-            const d = Math.floor(diff/(1000*60*60*24));
-            const h = Math.floor((diff/(1000*60*60))%24);
-            document.getElementById('countdown').innerText = `${d}d : ${h}h`;
+            const examDate = new Date("2025-02-15T00:00:00");
+            const now = new Date();
+            const diff = examDate - now;
+
+            if(diff > 0) {
+                const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                
+                document.getElementById('count-days').innerText = d.toString().padStart(2, '0');
+                document.getElementById('count-hours').innerText = h.toString().padStart(2, '0');
+            } else {
+                document.getElementById('count-days').innerText = "00";
+                document.getElementById('count-hours').innerText = "00";
+            }
         }, 1000);
 
     </script>
