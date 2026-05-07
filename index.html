@@ -924,13 +924,3 @@ FORMATTING RULES:
 </body>
 </html>'''
 
-with open('/mnt/agents/output/studygram_pro_fixed.html', 'w', encoding='utf-8') as f:
-    f.write(fixed_html)
-
-print("✅ FIXED HTML saved!")
-print(f"📄 Size: {len(fixed_html)} chars")
-print("\n🔥 CRITICAL FIXES:")
-print("1. Removed all Unicode escape issues - used actual Unicode chars")
-print("2. Removed '•' bullet character that was causing parse issues")
-print("3. Simplified AI system prompt to avoid encoding issues")
-print("4. All special chars replaced with safe equivalents")
