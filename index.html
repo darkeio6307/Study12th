@@ -11,17 +11,59 @@
     <script>eruda.init();</script>
     <style>
         body { font-family: 'Poppins', sans-serif; overflow-x: hidden; background-color: #f8fafc; }
+        
         .glass { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05); }
         .glass-dark { background: rgba(17, 24, 39, 0.9); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); }
+
         .section { display: none; opacity: 0; transform: translateY(15px); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         .active-section { display: block; opacity: 1; transform: translateY(0); animation: slideUp 0.5s ease forwards; }
+        
         @keyframes slideUp { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
-        #ai.active-section { position: fixed; inset: 0; z-index: 999; background: #f3f4f6; display: flex; flex-direction: column; }
-        .typing-dot { display: inline-block; width: 6px; height: 6px; background: #16a34a; border-radius: 50%; margin: 0 2px; animation: typing 1.4s infinite ease-in-out both; }
+        
+        /* Full Screen AI Chat */
+        #ai.active-section { position: fixed; inset: 0; z-index: 999; background: #f3f4f6; display: flex; flex-direction: column; opacity: 1; transform: translateY(0); animation: none; }
+
+        .typing-dot { display: inline-block; width: 6px; height: 6px; background: #8b5cf6; border-radius: 50%; margin: 0 2px; animation: typing 1.4s infinite ease-in-out both; }
         .typing-dot:nth-child(1) { animation-delay: -0.32s; } .typing-dot:nth-child(2) { animation-delay: -0.16s; }
         @keyframes typing { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+
         ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+        .toast { padding: 12px 20px; border-radius: 12px; color: white; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 10px; transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .toast.show { transform: translateX(0); }
+        .toast.success { background: #10b981; } .toast.error { background: #ef4444; } .toast.info { background: #6366f1; }
+
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
+        .modal.active { display: flex; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* AI response formatting */
+        .ai-response { line-height: 1.8; }
+        .ai-response b { color: #1e40af; }
+        .ai-response .formula-block { 
+            background: #f0f4ff; 
+            border-left: 3px solid #6366f1; 
+            padding: 8px 12px; 
+            border-radius: 0 8px 8px 0; 
+            margin: 6px 0; 
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        .ai-response ul { padding-left: 16px; margin: 4px 0; }
+        .ai-response ul li { margin: 3px 0; list-style: disc; }
+        .ai-response ol { padding-left: 16px; margin: 4px 0; }
+        .ai-response ol li { margin: 3px 0; }
+        .ai-response .step { 
+            background: #f8fafc; 
+            border: 1px solid #e2e8f0; 
+            border-radius: 8px; 
+            padding: 8px 10px; 
+            margin: 4px 0; 
+        }
+        .ai-response sup { font-size: 0.75em; vertical-align: super; }
     </style>
 </head>
 <body class="bg-[url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop')] bg-cover bg-center bg-fixed min-h-screen pb-24 text-gray-800">
@@ -30,45 +72,57 @@
     <div id="toast-container"></div>
 
     <div id="login-screen" class="fixed inset-0 z-[200] bg-white flex flex-col items-center justify-center p-6 text-center transition-opacity duration-500">
-        <div class="w-28 h-28 bg-gradient-to-tr from-green-600 to-emerald-600 rounded-[2rem] rotate-45 flex items-center justify-center text-white text-5xl shadow-2xl mb-8">
-            <i class="fa-solid fa-bolt-lightning -rotate-45"></i>
+        <div class="w-28 h-28 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-[2rem] rotate-45 flex items-center justify-center text-white text-5xl shadow-2xl mb-8">
+            <i class="fa-solid fa-atom -rotate-45"></i>
         </div>
-        <h1 class="text-4xl font-extrabold text-gray-900 tracking-tight mb-2">StudyGram <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600">Pro</span></h1>
-        <p class="text-gray-500 font-medium mb-10 text-lg">Powered by Groq Llama 3.3</p>
-        <button id="login-btn" class="w-full max-w-sm bg-white border border-gray-200 py-4 rounded-2xl flex items-center justify-center gap-4 font-bold text-gray-700 shadow-lg active:scale-95 transition-all">
+        <h1 class="text-4xl font-extrabold text-gray-900 tracking-tight mb-2">StudyGram <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Pro</span></h1>
+        <p class="text-gray-500 font-medium mb-10 text-lg">The Ultimate 12th Science Hub</p>
+        <button id="login-btn" class="w-full max-w-sm bg-white border border-gray-200 py-4 rounded-2xl flex items-center justify-center gap-4 font-bold text-gray-700 shadow-lg hover:shadow-xl active:scale-95 transition-all">
             <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-7"> Continue with Google
         </button>
     </div>
 
-    <nav id="main-nav" class="sticky top-0 z-50 glass px-6 py-4 flex justify-between items-center m-4 rounded-3xl shadow-sm">
+    <nav id="main-nav" class="sticky top-0 z-50 glass px-6 py-4 flex justify-between items-center m-4 rounded-3xl transition-all duration-300 shadow-sm">
         <div class="flex items-center gap-3">
-            <div class="w-9 h-9 bg-gradient-to-tr from-green-600 to-emerald-600 rounded-xl flex items-center justify-center text-white text-sm shadow-md">
+            <div class="w-9 h-9 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center text-white text-sm shadow-md">
                 <i class="fa-solid fa-book-open"></i>
             </div>
             <h2 class="text-xl font-bold tracking-wide text-gray-900">StudyGram</h2>
         </div>
-        <button onclick="switchTab('admin')" class="w-10 h-10 rounded-full bg-white/80 flex items-center justify-center text-gray-600 shadow-sm"><i class="fa-solid fa-shield-halved"></i></button>
+        <div class="flex gap-3 items-center">
+            <button onclick="switchTab('admin')" class="w-10 h-10 rounded-full bg-white/80 flex items-center justify-center text-gray-600 shadow-sm hover:bg-white active:scale-90 transition-transform"><i class="fa-solid fa-shield-halved"></i></button>
+        </div>
     </nav>
 
     <main class="p-4 max-w-lg mx-auto" id="main-content">
+
         <div id="home" class="section active-section space-y-6">
-            <div class="glass p-6 rounded-[2rem] flex items-center gap-5 shadow-sm">
-                <img id="user-img" src="" class="w-16 h-16 rounded-2xl border-2 border-white shadow-lg object-cover">
-                <div>
-                    <p class="text-sm text-gray-500 font-medium">Welcome,</p>
-                    <h3 id="user-name" class="font-bold text-xl text-gray-900">Student</h3>
+            <div class="glass p-6 rounded-[2rem] flex items-center gap-5 relative overflow-hidden shadow-sm">
+                <img id="user-img" src="" class="w-16 h-16 rounded-2xl border-2 border-white shadow-lg object-cover z-10">
+                <div class="z-10">
+                    <p class="text-sm text-gray-500 font-medium">Welcome back,</p>
+                    <h3 id="user-name" class="font-bold text-xl text-gray-900">Loading...</h3>
                 </div>
             </div>
 
-            <div class="bg-gradient-to-br from-green-900 to-emerald-700 p-6 rounded-[2rem] text-white shadow-xl relative overflow-hidden">
-                <p class="text-green-200 text-sm font-medium mb-2"><i class="fa-solid fa-stopwatch mr-1"></i> Exam Countdown</p>
-                <div class="flex gap-3 mt-2">
-                    <div class="bg-black/20 px-4 py-2 rounded-xl border border-white/10 text-center"><span id="count-days" class="text-3xl font-black block">--</span><span class="text-[10px] uppercase tracking-widest">Days</span></div>
-                    <div class="bg-black/20 px-4 py-2 rounded-xl border border-white/10 text-center"><span id="count-hours" class="text-3xl font-black block">--</span><span class="text-[10px] uppercase tracking-widest">Hours</span></div>
+            <div class="bg-gradient-to-br from-indigo-900 to-indigo-700 p-6 rounded-[2rem] text-white shadow-xl relative overflow-hidden">
+                <div class="relative z-10">
+                    <p class="text-indigo-200 text-sm font-medium mb-2"><i class="fa-solid fa-stopwatch mr-1"></i> Final Board Exams</p>
+                    <div class="flex gap-3 mt-2">
+                        <div class="bg-black/20 px-4 py-2 rounded-xl border border-white/10 text-center min-w-[70px]">
+                            <span id="count-days" class="text-3xl font-black block">--</span><span class="text-[10px] text-indigo-200 uppercase tracking-widest">Days</span>
+                        </div>
+                        <div class="bg-black/20 px-4 py-2 rounded-xl border border-white/10 text-center min-w-[70px]">
+                            <span id="count-hours" class="text-3xl font-black block">--</span><span class="text-[10px] text-indigo-200 uppercase tracking-widest">Hours</span>
+                        </div>
+                    </div>
                 </div>
+                <i class="fa-solid fa-graduation-cap text-6xl text-white/10 absolute right-4 bottom-4 transform -rotate-12"></i>
             </div>
 
-            <div id="course-status" class="glass p-6 rounded-[2rem] space-y-5 shadow-sm"></div>
+            <div id="course-status" class="glass p-6 rounded-[2rem] space-y-5 shadow-sm">
+                <div class="text-center py-4"><i class="fa-solid fa-spinner fa-spin text-gray-400 text-2xl"></i></div>
+            </div>
         </div>
 
         <div id="notes" class="section space-y-5">
@@ -84,14 +138,31 @@
         <div id="profile" class="section space-y-6">
             <div class="glass p-8 rounded-[2rem] text-center relative mt-10 shadow-sm">
                 <div class="absolute -top-12 left-1/2 transform -translate-x-1/2">
-                    <img id="prof-img" src="" class="w-24 h-24 rounded-full border-4 border-white shadow-xl bg-white">
+                    <img id="prof-img" src="" class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-xl bg-white">
                 </div>
-                <div class="mt-12 mb-6">
-                    <h2 id="prof-name" class="text-2xl font-black text-gray-900">User</h2>
-                    <p class="text-green-600 font-semibold text-sm">Class 12th • PCM</p>
+                <div class="mt-12">
+                    <h2 id="prof-name" class="text-2xl font-black text-gray-900">Loading...</h2>
+                    <p class="text-indigo-600 font-semibold text-sm mb-6">Class 12th • PCM</p>
                 </div>
-                <button onclick="openExamModal()" class="w-full bg-green-600 text-white py-4 rounded-2xl font-bold shadow-lg mb-4">View Exam Seat</button>
-                <button onclick="logout()" class="w-full bg-red-50 text-red-600 py-3 rounded-2xl font-bold">Logout</button>
+
+                <button onclick="openExamModal()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:shadow-xl active:scale-95 transition-all mb-6 flex justify-center items-center gap-2">
+                    <i class="fa-solid fa-ticket"></i> View Exam Seat & Schedule
+                </button>
+
+                <div class="bg-white/60 p-5 rounded-2xl text-left space-y-4 border border-white">
+                    <div class="flex justify-between items-center border-b border-gray-200/50 pb-2">
+                        <span class="text-gray-500 text-sm font-medium">Roll No</span>
+                        <span class="font-bold text-gray-800" id="prof-roll">Generating...</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-500 text-sm font-medium">Subjects</span>
+                        <span class="font-bold text-gray-800 text-sm">Hin, Eng, Math, Phy, Chem</span>
+                    </div>
+                </div>
+
+                <button onclick="logout()" class="w-full mt-6 bg-red-50 text-red-600 hover:bg-red-100 py-3 rounded-2xl font-bold flex items-center justify-center gap-2 transition-colors">
+                    <i class="fa-solid fa-power-off"></i> Logout
+                </button>
             </div>
         </div>
 
@@ -99,64 +170,169 @@
             <div id="admin-auth" class="glass p-8 rounded-[2rem] text-center max-w-sm mx-auto mt-10 shadow-sm">
                 <i class="fa-solid fa-user-shield text-5xl text-gray-800 mb-4"></i>
                 <h2 class="text-2xl font-bold mb-6">Admin Login</h2>
-                <input id="admin-pass" type="password" placeholder="Key: unlock" class="w-full py-3 px-4 rounded-xl mb-4 border text-center font-mono">
-                <button onclick="unlockAdmin()" class="bg-gray-900 text-white w-full py-3 rounded-xl font-bold">Unlock</button>
+                <input id="admin-pass" type="password" placeholder="Enter Master Key" class="w-full py-3 px-4 rounded-xl mb-4 border focus:border-indigo-500 outline-none text-center font-mono tracking-widest bg-white/80">
+                <button onclick="unlockAdmin()" class="bg-gray-900 text-white w-full py-3 rounded-xl font-bold shadow-md hover:bg-black active:scale-95 transition-all">Unlock Portal</button>
             </div>
 
             <div id="admin-controls" class="hidden space-y-4">
                 <div class="flex justify-between items-center mb-4 pl-2">
                     <h2 class="text-2xl font-bold text-gray-900">Control Panel</h2>
-                    <button onclick="lockAdmin()" class="text-red-500 font-bold bg-red-50 px-4 py-2 rounded-xl text-sm">Lock</button>
+                    <button onclick="lockAdmin()" class="text-red-500 font-bold bg-red-50 px-4 py-2 rounded-xl text-sm shadow-sm hover:bg-red-100 transition-colors">Lock</button>
                 </div>
-                <details class="glass bg-white p-5 rounded-2xl cursor-pointer">
-                    <summary class="font-bold">Manage Data</summary>
-                    <div id="manage-notes-list" class="mt-4 space-y-2"></div>
+                
+                <details class="glass bg-white p-5 rounded-2xl group cursor-pointer border-l-4 border-red-500 transition-all">
+                    <summary class="font-bold text-lg text-red-600 flex justify-between items-center list-none outline-none">
+                        <span class="flex items-center gap-2"><i class="fa-solid fa-trash-can"></i> Manage Data</span>
+                        <i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i>
+                    </summary>
+                    <div class="mt-4 space-y-4 cursor-default border-t pt-4">
+                        <div class="text-sm font-bold text-gray-500 mb-2">Study Materials</div>
+                        <div id="manage-notes-list" class="space-y-2 max-h-40 overflow-y-auto pr-1">Loading...</div>
+                        
+                        <div class="text-sm font-bold text-gray-500 mb-2 mt-4">Board Notices</div>
+                        <div id="manage-notices-list" class="space-y-2 max-h-40 overflow-y-auto pr-1">Loading...</div>
+
+                        <div class="text-sm font-bold text-gray-500 mb-2 mt-4">Exam Schedule</div>
+                        <div id="manage-exams-list" class="space-y-2 max-h-40 overflow-y-auto pr-1">Loading...</div>
+                    </div>
                 </details>
-                </div>
+
+                <details class="glass bg-white p-5 rounded-2xl group cursor-pointer shadow-sm border border-white">
+                    <summary class="font-bold text-lg text-indigo-700 flex justify-between items-center list-none outline-none">
+                        <span class="flex items-center gap-2"><i class="fa-solid fa-file-pdf"></i> Upload Material</span>
+                        <i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i>
+                    </summary>
+                    <div class="mt-4 space-y-3 cursor-default">
+                        <input id="n-title" placeholder="Title (e.g. Physics Ch-1)" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-100 bg-gray-50">
+                        <input id="n-link" placeholder="Drive Link" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-100 bg-gray-50">
+                        <button onclick="adminAction('note')" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold shadow-md active:scale-95 transition-transform">Upload Note</button>
+                    </div>
+                </details>
+
+                <details class="glass bg-white p-5 rounded-2xl group cursor-pointer shadow-sm border border-white">
+                    <summary class="font-bold text-lg text-blue-600 flex justify-between items-center list-none outline-none">
+                        <span class="flex items-center gap-2"><i class="fa-solid fa-chart-pie"></i> Update Progress</span>
+                        <i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i>
+                    </summary>
+                    <div class="mt-4 space-y-3 cursor-default">
+                        <div class="grid grid-cols-2 gap-3">
+                            <input id="p-hin" type="number" placeholder="Hindi %" class="w-full p-3 border rounded-xl outline-none bg-gray-50">
+                            <input id="p-eng" type="number" placeholder="English %" class="w-full p-3 border rounded-xl outline-none bg-gray-50">
+                            <input id="p-math" type="number" placeholder="Math %" class="w-full p-3 border rounded-xl outline-none bg-gray-50">
+                            <input id="p-phy" type="number" placeholder="Physics %" class="w-full p-3 border rounded-xl outline-none bg-gray-50">
+                        </div>
+                        <input id="p-chem" type="number" placeholder="Chemistry %" class="w-full p-3 border rounded-xl outline-none bg-gray-50">
+                        <button onclick="adminAction('progress')" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-md active:scale-95 transition-transform">Save Progress</button>
+                    </div>
+                </details>
+
+                <details class="glass bg-white p-5 rounded-2xl group cursor-pointer shadow-sm border border-white">
+                    <summary class="font-bold text-lg text-amber-600 flex justify-between items-center list-none outline-none">
+                        <span class="flex items-center gap-2"><i class="fa-solid fa-bullhorn"></i> Push Notice</span>
+                        <i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i>
+                    </summary>
+                    <div class="mt-4 space-y-3 cursor-default">
+                        <input id="nt-title" placeholder="Notice Title" class="w-full p-3 border rounded-xl outline-none bg-gray-50">
+                        <textarea id="nt-desc" placeholder="Details..." class="w-full p-3 border rounded-xl h-24 outline-none resize-none bg-gray-50"></textarea>
+                        <button onclick="adminAction('notice')" class="w-full bg-amber-500 text-white py-3 rounded-xl font-bold shadow-md active:scale-95 transition-transform">Publish Notice</button>
+                    </div>
+                </details>
+
+                <details class="glass bg-white p-5 rounded-2xl group cursor-pointer shadow-sm border border-white">
+                    <summary class="font-bold text-lg text-purple-600 flex justify-between items-center list-none outline-none">
+                        <span class="flex items-center gap-2"><i class="fa-solid fa-calendar-days"></i> Add Exam Schedule</span>
+                        <i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i>
+                    </summary>
+                    <div class="mt-4 space-y-3 cursor-default">
+                        <input id="ex-name" placeholder="Exam (e.g. Pre-Board)" class="w-full p-3 border rounded-xl outline-none bg-gray-50">
+                        <input id="ex-sub" placeholder="Subject" class="w-full p-3 border rounded-xl outline-none bg-gray-50">
+                        <input id="ex-date" type="date" class="w-full p-3 border rounded-xl outline-none bg-gray-50">
+                        <div class="flex gap-2">
+                            <input id="ex-time" type="time" class="w-1/2 p-3 border rounded-xl outline-none bg-gray-50">
+                            <input id="ex-meet" placeholder="Meeting (Shift)" class="w-1/2 p-3 border rounded-xl outline-none bg-gray-50">
+                        </div>
+                        <button onclick="adminAction('exam')" class="w-full bg-purple-600 text-white py-3 rounded-xl font-bold shadow-md active:scale-95 transition-transform">Add to Schedule</button>
+                    </div>
+                </details>
+
+                <details class="glass bg-white p-5 rounded-2xl group cursor-pointer shadow-sm border border-white">
+                    <summary class="font-bold text-lg text-green-600 flex justify-between items-center list-none outline-none">
+                        <span class="flex items-center gap-2"><i class="fa-solid fa-stopwatch"></i> Set Exam Timer</span>
+                        <i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i>
+                    </summary>
+                    <div class="mt-4 space-y-3 cursor-default">
+                        <input id="cd-date" type="datetime-local" class="w-full p-3 border rounded-xl outline-none bg-gray-50">
+                        <button onclick="adminAction('countdown')" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold shadow-md active:scale-95 transition-transform">Update Timer</button>
+                    </div>
+                </details>
+
+            </div>
         </div>
+
     </main>
 
+    <!-- AI CHAT SECTION -->
     <div id="ai" class="section">
-        <div class="bg-white px-4 py-4 flex items-center justify-between shadow-sm border-b">
+        <div class="bg-white px-4 py-4 flex items-center justify-between shadow-sm z-10 border-b relative">
             <div class="flex items-center gap-3">
-                <button onclick="switchTab('home')" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center"><i class="fa-solid fa-arrow-left"></i></button>
-                <div>
-                    <h3 class="font-bold text-gray-900 leading-tight">Groq AI <span class="text-[10px] bg-green-100 text-green-600 px-1.5 py-0.5 rounded ml-1">Llama 3.3</span></h3>
-                    <p class="text-[10px] text-green-500 font-bold uppercase">Online • 70B Engine</p>
+                <button onclick="switchTab('home')" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200 active:scale-90 transition-transform"><i class="fa-solid fa-arrow-left"></i></button>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-tr from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-white shadow-inner"><i class="fa-solid fa-robot"></i></div>
+                    <div>
+                        <h3 class="font-bold text-gray-900 leading-tight">Llama 3.3 <span class="text-[10px] bg-green-100 text-green-600 px-1.5 py-0.5 rounded font-bold ml-1"><i class="fa-solid fa-bolt"></i> Groq</span></h3>
+                        <p class="text-[10px] text-green-500 font-bold uppercase tracking-wider">Ultra Fast • हिन्दी AI</p>
+                    </div>
                 </div>
             </div>
-            <button onclick="clearChat()" class="text-sm text-gray-400"><i class="fa-solid fa-trash-can"></i> Clear</button>
+            <button onclick="clearChat()" class="text-sm text-gray-500 hover:text-red-500 transition-colors bg-gray-50 px-3 py-1.5 rounded-lg"><i class="fa-solid fa-trash-can"></i> Clear</button>
         </div>
 
         <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-4 bg-[#f3f4f6]">
             <div class="flex items-start gap-3">
-                <div class="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center text-white"><i class="fa-solid fa-bolt text-xs"></i></div>
-                <div class="bg-white p-3.5 rounded-2xl rounded-tl-none shadow-sm text-sm text-gray-800 border border-gray-100">
-                    Namaste! Main Groq AI hoon. StudyGram Pro mein aapka swagat hai. 12th Science ka koi bhi sawal puchiye! ⚡
+                <div class="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center text-white flex-shrink-0 mt-1 shadow-sm"><i class="fa-solid fa-robot text-xs"></i></div>
+                <div class="bg-white p-3.5 rounded-2xl rounded-tl-none shadow-sm text-sm text-gray-800 max-w-[85%] border border-gray-100 ai-response">
+                    नमस्ते! 🙏 मैं आपका AI टीचर हूँ — Groq पर चल रहा हूँ।<br><br>
+                    कोई भी टॉपिक पूछो — Physics, Chemistry, Maths! सब देवनागरी में समझाऊँगा। ✨
                 </div>
             </div>
         </div>
 
-        <div class="p-4 bg-white border-t">
-            <form id="ai-form" class="flex gap-2 relative" onsubmit="event.preventDefault(); askGroq();">
-                <input id="ai-input" type="text" placeholder="Ask your doubt..." autocomplete="off" class="flex-1 py-3.5 pl-5 pr-14 rounded-full bg-gray-100 focus:bg-white border border-transparent focus:border-green-300 outline-none transition-all text-sm">
-                <button type="submit" id="ai-btn" class="absolute right-1.5 top-1.5 bottom-1.5 bg-green-600 text-white w-10 rounded-full flex items-center justify-center active:scale-90 shadow-md">
+        <div class="p-4 bg-white border-t shadow-[0_-5px_15px_rgba(0,0,0,0.02)]">
+            <div class="flex gap-2 relative">
+                <input id="ai-input" type="text" placeholder="सवाल पूछो..." autocomplete="off" 
+                       class="flex-1 py-3.5 pl-5 pr-14 rounded-full bg-gray-100 focus:bg-white border border-transparent focus:border-green-300 focus:ring-2 focus:ring-green-100 outline-none transition-all text-sm"
+                       onkeydown="if(event.key==='Enter') askGroq()">
+                <button onclick="askGroq()" id="ai-btn" class="absolute right-1.5 top-1.5 bottom-1.5 bg-green-600 text-white w-10 rounded-full flex items-center justify-center transition-transform active:scale-90 shadow-md">
                     <i class="fa-solid fa-paper-plane"></i>
                 </button>
-            </form>
+            </div>
         </div>
     </div>
 
-    <div id="bottom-nav" class="fixed bottom-4 left-4 right-4 glass-dark h-16 rounded-3xl flex justify-around items-center px-2 z-50 shadow-2xl border border-gray-700/50">
-        <button onclick="switchTab('home')" class="nav-btn w-12 h-12 flex items-center justify-center text-xl text-gray-400" data-target="home"><i class="fa-solid fa-house"></i></button>
-        <button onclick="switchTab('notes')" class="nav-btn w-12 h-12 flex items-center justify-center text-xl text-gray-400" data-target="notes"><i class="fa-solid fa-book-open"></i></button>
+    <div id="bottom-nav" class="fixed bottom-4 left-4 right-4 glass-dark h-16 rounded-3xl flex justify-around items-center px-2 z-50 shadow-2xl transition-all duration-300 border border-gray-700/50">
+        <button onclick="switchTab('home')" class="nav-btn w-12 h-12 flex items-center justify-center text-xl text-gray-400 hover:text-white transition-colors" data-target="home"><i class="fa-solid fa-house"></i></button>
+        <button onclick="switchTab('notes')" class="nav-btn w-12 h-12 flex items-center justify-center text-xl text-gray-400 hover:text-white transition-colors" data-target="notes"><i class="fa-solid fa-book-open"></i></button>
+        
         <div class="relative -top-5">
-            <button onclick="switchTab('ai')" class="w-14 h-14 bg-gradient-to-tr from-green-500 to-emerald-600 rounded-full border-[3px] border-gray-900 flex items-center justify-center text-white text-2xl shadow-lg" data-target="ai">
-                <i class="fa-solid fa-bolt-lightning"></i>
+            <button onclick="switchTab('ai')" class="w-14 h-14 bg-gradient-to-tr from-green-500 to-emerald-600 rounded-full border-[3px] border-gray-900 flex items-center justify-center text-white text-2xl shadow-[0_8px_20px_rgba(34,197,94,0.4)] transition-transform active:scale-95" data-target="ai">
+                <i class="fa-solid fa-robot"></i>
             </button>
         </div>
-        <button onclick="switchTab('notice')" class="nav-btn w-12 h-12 flex items-center justify-center text-xl text-gray-400" data-target="notice"><i class="fa-solid fa-bell"></i></button>
-        <button onclick="switchTab('profile')" class="nav-btn w-12 h-12 flex items-center justify-center text-xl text-gray-400" data-target="profile"><i class="fa-solid fa-user"></i></button>
+
+        <button onclick="switchTab('notice')" class="nav-btn w-12 h-12 flex items-center justify-center text-xl text-gray-400 hover:text-white transition-colors" data-target="notice"><i class="fa-solid fa-bell"></i></button>
+        <button onclick="switchTab('profile')" class="nav-btn w-12 h-12 flex items-center justify-center text-xl text-gray-400 hover:text-white transition-colors" data-target="profile"><i class="fa-solid fa-user-astronaut"></i></button>
+    </div>
+
+    <div id="exam-modal" class="modal">
+        <div class="bg-white w-full max-w-sm rounded-[2rem] p-6 shadow-2xl relative border border-gray-100">
+            <button onclick="closeExamModal()" class="absolute top-4 right-4 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-red-50 hover:text-red-500 transition-colors"><i class="fa-solid fa-xmark"></i></button>
+            <h2 class="text-2xl font-black text-gray-900 mb-2"><i class="fa-solid fa-id-card-clip text-indigo-600"></i> Exam Seat</h2>
+            <p class="text-sm text-gray-500 mb-4 border-b pb-4">Check your upcoming schedule below.</p>
+            
+            <div id="modal-schedule-list" class="space-y-3 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                <div class="text-center text-gray-400 text-sm py-4">Loading schedule...</div>
+            </div>
+        </div>
     </div>
 
     <script type="module">
@@ -170,21 +346,189 @@
             databaseURL: "https://study-ae01d-default-rtdb.firebaseio.com",
             projectId: "study-ae01d"
         };
-        
-        const GROQ_API_KEY = "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"; 
+
+        // ✅ GROQ KEY (Llama 3.3 - Working!)
+        const GROQ_KEY = "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";
+        const GROQ_MODEL = "llama-3.3-70b-versatile";
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
         const provider = new GoogleAuthProvider();
 
-        let globalTargetDate = new Date("2025-02-15T00:00:00"); 
+        let globalTargetDate = new Date("2025-02-15T00:00:00");
 
+        // ─── RESPONSE FORMATTER ────────────────────────────────────────────
+        window.formatAIResponse = function(text) {
+            // Superscript map
+            const supMap = {
+                '0':'⁰','1':'¹','2':'²','3':'³','4':'⁴',
+                '5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹',
+                '-':'⁻','+':'⁺','n':'ⁿ'
+            };
+
+            // Convert ^exponent -> superscript unicode (e.g. 10^19 -> 10¹⁹)
+            text = text.replace(/\^([\d\+\-n]+)/g, (_, exp) =>
+                exp.split('').map(c => supMap[c] || c).join('')
+            );
+
+            // × symbol (x between number and 10)
+            text = text.replace(/(\d)\s*[xX×]\s*(10[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿ]*)/g, '$1 × $2');
+            text = text.replace(/(\d)\s*[xX]\s*(10\b)/g, '$1 × $2');
+
+            // Bold (**text**)
+            text = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+
+            // Italic (*text*)
+            text = text.replace(/\*([^\*\n]+?)\*/g, '<i>$1</i>');
+
+            // Headings (## heading)
+            text = text.replace(/^##\s+(.+)$/gm, '<div class="font-bold text-indigo-700 text-base mt-3 mb-1">$1</div>');
+            text = text.replace(/^#\s+(.+)$/gm, '<div class="font-black text-gray-900 text-lg mt-3 mb-1">$1</div>');
+
+            // Bullet points
+            text = text.replace(/^[\-\*]\s+(.+)$/gm, '<div class="flex gap-2 my-1"><span class="text-indigo-500 font-bold mt-0.5">•</span><span>$1</span></div>');
+
+            // Numbered list (1. item)
+            let counter = 0;
+            text = text.replace(/^\d+\.\s+(.+)$/gm, (_, item) => {
+                counter++;
+                return `<div class="flex gap-2 my-1"><span class="text-green-600 font-bold w-5 flex-shrink-0">${counter}.</span><span>${item}</span></div>`;
+            });
+
+            // Formula lines (lines with = and numbers, wrap nicely)
+            text = text.replace(/^(.*?[=→⇒].*?\d.*)$/gm, (match) => {
+                if (match.includes('<div') || match.includes('<span')) return match;
+                return `<div class="formula-block my-1">${match}</div>`;
+            });
+
+            // Newlines -> <br>
+            text = text.replace(/\n/g, '<br>');
+
+            // Clean up extra <br> after block elements
+            text = text.replace(/<br>(<div)/g, '$1');
+            text = text.replace((<\/div>)<br>/g, '$1');
+
+            return text;
+        };
+
+        // ─── GROQ AI CHAT ────────────────────────────────────────────────
+        window.clearChat = () => {
+            document.getElementById('chat-box').innerHTML = `
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center text-white flex-shrink-0 mt-1 shadow-sm"><i class="fa-solid fa-robot text-xs"></i></div>
+                    <div class="bg-white p-3.5 rounded-2xl rounded-tl-none shadow-sm text-sm text-gray-800 max-w-[85%] border border-gray-100 ai-response">
+                        चैट साफ हो गई! 🗑️ अब नया सवाल पूछो।
+                    </div>
+                </div>`;
+        };
+
+        window.askGroq = async () => {
+            const input = document.getElementById('ai-input');
+            const chat = document.getElementById('chat-box');
+            const btn = document.getElementById('ai-btn');
+            const q = input.value.trim();
+            if (!q) return;
+
+            // User message bubble
+            chat.innerHTML += `
+                <div class="flex items-start gap-3 flex-row-reverse">
+                    <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs mt-1 shadow-sm flex-shrink-0"><i class="fa-solid fa-user"></i></div>
+                    <div class="bg-blue-600 text-white p-3.5 rounded-2xl rounded-tr-none shadow-md text-sm max-w-[85%]">${q}</div>
+                </div>`;
+
+            input.value = "";
+            input.disabled = true;
+            btn.disabled = true;
+            chat.scrollTop = chat.scrollHeight;
+
+            // Typing loader
+            const loaderId = "ld-" + Date.now();
+            chat.innerHTML += `
+                <div id="${loaderId}" class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center text-white mt-1 shadow-sm flex-shrink-0"><i class="fa-solid fa-robot text-xs"></i></div>
+                    <div class="bg-white p-4 rounded-2xl rounded-tl-none shadow-sm border border-gray-100">
+                        <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>
+                    </div>
+                </div>`;
+            chat.scrollTop = chat.scrollHeight;
+
+            try {
+                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${GROQ_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: GROQ_MODEL,
+                        messages: [
+                            {
+                                role: "system",
+                                content: `तुम एक expert Indian Science teacher हो जो Class 12th PCM (Physics, Chemistry, Maths) पढ़ाते हो।
+
+LANGUAGE RULES (बहुत ज़रूरी):
+- हमेशा देवनागरी लिपि में उत्तर दो (हिंदी या Hinglish)
+- English subject के सवाल हों तो English में जवाब दो
+- अगर student खुद किसी और भाषा में माँगे तभी उस भाषा में दो
+
+FORMATTING RULES (ChatGPT/Gemini जैसा):
+- Scientific notation: 1.6×10¹⁹ लिखो, कभी 10^19 नहीं
+- Mathematical powers: x² , x³ , E = mc² — Unicode superscripts use करो
+- Important terms: **bold** में
+- Steps clearly numbered करो
+- Formulas अलग line में लिखो
+- Simple, clear, easy-to-understand भाषा
+- Examples ज़रूर दो जहाँ helpful हो`
+                            },
+                            { role: "user", content: q }
+                        ],
+                        temperature: 0.7,
+                        max_tokens: 1024
+                    })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.error?.message || `HTTP ${res.status}`);
+                }
+
+                const rawReply = data.choices[0].message.content;
+                const formattedReply = window.formatAIResponse(rawReply);
+
+                document.getElementById(loaderId).remove();
+                chat.innerHTML += `
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center text-white mt-1 shadow-sm flex-shrink-0"><i class="fa-solid fa-robot text-xs"></i></div>
+                        <div class="bg-white p-4 rounded-2xl rounded-tl-none shadow-sm text-sm text-gray-800 max-w-[90%] leading-relaxed border border-gray-100 ai-response">${formattedReply}</div>
+                    </div>`;
+
+            } catch (error) {
+                console.error("Groq Error:", error);
+                document.getElementById(loaderId)?.remove();
+                chat.innerHTML += `
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center text-white mt-1 shadow-sm flex-shrink-0"><i class="fa-solid fa-triangle-exclamation text-xs"></i></div>
+                        <div class="bg-red-50 p-3.5 rounded-2xl rounded-tl-none text-red-600 text-sm max-w-[85%] border border-red-200 shadow-sm">
+                            <b>Error:</b> ${error.message}
+                        </div>
+                    </div>`;
+            } finally {
+                input.disabled = false;
+                btn.disabled = false;
+                chat.scrollTop = chat.scrollHeight;
+                input.focus();
+            }
+        };
+
+        // ─── OTHER FUNCTIONS ────────────────────────────────────────────
         window.showToast = (msg, type = 'info') => {
             const container = document.getElementById('toast-container');
             const t = document.createElement('div');
             t.className = `toast ${type}`;
-            t.innerHTML = `<span>${msg}</span>`;
+            let icon = type === 'error' ? 'fa-triangle-exclamation' : type === 'success' ? 'fa-check' : 'fa-info-circle';
+            t.innerHTML = `<i class="fa-solid ${icon} mt-1"></i><span>${msg}</span>`;
             container.appendChild(t);
             setTimeout(() => t.classList.add('show'), 10);
             setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000);
@@ -195,95 +539,212 @@
             document.getElementById(id).classList.add('active-section');
             const navTop = document.getElementById('main-nav');
             const navBot = document.getElementById('bottom-nav');
-            if(id === 'ai') { navTop.style.display = 'none'; navBot.style.display = 'none'; } 
-            else { navTop.style.display = 'flex'; navBot.style.display = 'flex'; }
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.style.color = (btn.dataset.target === id) ? 'white' : '#9ca3af');
+            if (id === 'ai') {
+                navTop.style.display = 'none'; navBot.style.display = 'none';
+            } else {
+                navTop.style.display = 'flex'; navBot.style.display = 'flex';
+            }
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.style.color = (btn.dataset.target === id) ? 'white' : '#9ca3af';
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
+        window.openExamModal = () => document.getElementById('exam-modal').classList.add('active');
+        window.closeExamModal = () => document.getElementById('exam-modal').classList.remove('active');
+
         document.getElementById('login-btn').onclick = async () => {
-            try { await signInWithPopup(auth, provider); } catch (e) { showToast("Login Error", "error"); }
+            try {
+                document.getElementById('login-btn').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Connecting...';
+                await signInWithPopup(auth, provider);
+                showToast("Welcome back!", "success");
+            } catch (e) {
+                showToast("Login Error", "error");
+                document.getElementById('login-btn').innerHTML = '<img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-7"> Continue with Google';
+            }
         };
         window.logout = () => signOut(auth);
 
         onAuthStateChanged(auth, (user) => {
             const login = document.getElementById('login-screen');
             if (user) {
-                login.classList.add('hidden');
+                login.style.opacity = '0';
+                setTimeout(() => login.classList.add('hidden'), 500);
                 document.getElementById('user-name').innerText = user.displayName.split(' ')[0];
                 document.getElementById('prof-name').innerText = user.displayName;
+                document.getElementById('prof-roll').innerText = "UP" + Math.floor(100000 + Math.random() * 900000);
                 document.getElementById('user-img').src = user.photoURL;
                 document.getElementById('prof-img').src = user.photoURL;
                 loadDatabaseData();
-            } else { login.classList.remove('hidden'); }
+            } else {
+                login.classList.remove('hidden');
+                setTimeout(() => login.style.opacity = '1', 50);
+            }
         });
 
         function loadDatabaseData() {
             onValue(ref(db, 'public_data/notes'), (snap) => {
                 const list = document.getElementById('notes-list');
-                list.innerHTML = "";
-                if(snap.exists()) {
+                const adminList = document.getElementById('manage-notes-list');
+                list.innerHTML = ""; adminList.innerHTML = "";
+                if (snap.exists()) {
                     snap.forEach(c => {
-                        let d = c.val();
-                        list.innerHTML += `<div class="glass bg-white/60 p-4 rounded-2xl flex justify-between items-center"><h4 class="font-bold">${d.title}</h4><a href="${d.link}" class="bg-green-100 p-2 rounded-xl text-green-600"><i class="fa-solid fa-arrow-down"></i></a></div>`;
+                        let d = c.val(); let k = c.key;
+                        list.innerHTML += `<div class="glass bg-white/60 p-4 rounded-2xl flex justify-between items-center mb-3 shadow-sm border border-white hover:bg-white transition-colors">
+                            <div class="flex items-center gap-3"><div class="w-10 h-10 bg-red-50 rounded-xl flex justify-center items-center"><i class="fa-solid fa-file-pdf text-red-500 text-xl"></i></div><div><h4 class="font-bold text-gray-800">${d.title}</h4></div></div>
+                            <a href="${d.link}" target="_blank" class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-colors shadow-sm"><i class="fa-solid fa-arrow-down"></i></a>
+                        </div>`;
+                        adminList.innerHTML += `<div class="flex justify-between items-center bg-gray-50 p-2 rounded border text-sm">
+                            <span class="truncate pr-2">${d.title}</span>
+                            <button onclick="deleteItem('public_data/notes/${k}')" class="text-red-500 hover:text-red-700 bg-red-100 p-1.5 rounded active:scale-90 transition-transform"><i class="fa-solid fa-trash"></i></button>
+                        </div>`;
                     });
+                } else {
+                    list.innerHTML = "<div class='text-center text-gray-400 py-6'>No notes available.</div>";
+                    adminList.innerHTML = "<span class='text-xs text-gray-400'>No notes found</span>";
                 }
             });
-            // Subjects, Notices, Exams logic same as your v3.0...
+
+            onValue(ref(db, 'public_data/status'), (snap) => {
+                const box = document.getElementById('course-status');
+                const d = snap.val() || { hin: 0, eng: 0, math: 0, phy: 0, chem: 0 };
+                const colors = { hin: 'orange', eng: 'blue', math: 'emerald', phy: 'indigo', chem: 'purple' };
+                const names = { hin: 'Hindi', eng: 'English', math: 'Maths', phy: 'Physics', chem: 'Chemistry' };
+                let html = `<div class="flex justify-between items-center mb-4"><h4 class="font-bold text-gray-800">Syllabus Coverage</h4><i class="fa-solid fa-chart-simple text-indigo-500"></i></div><div class="space-y-4">`;
+                ['hin', 'eng', 'math', 'phy', 'chem'].forEach(s => {
+                    let val = d[s] || 0;
+                    html += `<div><p class="text-xs font-bold uppercase flex justify-between text-gray-700 mb-1">${names[s]} <span>${val}%</span></p><div class="h-2.5 bg-gray-100 rounded-full shadow-inner"><div class="h-full bg-${colors[s]}-500 rounded-full transition-all duration-1000 ease-out" style="width:${val}%"></div></div></div>`;
+                });
+                box.innerHTML = html + `</div>`;
+            });
+
+            onValue(ref(db, 'public_data/notices'), (snap) => {
+                const list = document.getElementById('notice-list');
+                const adminList = document.getElementById('manage-notices-list');
+                list.innerHTML = ""; adminList.innerHTML = "";
+                if (snap.exists()) {
+                    snap.forEach(c => {
+                        let d = c.val(); let k = c.key;
+                        list.innerHTML = `<div class="glass bg-white p-5 rounded-2xl mb-4 border-l-4 border-amber-400 shadow-sm relative overflow-hidden">
+                            <div class="absolute -right-4 -top-4 text-amber-100 text-6xl opacity-30"><i class="fa-solid fa-bell"></i></div>
+                            <h4 class="font-bold text-gray-800 relative z-10">${d.title}</h4>
+                            <p class="text-[10px] text-gray-400 mt-1 uppercase tracking-wider relative z-10 font-bold">${d.date}</p>
+                            <p class="text-sm mt-2 text-gray-700 relative z-10 leading-relaxed">${d.msg}</p>
+                        </div>` + list.innerHTML;
+                        adminList.innerHTML += `<div class="flex justify-between items-center bg-gray-50 p-2 rounded border text-sm">
+                            <span class="truncate pr-2">${d.title}</span>
+                            <button onclick="deleteItem('public_data/notices/${k}')" class="text-red-500 hover:text-red-700 bg-red-100 p-1.5 rounded active:scale-90 transition-transform"><i class="fa-solid fa-trash"></i></button>
+                        </div>`;
+                    });
+                } else {
+                    list.innerHTML = "<div class='text-center text-gray-400 py-6'>No updates currently.</div>";
+                    adminList.innerHTML = "<span class='text-xs text-gray-400'>No notices found</span>";
+                }
+            });
+
+            onValue(ref(db, 'public_data/exam_schedule'), (snap) => {
+                const list = document.getElementById('modal-schedule-list');
+                const adminList = document.getElementById('manage-exams-list');
+                list.innerHTML = ""; adminList.innerHTML = "";
+                if (snap.exists()) {
+                    snap.forEach(c => {
+                        let d = c.val(); let k = c.key;
+                        list.innerHTML += `<div class="bg-indigo-50 border border-indigo-100 p-4 rounded-xl mb-3 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="bg-indigo-600 text-white text-[10px] px-2 py-1 rounded font-bold uppercase tracking-wide">${d.examName}</span>
+                                <span class="text-xs font-bold text-indigo-800 bg-white px-2 py-1 rounded shadow-sm"><i class="fa-regular fa-calendar text-indigo-500 mr-1"></i> ${d.date}</span>
+                            </div>
+                            <h3 class="font-black text-gray-900 text-lg mt-1">${d.subject}</h3>
+                            <div class="flex justify-between text-xs text-gray-600 mt-3 font-medium bg-white/50 p-2 rounded-lg">
+                                <span><i class="fa-regular fa-clock text-gray-400"></i> ${d.time}</span>
+                                <span><i class="fa-solid fa-door-open text-gray-400"></i> ${d.meeting}</span>
+                            </div>
+                        </div>`;
+                        adminList.innerHTML += `<div class="flex justify-between items-center bg-gray-50 p-2 rounded border text-sm">
+                            <span class="truncate pr-2">${d.subject} (${d.examName})</span>
+                            <button onclick="deleteItem('public_data/exam_schedule/${k}')" class="text-red-500 hover:text-red-700 bg-red-100 p-1.5 rounded active:scale-90 transition-transform"><i class="fa-solid fa-trash"></i></button>
+                        </div>`;
+                    });
+                } else {
+                    list.innerHTML = "<div class='text-center text-gray-400 py-6 flex flex-col items-center'><i class='fa-solid fa-mug-hot text-4xl mb-3 text-gray-200'></i>No exams scheduled. Relax!</div>";
+                    adminList.innerHTML = "<span class='text-xs text-gray-400'>No exams found</span>";
+                }
+            });
+
+            onValue(ref(db, 'public_data/countdown'), (snap) => {
+                if (snap.exists()) globalTargetDate = new Date(snap.val());
+            });
         }
 
-        // GROQ AI LOGIC
-        window.askGroq = async () => {
-            const input = document.getElementById('ai-input');
-            const chat = document.getElementById('chat-box');
-            const btn = document.getElementById('ai-btn');
-            const q = input.value.trim();
-            if(!q) return;
-
-            chat.innerHTML += `<div class="flex justify-end animate-slideUp"><div class="bg-green-600 text-white p-3.5 rounded-2xl rounded-tr-none shadow-md text-sm max-w-[85%]">${q}</div></div>`;
-            input.value = ""; 
-            chat.scrollTop = chat.scrollHeight;
-            input.disabled = true; btn.disabled = true;
-            
-            const loaderId = "ld-" + Date.now();
-            chat.innerHTML += `<div id="${loaderId}" class="flex gap-3"><div class="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center text-white"><i class="fa-solid fa-bolt text-xs"></i></div><div class="bg-white p-4 rounded-2xl rounded-tl-none shadow-sm text-sm border border-gray-100"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div></div>`;
-            chat.scrollTop = chat.scrollHeight;
-
-            try {
-                const res = await fetch(`https://api.groq.com/openai/v1/chat/completions`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${GROQ_API_KEY}` },
-                    body: JSON.stringify({ 
-                        model: "llama-3.3-70b-versatile", 
-                        messages: [
-                            { role: "system", content: "You are an expert tutor for 12th Science students in India. Explain concepts simply in Hindi/Hinglish." },
-                            { role: "user", content: q }
-                        ]
-                    })
-                });
-
-                const data = await res.json();
-                let reply = data.choices[0].message.content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
-                
-                document.getElementById(loaderId).remove();
-                chat.innerHTML += `<div class="flex gap-3 animate-slideUp"><div class="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center text-white"><i class="fa-solid fa-bolt text-xs"></i></div><div class="bg-white p-4 rounded-2xl rounded-tl-none shadow-sm text-sm text-gray-800 border border-gray-100 leading-relaxed">${reply}</div></div>`;
-            } catch (error) {
-                document.getElementById(loaderId).remove();
-                chat.innerHTML += `<div class="text-center text-red-500 text-xs">Connection Error. Try again.</div>`;
-            } finally { input.disabled = false; btn.disabled = false; chat.scrollTop = chat.scrollHeight; }
-        };
-
-        window.unlockAdmin = () => {
-            if(document.getElementById('admin-pass').value === "unlock") { 
-                document.getElementById('admin-auth').classList.add('hidden');
-                document.getElementById('admin-controls').classList.remove('hidden');
+        window.deleteItem = async (path) => {
+            if (confirm("Are you sure you want to delete this item?")) {
+                try { await remove(ref(db, path)); showToast("Item Deleted!", "success"); }
+                catch (e) { showToast("Failed to delete", "error"); }
             }
         };
 
+        window.unlockAdmin = () => {
+            if (document.getElementById('admin-pass').value === "unlock") {
+                document.getElementById('admin-auth').classList.add('hidden');
+                document.getElementById('admin-controls').classList.remove('hidden');
+                document.getElementById('admin-pass').value = "";
+                showToast("Portal Unlocked", "success");
+            } else { showToast("Wrong Key", "error"); }
+        };
+        window.lockAdmin = () => {
+            document.getElementById('admin-auth').classList.remove('hidden');
+            document.getElementById('admin-controls').classList.add('hidden');
+            showToast("Portal Locked", "info");
+        };
+
+        window.adminAction = async (type) => {
+            try {
+                if (type === 'note') {
+                    const t = document.getElementById('n-title').value;
+                    const l = document.getElementById('n-link').value;
+                    if (!t || !l) return showToast("Fill all fields", "error");
+                    await push(ref(db, 'public_data/notes'), { title: t, link: l });
+                } else if (type === 'progress') {
+                    await set(ref(db, 'public_data/status'), {
+                        hin: document.getElementById('p-hin').value || 0,
+                        eng: document.getElementById('p-eng').value || 0,
+                        math: document.getElementById('p-math').value || 0,
+                        phy: document.getElementById('p-phy').value || 0,
+                        chem: document.getElementById('p-chem').value || 0
+                    });
+                } else if (type === 'notice') {
+                    const t = document.getElementById('nt-title').value;
+                    const m = document.getElementById('nt-desc').value;
+                    if (!t || !m) return showToast("Fill all fields", "error");
+                    const dateStr = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+                    await push(ref(db, 'public_data/notices'), { title: t, msg: m, date: dateStr });
+                } else if (type === 'exam') {
+                    const nm = document.getElementById('ex-name').value;
+                    const sb = document.getElementById('ex-sub').value;
+                    const dt = document.getElementById('ex-date').value;
+                    const tm = document.getElementById('ex-time').value;
+                    const mt = document.getElementById('ex-meet').value;
+                    if (!nm || !sb || !dt) return showToast("Fill required fields", "error");
+                    await push(ref(db, 'public_data/exam_schedule'), { examName: nm, subject: sb, date: dt, time: tm, meeting: mt });
+                } else if (type === 'countdown') {
+                    const d = document.getElementById('cd-date').value;
+                    if (!d) return;
+                    await set(ref(db, 'public_data/countdown'), d);
+                }
+                showToast("Updated Successfully!", "success");
+                document.querySelectorAll('details[open] input, details[open] textarea').forEach(el => el.value = '');
+            } catch (e) { showToast("Error updating database", "error"); console.log(e); }
+        };
+
+        // Countdown timer
         setInterval(() => {
             const diff = globalTargetDate - new Date();
-            if(diff > 0) {
-                document.getElementById('count-days').innerText = Math.floor(diff / (1000 * 60 * 60 * 24));
-                document.getElementById('count-hours').innerText = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            if (diff > 0) {
+                document.getElementById('count-days').innerText = Math.floor(diff / (1000 * 60 * 60 * 24)).toString().padStart(2, '0');
+                document.getElementById('count-hours').innerText = Math.floor((diff / (1000 * 60 * 60)) % 24).toString().padStart(2, '0');
+            } else {
+                document.getElementById('count-days').innerText = "00";
+                document.getElementById('count-hours').innerText = "00";
             }
         }, 1000);
 
