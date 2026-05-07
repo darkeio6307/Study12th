@@ -8,310 +8,280 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Poppins', sans-serif; overflow-x: hidden; }
+        body { font-family: 'Poppins', sans-serif; overflow-x: hidden; background-color: #f8fafc; }
         
-        /* Advanced Glassmorphism */
-        .glass { 
-            background: rgba(255, 255, 255, 0.4); 
-            backdrop-filter: blur(16px); 
-            -webkit-backdrop-filter: blur(16px); 
-            border: 1px solid rgba(255, 255, 255, 0.5); 
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-        }
-        .glass-dark {
-            background: rgba(17, 24, 39, 0.7);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
+        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05); }
+        .glass-dark { background: rgba(17, 24, 39, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); }
 
-        /* Smooth Transitions & Animations */
-        .section { display: none; opacity: 0; transform: translateY(20px); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .section { display: none; opacity: 0; transform: translateY(20px); transition: all 0.4s ease; }
         .active-section { display: block; opacity: 1; transform: translateY(0); animation: slideUp 0.5s ease forwards; }
         
-        @keyframes slideUp { 
-            0% { opacity: 0; transform: translateY(30px); } 
-            100% { opacity: 1; transform: translateY(0); } 
-        }
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.5); transform: scale(1); }
-            50% { box-shadow: 0 0 35px rgba(139, 92, 246, 0.8); transform: scale(1.05); }
-        }
-        @keyframes typing {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
+        @keyframes slideUp { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
+        
+        /* Full Screen AI Chat */
+        #ai.active-section { position: fixed; inset: 0; z-index: 999; background: #f3f4f6; display: flex; flex-direction: column; opacity: 1; transform: translateY(0); animation: none; }
 
-        .ai-glow { animation: pulse-glow 3s infinite; }
         .typing-dot { display: inline-block; width: 6px; height: 6px; background: #8b5cf6; border-radius: 50%; margin: 0 2px; animation: typing 1.4s infinite ease-in-out both; }
-        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
-        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; } .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        /* Toast Notifications */
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
-        .toast { padding: 12px 20px; border-radius: 12px; color: white; font-weight: 500; font-size: 14px; display: flex; items-center; gap: 10px; transform: translateX(120%); transition: transform 0.3s ease; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .toast { padding: 12px 20px; border-radius: 12px; color: white; font-size: 14px; font-weight: 500; display: flex; gap: 10px; transform: translateX(120%); transition: transform 0.3s; }
         .toast.show { transform: translateX(0); }
-        .toast.success { background: #10b981; }
-        .toast.error { background: #ef4444; }
-        .toast.info { background: #6366f1; }
+        .toast.success { background: #10b981; } .toast.error { background: #ef4444; } .toast.info { background: #6366f1; }
+
+        /* Modal styling */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 1000; justify-content: center; items-center; padding: 20px; }
+        .modal.active { display: flex; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body class="bg-[url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop')] bg-cover bg-center bg-fixed min-h-screen pb-24 text-gray-800">
     
-    <div class="fixed inset-0 bg-gradient-to-br from-indigo-100/80 via-white/80 to-purple-200/80 z-[-1] backdrop-blur-sm"></div>
-
+    <div class="fixed inset-0 bg-gradient-to-br from-indigo-50/90 via-white/90 to-purple-50/90 z-[-1] backdrop-blur-sm"></div>
     <div id="toast-container"></div>
 
     <div id="login-screen" class="fixed inset-0 z-[200] bg-white flex flex-col items-center justify-center p-6 text-center transition-opacity duration-500">
-        <div class="relative w-32 h-32 mb-8 group">
-            <div class="absolute inset-0 bg-indigo-600 rounded-full blur-2xl opacity-50 group-hover:opacity-75 transition-opacity duration-500"></div>
-            <div class="relative w-full h-full bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-[2rem] rotate-45 flex items-center justify-center text-white text-5xl shadow-2xl hover:rotate-0 transition-transform duration-500">
-                <i class="fa-solid fa-atom -rotate-45 group-hover:rotate-0 transition-transform duration-500"></i>
-            </div>
+        <div class="w-28 h-28 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-[2rem] rotate-45 flex items-center justify-center text-white text-5xl shadow-2xl mb-8">
+            <i class="fa-solid fa-atom -rotate-45"></i>
         </div>
         <h1 class="text-4xl font-extrabold text-gray-900 tracking-tight mb-2">StudyGram <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Pro</span></h1>
         <p class="text-gray-500 font-medium mb-10 text-lg">The Ultimate 12th Science Hub</p>
-        
-        <button id="login-btn" class="group relative w-full max-w-sm bg-white border border-gray-200 py-4 rounded-2xl flex items-center justify-center gap-4 font-bold text-gray-700 shadow-lg hover:shadow-xl hover:-translate-y-1 active:scale-95 transition-all overflow-hidden">
-            <div class="absolute inset-0 w-full h-full bg-gradient-to-r from-indigo-50 to-purple-50 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-500 ease-in-out"></div>
-            <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-7 relative z-10"> 
-            <span class="relative z-10">Continue with Google</span>
+        <button id="login-btn" class="w-full max-w-sm bg-white border border-gray-200 py-4 rounded-2xl flex items-center justify-center gap-4 font-bold text-gray-700 shadow-lg hover:shadow-xl transition-all">
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-7"> Continue with Google
         </button>
     </div>
 
-    <nav class="sticky top-0 z-50 glass px-6 py-4 flex justify-between items-center m-4 rounded-3xl">
+    <nav id="main-nav" class="sticky top-0 z-50 glass px-6 py-4 flex justify-between items-center m-4 rounded-3xl transition-all duration-300">
         <div class="flex items-center gap-2">
             <div class="w-8 h-8 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center text-white text-sm">
                 <i class="fa-solid fa-book-open"></i>
             </div>
             <h2 class="text-xl font-bold tracking-wide text-gray-900">StudyGram</h2>
         </div>
-        <div class="flex gap-4 items-center">
-            <button onclick="switchTab('admin')" class="w-10 h-10 rounded-full bg-white/50 flex items-center justify-center hover:bg-white transition-colors text-gray-600"><i class="fa-solid fa-shield-halved"></i></button>
-            <button id="menu-open" class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white shadow-md hover:bg-indigo-700 transition-colors"><i class="fa-solid fa-bars-staggered"></i></button>
+        <div class="flex gap-3 items-center">
+            <button onclick="switchTab('admin')" class="w-10 h-10 rounded-full bg-white/80 flex items-center justify-center text-gray-600"><i class="fa-solid fa-shield-halved"></i></button>
         </div>
     </nav>
 
-    <div id="sidebar" class="fixed inset-y-0 left-0 w-80 bg-white shadow-[20px_0_50px_rgba(0,0,0,0.1)] z-[150] transform -translate-x-full transition-transform duration-500 ease-in-out rounded-r-[3rem] p-8 flex flex-col">
-        <div class="flex justify-between items-center mb-10">
-            <h2 class="font-bold text-2xl text-gray-900">Menu</h2>
-            <button id="menu-close" class="w-10 h-10 rounded-full bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-100 transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
-        </div>
-        <ul class="space-y-4 text-lg font-semibold flex-1">
-            <li onclick="switchTab('home')" class="p-4 rounded-2xl hover:bg-indigo-50 hover:text-indigo-600 cursor-pointer transition-colors flex items-center gap-4"><i class="fa-solid fa-house w-6"></i> Dashboard</li>
-            <li onclick="switchTab('notes')" class="p-4 rounded-2xl hover:bg-indigo-50 hover:text-indigo-600 cursor-pointer transition-colors flex items-center gap-4"><i class="fa-solid fa-file-pdf w-6"></i> Digital Notes</li>
-            <li onclick="switchTab('notice')" class="p-4 rounded-2xl hover:bg-indigo-50 hover:text-indigo-600 cursor-pointer transition-colors flex items-center gap-4"><i class="fa-solid fa-bullhorn w-6"></i> Board Notices</li>
-            <li onclick="switchTab('profile')" class="p-4 rounded-2xl hover:bg-indigo-50 hover:text-indigo-600 cursor-pointer transition-colors flex items-center gap-4"><i class="fa-solid fa-circle-user w-6"></i> My Profile</li>
-            <li onclick="switchTab('ai')" class="p-4 rounded-2xl bg-gradient-to-r from-purple-50 to-indigo-50 text-purple-700 cursor-pointer border border-purple-100 flex items-center gap-4 mt-8"><i class="fa-solid fa-wand-magic-sparkles w-6"></i> Ask AI Tutor</li>
-        </ul>
-        <div class="mt-auto pt-6 border-t border-gray-100 text-center text-sm text-gray-400">
-            v2.0 Advanced Edition
-        </div>
-    </div>
-
-    <main class="p-4 max-w-lg mx-auto">
+    <main class="p-4 max-w-lg mx-auto" id="main-content">
 
         <div id="home" class="section active-section space-y-6">
             <div class="glass p-6 rounded-[2rem] flex items-center gap-5 relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl"></div>
-                <img id="user-img" src="https://via.placeholder.com/150" class="w-16 h-16 rounded-2xl border-2 border-white shadow-lg object-cover z-10">
+                <img id="user-img" src="" class="w-16 h-16 rounded-2xl border-2 border-white shadow-lg object-cover z-10">
                 <div class="z-10">
                     <p class="text-sm text-gray-500 font-medium">Welcome back,</p>
                     <h3 id="user-name" class="font-bold text-xl text-gray-900">Loading...</h3>
                 </div>
             </div>
 
-            <div class="bg-gradient-to-br from-indigo-900 to-indigo-700 p-6 rounded-[2rem] text-white shadow-xl relative overflow-hidden group">
-                <div class="absolute top-[-50%] right-[-10%] w-64 h-64 bg-white/5 rounded-full blur-2xl group-hover:bg-white/10 transition-colors duration-500"></div>
-                <div class="relative z-10 flex justify-between items-end">
-                    <div>
-                        <p class="text-indigo-200 text-sm font-medium mb-1"><i class="fa-solid fa-stopwatch mr-1"></i> Board Exams 2025</p>
-                        <div class="flex gap-3 mt-2">
-                            <div class="bg-black/20 px-4 py-2 rounded-xl backdrop-blur-sm border border-white/10">
-                                <span id="count-days" class="text-3xl font-black">--</span><span class="text-xs ml-1 text-indigo-200">d</span>
-                            </div>
-                            <div class="bg-black/20 px-4 py-2 rounded-xl backdrop-blur-sm border border-white/10">
-                                <span id="count-hours" class="text-3xl font-black">--</span><span class="text-xs ml-1 text-indigo-200">h</span>
-                            </div>
+            <div class="bg-gradient-to-br from-indigo-900 to-indigo-700 p-6 rounded-[2rem] text-white shadow-xl relative overflow-hidden">
+                <div class="relative z-10">
+                    <p class="text-indigo-200 text-sm font-medium mb-2"><i class="fa-solid fa-stopwatch mr-1"></i> Final Board Exams</p>
+                    <div class="flex gap-3 mt-2">
+                        <div class="bg-black/20 px-4 py-2 rounded-xl border border-white/10 text-center min-w-[70px]">
+                            <span id="count-days" class="text-3xl font-black block">--</span><span class="text-[10px] text-indigo-200 uppercase tracking-widest">Days</span>
+                        </div>
+                        <div class="bg-black/20 px-4 py-2 rounded-xl border border-white/10 text-center min-w-[70px]">
+                            <span id="count-hours" class="text-3xl font-black block">--</span><span class="text-[10px] text-indigo-200 uppercase tracking-widest">Hours</span>
                         </div>
                     </div>
-                    <i class="fa-solid fa-graduation-cap text-6xl text-white/10 absolute right-4 bottom-4 transform -rotate-12"></i>
                 </div>
+                <i class="fa-solid fa-graduation-cap text-6xl text-white/10 absolute right-4 bottom-4 transform -rotate-12"></i>
             </div>
 
             <div id="course-status" class="glass p-6 rounded-[2rem] space-y-5">
-                <div class="flex justify-between items-center">
-                    <h4 class="font-bold text-lg text-gray-800">Syllabus Coverage</h4>
-                    <div class="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center"><i class="fa-solid fa-chart-pie"></i></div>
-                </div>
-                <div class="animate-pulse flex space-x-4">
-                    <div class="flex-1 space-y-4 py-1">
-                        <div class="h-2 bg-gray-200 rounded"></div>
-                        <div class="h-2 bg-gray-200 rounded"></div>
-                    </div>
-                </div>
+                <div class="text-center py-4"><i class="fa-solid fa-spinner fa-spin text-gray-400"></i></div>
             </div>
         </div>
 
         <div id="notes" class="section space-y-5">
-            <div class="flex justify-between items-center">
-                <h2 class="text-3xl font-black text-gray-900">Study Materials</h2>
-            </div>
-            
-            <div class="relative">
-                <input type="text" id="note-search" onkeyup="searchNotes()" placeholder="Search Physics, Chemistry..." class="w-full glass p-4 pl-12 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium">
-                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-            </div>
-
-            <div id="notes-list" class="space-y-4">
-                <div class="text-center text-gray-400 py-10"><i class="fa-solid fa-spinner fa-spin text-3xl mb-2"></i><br>Fetching Notes...</div>
-            </div>
+            <h2 class="text-3xl font-black text-gray-900 mb-4">Study Materials</h2>
+            <div id="notes-list" class="space-y-4"></div>
         </div>
 
         <div id="notice" class="section space-y-6">
-            <h2 class="text-3xl font-black text-gray-900">Updates</h2>
-            
-            <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100 p-5 rounded-[2rem] shadow-sm relative overflow-hidden">
-                <div class="absolute left-0 top-0 bottom-0 w-2 bg-amber-400"></div>
-                <h3 class="font-bold text-amber-800 flex items-center gap-2 mb-2"><i class="fa-solid fa-triangle-exclamation"></i> Important Alert</h3>
-                <p class="text-sm text-amber-700 font-medium">Admit cards for practical exams will be distributed next week. Ensure fee clearance.</p>
-            </div>
-
-            <div class="glass p-5 rounded-[2rem]">
-                <h3 class="font-bold text-gray-800 mb-4 border-b pb-2">Recent Notices</h3>
-                <div id="notice-list" class="space-y-4">
-                    <div class="flex gap-4 items-start">
-                        <div class="w-2 h-2 mt-2 rounded-full bg-indigo-500 flex-shrink-0"></div>
-                        <div>
-                            <h4 class="font-semibold text-gray-800 text-sm">Physics Pre-Board Schedule Updated</h4>
-                            <p class="text-xs text-gray-500 mt-1">12 Jan 2025</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="ai" class="section">
-            <div class="glass rounded-[2rem] h-[600px] flex flex-col shadow-2xl border border-white/60 overflow-hidden relative">
-                
-                <div class="bg-white/50 backdrop-blur-md p-4 flex items-center gap-4 border-b border-white/20 z-10">
-                    <div class="relative">
-                        <div class="w-12 h-12 bg-gradient-to-tr from-purple-600 to-indigo-600 rounded-full flex items-center justify-center text-white text-xl">
-                            <i class="fa-solid fa-robot"></i>
-                        </div>
-                        <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-gray-900 leading-tight">Gemini Tutor</h3>
-                        <p class="text-xs text-green-600 font-semibold">Online • Ready to help</p>
-                    </div>
-                </div>
-
-                <div id="chat-box" class="flex-1 overflow-y-auto p-5 space-y-4 scroll-smooth">
-                    <div class="flex items-start gap-3">
-                        <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 flex-shrink-0"><i class="fa-solid fa-robot text-xs"></i></div>
-                        <div class="bg-white p-4 rounded-2xl rounded-tl-none shadow-sm text-sm text-gray-700 max-w-[85%] border border-gray-100">
-                            नमस्ते! मैं आपका Advanced AI ट्यूटर हूँ। Science (Physics, Chemistry, Math) का कोई भी मुश्किल सवाल पूछें। मैं उसे आसान हिंदी में समझाऊंगा! ✨
-                        </div>
-                    </div>
-                </div>
-
-                <div class="p-4 bg-white/40 backdrop-blur-md border-t border-white/20">
-                    <form id="ai-form" class="flex gap-2 relative" onsubmit="event.preventDefault(); askGemini();">
-                        <input id="ai-input" type="text" placeholder="अपना सवाल यहाँ टाइप करें..." autocomplete="off" class="flex-1 py-4 pl-5 pr-12 rounded-2xl border border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none shadow-inner bg-white/80 font-medium transition-all">
-                        <button type="submit" id="ai-btn" class="absolute right-2 top-2 bottom-2 bg-purple-600 hover:bg-purple-700 text-white w-10 rounded-xl flex items-center justify-center transition-transform active:scale-90 disabled:opacity-50 disabled:cursor-not-allowed">
-                            <i class="fa-solid fa-paper-plane"></i>
-                        </button>
-                    </form>
-                </div>
-            </div>
+            <h2 class="text-3xl font-black text-gray-900">Board Updates</h2>
+            <div id="notice-list" class="space-y-4"></div>
         </div>
 
         <div id="profile" class="section space-y-6">
             <div class="glass p-8 rounded-[2rem] text-center relative mt-10">
                 <div class="absolute -top-12 left-1/2 transform -translate-x-1/2">
-                    <div class="relative">
-                        <img id="prof-img" src="https://via.placeholder.com/150" class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-xl bg-white">
-                        <div class="absolute bottom-0 right-0 bg-indigo-600 text-white w-8 h-8 rounded-full flex items-center justify-center border-2 border-white"><i class="fa-solid fa-pen text-xs"></i></div>
-                    </div>
+                    <img id="prof-img" src="" class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-xl bg-white">
                 </div>
-                
                 <div class="mt-12">
                     <h2 id="prof-name" class="text-2xl font-black text-gray-900">Loading...</h2>
-                    <p class="text-indigo-600 font-semibold text-sm">Class 12th • PCM</p>
+                    <p class="text-indigo-600 font-semibold text-sm mb-6">Class 12th • PCM</p>
                 </div>
 
-                <div class="mt-8 bg-white/50 p-5 rounded-2xl text-left space-y-4">
+                <button onclick="openExamModal()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:shadow-xl transition-all mb-6 flex justify-center items-center gap-2">
+                    <i class="fa-solid fa-ticket"></i> View Exam Seat & Schedule
+                </button>
+
+                <div class="bg-white/50 p-5 rounded-2xl text-left space-y-4">
                     <div class="flex justify-between items-center border-b border-gray-200/50 pb-2">
-                        <span class="text-gray-500 text-sm font-medium"><i class="fa-solid fa-id-card w-5 text-center"></i> Roll No</span>
+                        <span class="text-gray-500 text-sm font-medium">Roll No</span>
                         <span class="font-bold text-gray-800" id="prof-roll">Generating...</span>
                     </div>
-                    <div class="flex justify-between items-center border-b border-gray-200/50 pb-2">
-                        <span class="text-gray-500 text-sm font-medium"><i class="fa-solid fa-school w-5 text-center"></i> Board</span>
-                        <span class="font-bold text-gray-800">UP Board / CBSE</span>
-                    </div>
                     <div class="flex justify-between items-center">
-                        <span class="text-gray-500 text-sm font-medium"><i class="fa-solid fa-book w-5 text-center"></i> Core Subjects</span>
-                        <span class="font-bold text-gray-800 text-sm text-right">Phy, Chem, Math, Eng, Hin</span>
+                        <span class="text-gray-500 text-sm font-medium">Subjects</span>
+                        <span class="font-bold text-gray-800 text-sm">Phy, Chem, Math, Eng, Hin</span>
                     </div>
                 </div>
 
-                <button onclick="logout()" class="w-full mt-6 bg-red-50 hover:bg-red-100 text-red-600 py-4 rounded-2xl font-bold transition-colors flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Secure Logout
+                <button onclick="logout()" class="w-full mt-6 bg-red-50 text-red-600 py-3 rounded-2xl font-bold flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-power-off"></i> Logout
                 </button>
             </div>
         </div>
 
-        <div id="admin" class="section">
+        <div id="admin" class="section pb-24">
             <div id="admin-auth" class="glass p-8 rounded-[2rem] text-center max-w-sm mx-auto mt-10">
-                <div class="w-16 h-16 bg-gray-900 rounded-full flex items-center justify-center mx-auto mb-6 text-white text-2xl shadow-lg">
-                    <i class="fa-solid fa-lock"></i>
-                </div>
-                <h2 class="text-2xl font-bold text-gray-900 mb-2">Admin Portal</h2>
-                <p class="text-gray-500 text-sm mb-6">Restricted access area.</p>
-                
-                <input id="admin-pass" type="password" placeholder="Enter Master Key" class="w-full py-3 px-4 rounded-xl mb-4 border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none text-center tracking-widest font-mono">
-                
-                <button onclick="unlockAdmin()" class="bg-gray-900 hover:bg-black text-white w-full py-3 rounded-xl font-bold transition-colors">Verify & Unlock</button>
+                <i class="fa-solid fa-user-shield text-4xl text-gray-800 mb-4"></i>
+                <h2 class="text-2xl font-bold mb-6">Admin Login</h2>
+                <input id="admin-pass" type="password" placeholder="Master Key (Study786)" class="w-full py-3 px-4 rounded-xl mb-4 border focus:border-indigo-500 outline-none text-center font-mono">
+                <button onclick="unlockAdmin()" class="bg-gray-900 text-white w-full py-3 rounded-xl font-bold">Unlock Portal</button>
             </div>
 
-            <div id="admin-controls" class="hidden space-y-6">
-                <div class="flex justify-between items-center">
-                    <h2 class="text-2xl font-bold text-gray-900">Dashboard</h2>
-                    <button onclick="lockAdmin()" class="text-red-500 text-sm font-bold bg-red-50 px-3 py-1 rounded-lg">Lock</button>
+            <div id="admin-controls" class="hidden space-y-4">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-gray-900">Control Panel</h2>
+                    <button onclick="lockAdmin()" class="text-red-500 font-bold bg-red-50 px-4 py-2 rounded-xl">Lock</button>
                 </div>
                 
-                <div class="glass p-6 rounded-2xl border-l-4 border-indigo-600">
-                    <h3 class="font-bold text-lg mb-4 text-gray-800 flex items-center gap-2"><i class="fa-solid fa-cloud-arrow-up text-indigo-600"></i> Upload New Note</h3>
-                    <input id="note-title" placeholder="Material Title (e.g. Current Electricity PDF)" class="w-full mb-3 py-3 px-4 bg-white/80 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    <input id="note-link" placeholder="Google Drive Shareable Link" class="w-full mb-4 py-3 px-4 bg-white/80 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    
-                    <button id="upload-btn" onclick="uploadNote()" class="bg-indigo-600 hover:bg-indigo-700 text-white w-full py-3 rounded-xl font-bold transition-transform active:scale-95 flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-upload"></i> Publish to Database
-                    </button>
-                </div>
+                <details class="glass bg-white p-5 rounded-2xl group cursor-pointer">
+                    <summary class="font-bold text-lg text-indigo-700 flex justify-between items-center list-none">
+                        <span><i class="fa-solid fa-file-pdf w-6"></i> Upload Material</span>
+                        <i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i>
+                    </summary>
+                    <div class="mt-4 space-y-3 cursor-default">
+                        <input id="n-title" placeholder="Title (e.g. Physics Ch-1)" class="w-full p-3 border rounded-xl">
+                        <input id="n-link" placeholder="Drive Link" class="w-full p-3 border rounded-xl">
+                        <button onclick="adminAction('note')" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold">Upload Note</button>
+                    </div>
+                </details>
+
+                <details class="glass bg-white p-5 rounded-2xl group cursor-pointer">
+                    <summary class="font-bold text-lg text-blue-600 flex justify-between items-center list-none">
+                        <span><i class="fa-solid fa-chart-pie w-6"></i> Update Progress (%)</span>
+                        <i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i>
+                    </summary>
+                    <div class="mt-4 space-y-3 cursor-default">
+                        <input id="p-phy" type="number" placeholder="Physics %" class="w-full p-3 border rounded-xl">
+                        <input id="p-chem" type="number" placeholder="Chemistry %" class="w-full p-3 border rounded-xl">
+                        <input id="p-math" type="number" placeholder="Math %" class="w-full p-3 border rounded-xl">
+                        <button onclick="adminAction('progress')" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold">Save Progress</button>
+                    </div>
+                </details>
+
+                <details class="glass bg-white p-5 rounded-2xl group cursor-pointer">
+                    <summary class="font-bold text-lg text-amber-600 flex justify-between items-center list-none">
+                        <span><i class="fa-solid fa-bullhorn w-6"></i> Push Notice</span>
+                        <i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i>
+                    </summary>
+                    <div class="mt-4 space-y-3 cursor-default">
+                        <input id="nt-title" placeholder="Notice Title" class="w-full p-3 border rounded-xl">
+                        <textarea id="nt-desc" placeholder="Details..." class="w-full p-3 border rounded-xl h-20"></textarea>
+                        <button onclick="adminAction('notice')" class="w-full bg-amber-500 text-white py-3 rounded-xl font-bold">Publish Notice</button>
+                    </div>
+                </details>
+
+                <details class="glass bg-white p-5 rounded-2xl group cursor-pointer">
+                    <summary class="font-bold text-lg text-purple-600 flex justify-between items-center list-none">
+                        <span><i class="fa-solid fa-calendar-days w-6"></i> Add Exam Schedule</span>
+                        <i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i>
+                    </summary>
+                    <div class="mt-4 space-y-3 cursor-default">
+                        <input id="ex-name" placeholder="Exam Name (e.g. Pre-Board)" class="w-full p-3 border rounded-xl">
+                        <input id="ex-sub" placeholder="Subject" class="w-full p-3 border rounded-xl">
+                        <input id="ex-date" type="date" class="w-full p-3 border rounded-xl">
+                        <div class="flex gap-2">
+                            <input id="ex-time" type="time" class="w-1/2 p-3 border rounded-xl">
+                            <input id="ex-meet" placeholder="Meeting (Shift)" class="w-1/2 p-3 border rounded-xl">
+                        </div>
+                        <button onclick="adminAction('exam')" class="w-full bg-purple-600 text-white py-3 rounded-xl font-bold">Add to Schedule</button>
+                    </div>
+                </details>
+
+                <details class="glass bg-white p-5 rounded-2xl group cursor-pointer">
+                    <summary class="font-bold text-lg text-green-600 flex justify-between items-center list-none">
+                        <span><i class="fa-solid fa-stopwatch w-6"></i> Set Exam Timer</span>
+                        <i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i>
+                    </summary>
+                    <div class="mt-4 space-y-3 cursor-default">
+                        <input id="cd-date" type="datetime-local" class="w-full p-3 border rounded-xl">
+                        <button onclick="adminAction('countdown')" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold">Update Timer</button>
+                    </div>
+                </details>
+
             </div>
         </div>
 
     </main>
 
-    <div class="fixed bottom-4 left-4 right-4 glass-dark h-20 rounded-3xl flex justify-around items-center px-2 z-50 shadow-2xl">
-        <button onclick="switchTab('home')" class="nav-btn w-12 h-12 flex items-center justify-center text-xl text-gray-400 hover:text-white transition-colors" data-target="home"><i class="fa-solid fa-house"></i></button>
-        <button onclick="switchTab('notes')" class="nav-btn w-12 h-12 flex items-center justify-center text-xl text-gray-400 hover:text-white transition-colors" data-target="notes"><i class="fa-solid fa-book-open"></i></button>
+    <div id="ai" class="section">
+        <div class="bg-white px-4 py-4 flex items-center justify-between shadow-sm z-10 border-b">
+            <div class="flex items-center gap-3">
+                <button onclick="switchTab('home')" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200"><i class="fa-solid fa-arrow-left"></i></button>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-tr from-purple-600 to-indigo-600 rounded-full flex items-center justify-center text-white"><i class="fa-solid fa-robot"></i></div>
+                    <div>
+                        <h3 class="font-bold text-gray-900 leading-tight">Gemini Tutor</h3>
+                        <p class="text-[10px] text-green-500 font-bold uppercase tracking-wider">Online</p>
+                    </div>
+                </div>
+            </div>
+            <button onclick="clearChat()" class="text-sm text-gray-500 hover:text-red-500"><i class="fa-solid fa-trash-can"></i> Clear</button>
+        </div>
+
+        <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-4 bg-[#f3f4f6]">
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white flex-shrink-0 mt-1"><i class="fa-solid fa-robot text-xs"></i></div>
+                <div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm text-sm text-gray-800 max-w-[85%]">
+                    हेलो! मैं तुम्हारा AI Tutor हूँ। Science का कोई भी सवाल पूछो।
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4 bg-white border-t">
+            <form id="ai-form" class="flex gap-2 relative" onsubmit="event.preventDefault(); askGemini();">
+                <input id="ai-input" type="text" placeholder="Message Gemini..." autocomplete="off" class="flex-1 py-3 pl-4 pr-12 rounded-full bg-gray-100 focus:bg-white border border-transparent focus:border-purple-300 focus:ring-2 focus:ring-purple-100 outline-none transition-all">
+                <button type="submit" id="ai-btn" class="absolute right-1 top-1 bottom-1 bg-purple-600 text-white w-10 rounded-full flex items-center justify-center transition-transform active:scale-90">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="bottom-nav" class="fixed bottom-4 left-4 right-4 glass-dark h-16 rounded-3xl flex justify-around items-center px-2 z-50 shadow-2xl transition-all duration-300">
+        <button onclick="switchTab('home')" class="nav-btn w-12 h-12 flex items-center justify-center text-xl text-gray-400" data-target="home"><i class="fa-solid fa-house"></i></button>
+        <button onclick="switchTab('notes')" class="nav-btn w-12 h-12 flex items-center justify-center text-xl text-gray-400" data-target="notes"><i class="fa-solid fa-book-open"></i></button>
         
-        <div class="relative -top-8">
-            <button onclick="switchTab('ai')" class="w-16 h-16 bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 rounded-full border-4 border-gray-900 flex items-center justify-center text-white text-2xl shadow-[0_10px_25px_rgba(139,92,246,0.5)] ai-glow transition-transform hover:scale-110 active:scale-95" data-target="ai">
+        <div class="relative -top-5">
+            <button onclick="switchTab('ai')" class="w-14 h-14 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-full border-[3px] border-gray-900 flex items-center justify-center text-white text-2xl shadow-[0_5px_15px_rgba(139,92,246,0.5)] transition-transform active:scale-95" data-target="ai">
                 <i class="fa-solid fa-robot"></i>
             </button>
         </div>
 
-        <button onclick="switchTab('notice')" class="nav-btn w-12 h-12 flex items-center justify-center text-xl text-gray-400 hover:text-white transition-colors" data-target="notice"><i class="fa-solid fa-bell"></i></button>
-        <button onclick="switchTab('profile')" class="nav-btn w-12 h-12 flex items-center justify-center text-xl text-gray-400 hover:text-white transition-colors" data-target="profile"><i class="fa-solid fa-user-astronaut"></i></button>
+        <button onclick="switchTab('notice')" class="nav-btn w-12 h-12 flex items-center justify-center text-xl text-gray-400" data-target="notice"><i class="fa-solid fa-bell"></i></button>
+        <button onclick="switchTab('profile')" class="nav-btn w-12 h-12 flex items-center justify-center text-xl text-gray-400" data-target="profile"><i class="fa-solid fa-user-astronaut"></i></button>
+    </div>
+
+    <div id="exam-modal" class="modal">
+        <div class="bg-white w-full max-w-sm rounded-[2rem] p-6 shadow-2xl relative">
+            <button onclick="closeExamModal()" class="absolute top-4 right-4 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-600"><i class="fa-solid fa-xmark"></i></button>
+            <h2 class="text-2xl font-black text-gray-900 mb-2"><i class="fa-solid fa-id-card-clip text-indigo-600"></i> Exam Seat</h2>
+            <p class="text-sm text-gray-500 mb-4 border-b pb-4">Check your upcoming schedule below.</p>
+            
+            <div id="modal-schedule-list" class="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
+                <div class="text-center text-gray-400 text-sm py-4">Loading schedule...</div>
+            </div>
+        </div>
     </div>
 
     <script type="module">
@@ -319,357 +289,264 @@
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-        // 🚨 SECURITY NOTE: In a real production app, never expose APIs here. 
-        // Since this is client-side, we are using the provided config for functionality.
         const firebaseConfig = {
             apiKey: "AIzaSyC-psUKqTO9u5kCuA3OUqWT63Ey0IvDei4",
             authDomain: "study-ae01d.firebaseapp.com",
             databaseURL: "https://study-ae01d-default-rtdb.firebaseio.com",
-            projectId: "study-ae01d",
-            storageBucket: "study-ae01d.firebasestorage.app",
-            messagingSenderId: "198271524977",
-            appId: "1:198271524977:web:d54ad6d58cd6c5c4103bd0"
+            projectId: "study-ae01d"
         };
         const GEMINI_API_KEY = "AIzaSyAsOACgDOfBPKBQjYtIjH79_PHEHeBKK_E"; 
 
-        // Initialize App
-        let app, auth, db;
-        try {
-            app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
-            db = getDatabase(app);
-        } catch (error) {
-            showToast("Firebase connection failed. Check Console.", "error");
-            console.error("Firebase Init Error:", error);
-        }
-
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
         const provider = new GoogleAuthProvider();
 
-        // Custom Toast System
-        window.showToast = (message, type = 'info') => {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            
-            let icon = 'fa-circle-info';
-            if(type === 'success') icon = 'fa-check-circle';
-            if(type === 'error') icon = 'fa-triangle-exclamation';
+        let globalTargetDate = new Date("2025-02-15T00:00:00"); // default
 
-            toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
-            container.appendChild(toast);
-            
-            // Trigger animation
-            setTimeout(() => toast.classList.add('show'), 10);
-            
-            // Remove
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+        // Toasts
+        window.showToast = (msg, type = 'info') => {
+            const container = document.getElementById('toast-container');
+            const t = document.createElement('div');
+            t.className = `toast ${type}`;
+            t.innerHTML = `<span>${msg}</span>`;
+            container.appendChild(t);
+            setTimeout(() => t.classList.add('show'), 10);
+            setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000);
         };
 
-        // UI ACTIONS: Tab Switching
+        // UI ACTIONS
         window.switchTab = (id) => {
-            // Remove active from all
-            document.querySelectorAll('.section').forEach(s => {
-                s.classList.remove('active-section');
-            });
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active-section'));
+            document.getElementById(id).classList.add('active-section');
             
-            // Add to target
-            const target = document.getElementById(id);
-            if(target) target.classList.add('active-section');
+            // Full screen logic for AI
+            const navTop = document.getElementById('main-nav');
+            const navBot = document.getElementById('bottom-nav');
             
-            // Close Sidebar if open
-            document.getElementById('sidebar').classList.add('-translate-x-full');
+            if(id === 'ai') {
+                navTop.style.display = 'none';
+                navBot.style.display = 'none';
+            } else {
+                navTop.style.display = 'flex';
+                navBot.style.display = 'flex';
+            }
 
-            // Update bottom nav active state
             document.querySelectorAll('.nav-btn').forEach(btn => {
-                if(btn.dataset.target === id) {
-                    btn.classList.add('text-indigo-400');
-                    btn.classList.remove('text-gray-400');
-                } else {
-                    btn.classList.remove('text-indigo-400');
-                    btn.classList.add('text-gray-400');
-                }
+                btn.style.color = (btn.dataset.target === id) ? 'white' : '#9ca3af';
             });
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-        // Sidebar Toggles
-        document.getElementById('menu-open').onclick = () => document.getElementById('sidebar').classList.remove('-translate-x-full');
-        document.getElementById('menu-close').onclick = () => document.getElementById('sidebar').classList.add('-translate-x-full');
+        window.openExamModal = () => document.getElementById('exam-modal').classList.add('active');
+        window.closeExamModal = () => document.getElementById('exam-modal').classList.remove('active');
 
-        // Note Search Function
-        window.searchNotes = () => {
-            let input = document.getElementById('note-search').value.toLowerCase();
-            let items = document.querySelectorAll('.note-item');
-            items.forEach(item => {
-                let text = item.querySelector('h4').innerText.toLowerCase();
-                item.style.display = text.includes(input) ? "flex" : "none";
-            });
-        };
-
-        // AUTH LOGIC
+        // AUTH
         document.getElementById('login-btn').onclick = async () => {
-            try {
-                document.getElementById('login-btn').innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Connecting...`;
-                await signInWithPopup(auth, provider);
-                showToast("Login Successful!", "success");
-            } catch (error) {
-                showToast("Login Failed. Try again.", "error");
-                document.getElementById('login-btn').innerHTML = `<img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-7 relative z-10"> <span class="relative z-10">Continue with Google</span>`;
-            }
+            try { await signInWithPopup(auth, provider); showToast("Welcome back!", "success"); } 
+            catch (e) { showToast("Login Error", "error"); }
         };
-
-        window.logout = async () => {
-            await signOut(auth);
-            showToast("Logged out securely", "info");
-        };
+        window.logout = () => signOut(auth);
 
         onAuthStateChanged(auth, (user) => {
-            const loginScreen = document.getElementById('login-screen');
+            const login = document.getElementById('login-screen');
             if (user) {
-                loginScreen.style.opacity = '0';
-                setTimeout(() => loginScreen.classList.add('hidden'), 500);
-                
-                // Populate User Data
-                document.getElementById('user-name').innerText = user.displayName.split(' ')[0]; // First name
+                login.classList.add('hidden');
+                document.getElementById('user-name').innerText = user.displayName.split(' ')[0];
                 document.getElementById('prof-name').innerText = user.displayName;
-                
-                // Generate a random roll number just for UI
-                let roll = "UP" + Math.floor(100000 + Math.random() * 900000);
-                document.getElementById('prof-roll').innerText = roll;
-
-                // Handle Image
-                const imgUrl = user.photoURL || 'https://via.placeholder.com/150';
-                document.getElementById('user-img').src = imgUrl;
-                document.getElementById('prof-img').src = imgUrl;
-                
+                document.getElementById('prof-roll').innerText = "UP" + Math.floor(100000 + Math.random() * 900000);
+                document.getElementById('user-img').src = user.photoURL;
+                document.getElementById('prof-img').src = user.photoURL;
                 loadDatabaseData();
             } else {
-                loginScreen.classList.remove('hidden');
-                setTimeout(() => loginScreen.style.opacity = '1', 50);
+                login.classList.remove('hidden');
             }
         });
 
-        // LOAD DATA FROM FIREBASE
+        // LOAD DATA
         function loadDatabaseData() {
-            if(!db) return;
+            // Notes
+            onValue(ref(db, 'public_data/notes'), (snap) => {
+                const list = document.getElementById('notes-list');
+                list.innerHTML = "";
+                if(snap.exists()){
+                    snap.forEach(c => {
+                        let d = c.val();
+                        list.innerHTML += `<div class="glass p-4 rounded-2xl flex justify-between items-center mb-3">
+                            <div class="flex items-center gap-3"><i class="fa-solid fa-file-pdf text-red-500 text-2xl"></i><div><h4 class="font-bold text-gray-800">${d.title}</h4></div></div>
+                            <a href="${d.link}" target="_blank" class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center"><i class="fa-solid fa-download"></i></a>
+                        </div>`;
+                    });
+                }
+            });
 
-            // Load Notes securely
-            try {
-                onValue(ref(db, 'public_data/notes'), (snapshot) => {
-                    const list = document.getElementById('notes-list');
-                    list.innerHTML = "";
-                    if(snapshot.exists()){
-                        snapshot.forEach(child => {
-                            const data = child.val();
-                            list.innerHTML += `
-                                <div class="note-item glass bg-white/60 p-4 rounded-2xl flex justify-between items-center hover:-translate-y-1 transition-transform shadow-sm border border-white">
-                                    <div class="flex items-center gap-4">
-                                        <div class="w-10 h-10 bg-red-100 text-red-500 rounded-xl flex items-center justify-center"><i class="fa-solid fa-file-pdf"></i></div>
-                                        <div>
-                                            <h4 class="font-bold text-gray-800">${data.title}</h4>
-                                            <p class="text-xs text-gray-500 font-medium">Added: ${data.date}</p>
-                                        </div>
-                                    </div>
-                                    <a href="${data.link}" target="_blank" class="w-10 h-10 bg-indigo-50 hover:bg-indigo-600 hover:text-white text-indigo-600 rounded-xl flex items-center justify-center transition-colors shadow-sm"><i class="fa-solid fa-arrow-down"></i></a>
-                                </div>`;
-                        });
-                    } else {
-                        list.innerHTML = `<div class="text-center text-gray-500 py-6 bg-white/50 rounded-2xl border border-dashed border-gray-300">No study materials available right now.</div>`;
-                    }
-                });
+            // Progress
+            onValue(ref(db, 'public_data/status'), (snap) => {
+                const box = document.getElementById('course-status');
+                const d = snap.val() || { phy: 0, chem: 0, math: 0 };
+                box.innerHTML = `<h4 class="font-bold mb-3">Syllabus Coverage</h4>
+                    <div class="space-y-3">
+                        ${['phy','chem','math'].map(s => `<div><p class="text-xs font-bold uppercase flex justify-between">${s} <span>${d[s]}%</span></p><div class="h-2 bg-gray-200 rounded-full"><div class="h-full bg-indigo-500 rounded-full" style="width:${d[s]}%"></div></div></div>`).join('')}
+                    </div>`;
+            });
 
-                // Load Status
-                onValue(ref(db, 'public_data/status'), (snapshot) => {
-                    const box = document.getElementById('course-status');
-                    const data = snapshot.val() || { phy: 65, chem: 45, math: 80 };
-                    
-                    box.innerHTML = `
-                        <div class="flex justify-between items-center mb-4">
-                            <h4 class="font-bold text-lg text-gray-800">Syllabus Coverage</h4>
-                            <div class="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center"><i class="fa-solid fa-chart-pie"></i></div>
-                        </div>
-                        <div class="space-y-4">
-                            <div>
-                                <p class="text-sm font-semibold text-gray-700 flex justify-between mb-1">Physics <span>${data.phy}%</span></p>
-                                <div class="h-2.5 bg-gray-100 rounded-full overflow-hidden shadow-inner"><div class="h-full bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full transition-all duration-1000" style="width:${data.phy}%"></div></div>
+            // Notices
+            onValue(ref(db, 'public_data/notices'), (snap) => {
+                const list = document.getElementById('notice-list');
+                list.innerHTML = "";
+                if(snap.exists()){
+                    snap.forEach(c => {
+                        let d = c.val();
+                        list.innerHTML = `<div class="glass p-4 rounded-2xl mb-3 border-l-4 border-amber-400">
+                            <h4 class="font-bold text-gray-800">${d.title}</h4>
+                            <p class="text-xs text-gray-500 mt-1">${d.date}</p>
+                            <p class="text-sm mt-2 text-gray-700">${d.msg}</p>
+                        </div>` + list.innerHTML; // Prepend
+                    });
+                }
+            });
+
+            // Exam Countdown
+            onValue(ref(db, 'public_data/countdown'), (snap) => {
+                if(snap.exists()) globalTargetDate = new Date(snap.val());
+            });
+
+            // Exam Schedule
+            onValue(ref(db, 'public_data/exam_schedule'), (snap) => {
+                const list = document.getElementById('modal-schedule-list');
+                list.innerHTML = "";
+                if(snap.exists()){
+                    snap.forEach(c => {
+                        let d = c.val();
+                        list.innerHTML += `<div class="bg-indigo-50 border border-indigo-100 p-3 rounded-xl">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="bg-indigo-600 text-white text-[10px] px-2 py-1 rounded font-bold uppercase">${d.examName}</span>
+                                <span class="text-xs font-bold text-gray-600"><i class="fa-regular fa-calendar"></i> ${d.date}</span>
                             </div>
-                            <div>
-                                <p class="text-sm font-semibold text-gray-700 flex justify-between mb-1">Chemistry <span>${data.chem}%</span></p>
-                                <div class="h-2.5 bg-gray-100 rounded-full overflow-hidden shadow-inner"><div class="h-full bg-gradient-to-r from-purple-400 to-pink-500 rounded-full transition-all duration-1000" style="width:${data.chem}%"></div></div>
-                            </div>
-                            <div>
-                                <p class="text-sm font-semibold text-gray-700 flex justify-between mb-1">Mathematics <span>${data.math}%</span></p>
-                                <div class="h-2.5 bg-gray-100 rounded-full overflow-hidden shadow-inner"><div class="h-full bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full transition-all duration-1000" style="width:${data.math}%"></div></div>
+                            <h3 class="font-black text-gray-800 text-lg">${d.subject}</h3>
+                            <div class="flex justify-between text-xs text-gray-500 mt-2">
+                                <span><i class="fa-regular fa-clock"></i> ${d.time}</span>
+                                <span><i class="fa-solid fa-door-open"></i> ${d.meeting}</span>
                             </div>
                         </div>`;
-                });
-            } catch(e) {
-                console.log("Database read error", e);
-            }
+                    });
+                } else { list.innerHTML = "No exams scheduled."; }
+            });
         }
 
-        // ADMIN FUNCTIONS
+        // ADMIN CONTROLS
         window.unlockAdmin = () => {
-            const pass = document.getElementById('admin-pass').value;
-            if(pass === "Study786") { 
+            if(document.getElementById('admin-pass').value === "Study786") { 
                 document.getElementById('admin-auth').classList.add('hidden');
                 document.getElementById('admin-controls').classList.remove('hidden');
-                showToast("Admin Access Granted", "success");
-                document.getElementById('admin-pass').value = ""; // clear input
-            } else { 
-                showToast("Access Denied. Wrong Key!", "error"); 
-                document.getElementById('admin-pass').value = "";
-            }
+                showToast("Portal Unlocked", "success");
+            } else { showToast("Wrong Key", "error"); }
         };
-
         window.lockAdmin = () => {
             document.getElementById('admin-auth').classList.remove('hidden');
             document.getElementById('admin-controls').classList.add('hidden');
-            showToast("Admin Portal Locked", "info");
-        }
-
-        window.uploadNote = async () => {
-            if(!db) { showToast("Database not connected", "error"); return; }
-            
-            const title = document.getElementById('note-title').value.trim();
-            const link = document.getElementById('note-link').value.trim();
-            const btn = document.getElementById('upload-btn');
-            
-            if(!title || !link) {
-                showToast("Please fill both fields", "error");
-                return;
-            }
-
-            try {
-                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Uploading...`;
-                btn.disabled = true;
-
-                await push(ref(db, 'public_data/notes'), { 
-                    title: title, 
-                    link: link, 
-                    date: new Date().toLocaleDateString('en-GB', {day: 'numeric', month: 'short', year: 'numeric'}) 
-                });
-                
-                showToast("Material Uploaded Successfully!", "success");
-                document.getElementById('note-title').value = "";
-                document.getElementById('note-link').value = "";
-            } catch (error) {
-                showToast("Upload Failed", "error");
-            } finally {
-                btn.innerHTML = `<i class="fa-solid fa-upload"></i> Publish to Database`;
-                btn.disabled = false;
-            }
         };
 
-        // ADVANCED GEMINI AI LOGIC
+        window.adminAction = async (type) => {
+            try {
+                if(type === 'note') {
+                    const t = document.getElementById('n-title').value;
+                    const l = document.getElementById('n-link').value;
+                    if(!t||!l) return showToast("Fill all fields", "error");
+                    await push(ref(db, 'public_data/notes'), { title: t, link: l });
+                } 
+                else if(type === 'progress') {
+                    const p = document.getElementById('p-phy').value || 0;
+                    const c = document.getElementById('p-chem').value || 0;
+                    const m = document.getElementById('p-math').value || 0;
+                    await set(ref(db, 'public_data/status'), { phy: p, chem: c, math: m });
+                }
+                else if(type === 'notice') {
+                    const t = document.getElementById('nt-title').value;
+                    const m = document.getElementById('nt-desc').value;
+                    if(!t||!m) return showToast("Fill all fields", "error");
+                    const dateStr = new Date().toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'});
+                    await push(ref(db, 'public_data/notices'), { title: t, msg: m, date: dateStr });
+                }
+                else if(type === 'exam') {
+                    const nm = document.getElementById('ex-name').value;
+                    const sb = document.getElementById('ex-sub').value;
+                    const dt = document.getElementById('ex-date').value;
+                    const tm = document.getElementById('ex-time').value;
+                    const mt = document.getElementById('ex-meet').value;
+                    if(!nm||!sb||!dt) return showToast("Fill required fields", "error");
+                    await push(ref(db, 'public_data/exam_schedule'), { examName: nm, subject: sb, date: dt, time: tm, meeting: mt });
+                }
+                else if(type === 'countdown') {
+                    const d = document.getElementById('cd-date').value;
+                    if(!d) return;
+                    await set(ref(db, 'public_data/countdown'), d);
+                }
+                
+                showToast("Updated Successfully!", "success");
+                // Clear inputs (lazy way, clearing all inputs in active detail)
+                document.querySelectorAll('details[open] input, details[open] textarea').forEach(el => el.value = '');
+            } catch(e) { showToast("Error updating database", "error"); console.log(e); }
+        };
+
+        // AI CHAT
+        window.clearChat = () => {
+            document.getElementById('chat-box').innerHTML = `<div class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white mt-1"><i class="fa-solid fa-robot text-xs"></i></div><div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm text-sm text-gray-800">चैट क्लियर कर दी गई है! नया सवाल पूछें।</div></div>`;
+        }
+
         window.askGemini = async () => {
             const input = document.getElementById('ai-input');
             const chat = document.getElementById('chat-box');
-            const btn = document.getElementById('ai-btn');
             const q = input.value.trim();
-            
             if(!q) return;
 
-            // 1. Add User Message to UI
-            chat.innerHTML += `
-                <div class="flex items-start gap-3 flex-row-reverse animate-slideUp">
-                    <img src="${auth.currentUser ? auth.currentUser.photoURL : 'https://via.placeholder.com/150'}" class="w-8 h-8 rounded-full border border-gray-200 flex-shrink-0">
-                    <div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 rounded-2xl rounded-tr-none shadow-md text-sm max-w-[85%]">
-                        ${q}
-                    </div>
-                </div>`;
+            // User msg
+            chat.innerHTML += `<div class="flex items-start gap-3 flex-row-reverse animate-slideUp"><div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs mt-1"><i class="fa-solid fa-user"></i></div><div class="bg-purple-600 text-white p-3 rounded-2xl rounded-tr-none shadow-sm text-sm max-w-[85%]">${q}</div></div>`;
+            input.value = ""; chat.scrollTop = chat.scrollHeight;
             
-            input.value = "";
-            chat.scrollTop = chat.scrollHeight; // Scroll to bottom
-            
-            // 2. Disable input & Add Typing Loader
-            input.disabled = true;
-            btn.disabled = true;
-            const loaderId = "loader-" + Date.now();
-            
-            chat.innerHTML += `
-                <div id="${loaderId}" class="flex items-start gap-3">
-                    <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 flex-shrink-0"><i class="fa-solid fa-robot text-xs"></i></div>
-                    <div class="bg-white p-4 rounded-2xl rounded-tl-none shadow-sm text-sm border border-gray-100 flex items-center">
-                        <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>
-                    </div>
-                </div>`;
+            const loaderId = "ld-" + Date.now();
+            chat.innerHTML += `<div id="${loaderId}" class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white mt-1"><i class="fa-solid fa-robot text-xs"></i></div><div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm text-sm"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div></div>`;
             chat.scrollTop = chat.scrollHeight;
 
-            // 3. Fetch from Gemini API with Error Handling
             try {
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ 
-                        contents: [{ 
-                            parts: [{ 
-                                text: `You are an expert AI Tutor for Class 12th Science students in India (UP/CBSE Board). Explain the following question clearly and simply in Hinglish/Hindi. If it involves formulas, format them nicely. The user question is: ${q}` 
-                            }] 
-                        }] 
-                    })
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: "Explain simply in Hindi/Hinglish for 12th student: " + q }] }] })
                 });
 
-                if(!res.ok) throw new Error("API Limit reached or network error");
+                if(!res.ok) {
+                    const errData = await res.json();
+                    console.error("API ERROR DETAILS:", errData);
+                    throw new Error("API Limit reached or invalid key. Check console.");
+                }
 
                 const data = await res.json();
-                let reply = data.candidates[0].content.parts[0].text;
+                let reply = data.candidates[0].content.parts[0].text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
                 
-                // Very basic markdown parsing for bold text
-                reply = reply.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                reply = reply.replace(/\*(.*?)\*/g, '<em>$1</em>');
-                reply = reply.replace(/\n/g, '<br>');
-
-                // Remove loader and add response
                 document.getElementById(loaderId).remove();
-                
-                chat.innerHTML += `
-                    <div class="flex items-start gap-3 animate-slideUp">
-                        <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 flex-shrink-0"><i class="fa-solid fa-robot text-xs"></i></div>
-                        <div class="bg-white p-4 rounded-2xl rounded-tl-none shadow-sm text-sm text-gray-800 max-w-[90%] border border-gray-100 leading-relaxed">
-                            ${reply}
-                        </div>
-                    </div>`;
-                    
+                chat.innerHTML += `<div class="flex items-start gap-3 animate-slideUp"><div class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white mt-1"><i class="fa-solid fa-robot text-xs"></i></div><div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm text-sm text-gray-800 max-w-[90%] leading-relaxed border border-gray-100">${reply}</div></div>`;
             } catch (error) {
+                console.error("AI Fetch Catch Error:", error);
                 document.getElementById(loaderId).remove();
-                showToast("AI is sleeping. Check connection.", "error");
-                chat.innerHTML += `
-                    <div class="flex items-start gap-3">
-                        <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600 flex-shrink-0"><i class="fa-solid fa-triangle-exclamation text-xs"></i></div>
-                        <div class="bg-red-50 p-4 rounded-2xl rounded-tl-none text-red-600 text-sm max-w-[85%] border border-red-100">
-                            माफ़ करें, नेटवर्क समस्या के कारण मैं अभी जवाब नहीं दे पा रहा हूँ। कृपया दोबारा प्रयास करें।
-                        </div>
-                    </div>`;
-            } finally {
-                // Re-enable input
-                input.disabled = false;
-                btn.disabled = false;
-                input.focus();
-                chat.scrollTop = chat.scrollHeight;
+                chat.innerHTML += `<div class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center text-white mt-1"><i class="fa-solid fa-triangle-exclamation text-xs"></i></div><div class="bg-red-50 p-3 rounded-2xl rounded-tl-none text-red-600 text-sm max-w-[85%] border border-red-200">API Key Error: AI sleeping. Ensure your Gemini API Key is valid and hasn't crossed limits. Developer Console check karein.</div></div>`;
             }
+            chat.scrollTop = chat.scrollHeight;
         };
 
-        // Advanced Exam Timer Logic
+        // Timer
         setInterval(() => {
-            const examDate = new Date("2025-02-15T00:00:00");
-            const now = new Date();
-            const diff = examDate - now;
-
+            const diff = globalTargetDate - new Date();
             if(diff > 0) {
-                const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-                const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
-                
-                document.getElementById('count-days').innerText = d.toString().padStart(2, '0');
-                document.getElementById('count-hours').innerText = h.toString().padStart(2, '0');
+                document.getElementById('count-days').innerText = Math.floor(diff / (1000 * 60 * 60 * 24)).toString().padStart(2, '0');
+                document.getElementById('count-hours').innerText = Math.floor((diff / (1000 * 60 * 60)) % 24).toString().padStart(2, '0');
             } else {
                 document.getElementById('count-days').innerText = "00";
                 document.getElementById('count-hours').innerText = "00";
             }
         }, 1000);
+
+        // Initial switch to home
+        switchTab('home');
 
     </script>
 </body>
