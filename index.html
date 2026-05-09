@@ -1751,16 +1751,16 @@ window.openPdfViewer = function(url, title) {
     const titleEl = document.getElementById('pdf-viewer-title');
     if (!modal || !frame) return;
     
-        // Convert Google Drive /view to /preview
-    let embedUrl = url.trim(); // फालतू के स्पेस हटा देगा
+    let embedUrl = url.trim();
     
-    // 404 Error Killer: अगर लिंक में http या https नहीं है, तो खुद लगा देगा
-    if (!embedUrl.startsWith('http://') && !embedUrl.startsWith('https://')) {
+    // Agar http nahi hai toh add karo
+    if (!embedUrl.startsWith('http')) {
         embedUrl = 'https://' + embedUrl;
     }
 
-    if (embedUrl.includes('drive.google.com') && embedUrl.includes('/view')) {
-        embedUrl = embedUrl.replace('/view', '/preview');
+    // Drive /view ko /preview karo
+    if (embedUrl.includes('drive.google.com')) {
+        embedUrl = embedUrl.replace('/view', '/preview').replace('/edit', '/preview');
     }
     
     titleEl.textContent = title || 'Document';
