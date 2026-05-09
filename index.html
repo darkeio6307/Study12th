@@ -2964,7 +2964,7 @@ let deferredPrompt = null;
 // Register Service Worker from external sw.js
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
-        navigator.serviceWorker.register('sw.js')
+        navigator.serviceWorker.register('/Study12th/sw.js')
             .then(function(registration) {
                 console.log('Service Worker registered:', registration.scope);
             })
