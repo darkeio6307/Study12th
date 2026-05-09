@@ -1751,16 +1751,21 @@ window.openPdfViewer = function(url, title) {
     const titleEl = document.getElementById('pdf-viewer-title');
     if (!modal || !frame) return;
     
-    // Convert Google Drive /view to /preview
-    let embedUrl = url;
-    if (url.includes('drive.google.com') && url.includes('/view')) {
-        embedUrl = url.replace('/view', '/preview');
+        // Convert Google Drive /view to /preview
+    let embedUrl = url.trim(); // फालतू के स्पेस हटा देगा
+    
+    // 404 Error Killer: अगर लिंक में http या https नहीं है, तो खुद लगा देगा
+    if (!embedUrl.startsWith('http://') && !embedUrl.startsWith('https://')) {
+        embedUrl = 'https://' + embedUrl;
+    }
+
+    if (embedUrl.includes('drive.google.com') && embedUrl.includes('/view')) {
+        embedUrl = embedUrl.replace('/view', '/preview');
     }
     
     titleEl.textContent = title || 'Document';
     frame.src = embedUrl;
     modal.classList.add('active');
-};
 
 window.closePdfViewer = function() {
     const modal = document.getElementById('pdf-viewer-modal');
