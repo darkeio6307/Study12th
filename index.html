@@ -1766,6 +1766,7 @@ window.openPdfViewer = function(url, title) {
     titleEl.textContent = title || 'Document';
     frame.src = embedUrl;
     modal.classList.add('active');
+};
 
 window.closePdfViewer = function() {
     const modal = document.getElementById('pdf-viewer-modal');
