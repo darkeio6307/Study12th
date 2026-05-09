@@ -3,26 +3,41 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#0f172a">
+<meta name="theme-color" content="#000000">
 <meta name="description" content="StudyGram Pro - The Ultimate 12th Science Hub with AI, Quiz, Music & Gamification">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="StudyGram Pro">
+
+<!-- PWA Manifest -->
+<link rel="manifest" href="manifest.json">
+
 <title>StudyGram Pro | 12th Science Hub</title>
+
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 <style>
-/* === ROOT VARIABLES === */
+/* ========================================== */
+/* === iOS SOLID DARK UI SYSTEM             === */
+/* ========================================== */
+
 :root {
-  --glass-bg: rgba(255,255,255,.06);
-  --glass-border: rgba(255,255,255,.12);
-  --glass-blur: 24px;
-  --primary: #818cf8;
-  --primary-glow: rgba(99,102,241,.4);
-  --accent: #c084fc;
-  --success: #4ade80;
-  --danger: #f87171;
-  --warning: #fbbf24;
-  --bg-deep: #0b1120;
-  --transition-smooth: all .4s cubic-bezier(.4,0,.2,1);
+  --ios-bg: #000000;
+  --ios-bg-secondary: #1c1c1e;
+  --ios-bg-tertiary: #2c2c2e;
+  --ios-bg-elevated: #323234;
+  --ios-border: rgba(255,255,255,0.08);
+  --ios-border-strong: rgba(255,255,255,0.14);
+  --ios-text: #ffffff;
+  --ios-text-secondary: #8e8e93;
+  --primary: #6366f1;
+  --accent: #a855f7;
+  --success: #34c759;
+  --danger: #ff3b30;
+  --warning: #ff9500;
+  --transition-smooth: all .3s cubic-bezier(.4,0,.2,1);
 }
 
 /* === RESET & BASE === */
@@ -31,158 +46,131 @@ html { scroll-behavior: smooth; }
 body {
   font-family: 'Poppins', 'Noto Sans Devanagari', sans-serif;
   overflow-x: hidden;
-  background: var(--bg-deep);
-  color: #e2e8f0;
+  background: var(--ios-bg);
+  color: var(--ios-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
-/* === ANIMATED BACKGROUND === */
-.bg-ani {
-  background: linear-gradient(-45deg, #0b1120, #1e1b4b, #312e81, #0b1120, #1e3a5f, #0b1120);
-  background-size: 500% 500%;
-  animation: gradientBg 18s ease infinite;
-}
-@keyframes gradientBg {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* === PREMIUM GLASSMORPHISM === */
-.glass {
-  background: linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
-  box-shadow: 0 8px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.06);
-}
-.gcard {
-  background: linear-gradient(135deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,.08);
-  box-shadow: 0 4px 30px rgba(0,0,0,.2);
+/* === SOLID iOS CARDS === */
+.ios-card {
+  background: var(--ios-bg-secondary);
+  border: 1px solid var(--ios-border);
+  border-radius: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
   transition: var(--transition-smooth);
 }
-.gcard:hover {
-  background: linear-gradient(135deg, rgba(255,255,255,.1), rgba(255,255,255,.05));
-  border-color: rgba(255,255,255,.18);
-  transform: translateY(-3px);
-  box-shadow: 0 12px 40px rgba(0,0,0,.3);
+.ios-card:active {
+  transform: scale(0.98);
 }
 
-/* === PAGE TRANSITIONS === */
+.ios-gcard {
+  background: var(--ios-bg-tertiary);
+  border: 1px solid var(--ios-border);
+  border-radius: 1rem;
+  transition: var(--transition-smooth);
+}
+.ios-gcard:active {
+  transform: scale(0.97);
+}
+
+/* === PAGE TRANSITIONS (No blur, GPU accelerated) === */
 .section {
   display: none;
   opacity: 0;
-  transform: translateY(24px) scale(.98);
-  transition: opacity .45s cubic-bezier(.4,0,.2,1), transform .45s cubic-bezier(.4,0,.2,1);
+  transform: translateY(16px);
+  transition: opacity .35s ease, transform .35s ease;
   will-change: opacity, transform;
 }
 .section.active-section {
   display: block;
   opacity: 1;
-  transform: translateY(0) scale(1);
-  animation: sectionEnter .5s ease forwards;
-}
-@keyframes sectionEnter {
-  0% { opacity: 0; transform: translateY(24px) scale(.96); filter: blur(4px); }
-  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+  transform: translateY(0);
 }
 
 /* === NATIVE APP FEEL === */
-.btn-press { transition: transform .15s ease, box-shadow .2s ease; }
-.btn-press:active { transform: scale(.94) !important; }
+.btn-press { transition: transform .12s ease; }
+.btn-press:active { transform: scale(0.94) !important; }
 .no-select { -webkit-user-select: none; user-select: none; }
 
-/* === SHIMMER TEXT === */
-.shimmer {
-  background: linear-gradient(90deg, #818cf8, #c084fc, #818cf8, #818cf8);
-  background-size: 300% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: shimmer 4s linear infinite;
+/* === TYPING DOTS (CSS only, no JS animation overhead) === */
+.tdot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: #a78bfa;
+  border-radius: 50%;
+  margin: 0 2px;
+  animation: typingDot 1.4s infinite ease-in-out both;
 }
-@keyframes shimmer { 0% { background-position: 0% center; } 100% { background-position: 300% center; } }
-
-/* === FLOATING ANIMATION === */
-.float { animation: float 4s ease-in-out infinite; }
-@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
-
-/* === GLOW EFFECTS === */
-.glow {
-  animation: glowPulse 2.5s ease-in-out infinite;
-}
-@keyframes glowPulse {
-  0%, 100% { box-shadow: 0 0 20px rgba(99,102,241,.25), 0 0 40px rgba(129,140,248,.1); }
-  50% { box-shadow: 0 0 30px rgba(99,102,241,.5), 0 0 60px rgba(168,85,247,.25), 0 0 80px rgba(192,132,252,.1); }
-}
-.glow-sm { box-shadow: 0 0 15px rgba(99,102,241,.3); }
-
-/* === STREAK FIRE === */
-@keyframes firePulse {
-  0%, 100% { transform: scale(1); filter: brightness(1); }
-  50% { transform: scale(1.35); filter: brightness(1.4); }
-}
-.sf { animation: firePulse 1.2s infinite; }
-
-/* === TYPING DOTS === */
-.tdot { display: inline-block; width: 7px; height: 7px; background: #a78bfa; border-radius: 50%; margin: 0 2px; animation: typingDot 1.4s infinite ease-in-out both; }
 .tdot:nth-child(1) { animation-delay: -.32s; }
 .tdot:nth-child(2) { animation-delay: -.16s; }
-@keyframes typingDot { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+@keyframes typingDot {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
 
-/* === SCROLLBAR === */
-::-webkit-scrollbar { width: 5px; }
+/* === STREAK FIRE (Simplified) === */
+.sf { animation: firePulse 1.2s infinite; }
+@keyframes firePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+/* === SCROLLBAR (Minimal) === */
+::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(99,102,241,.35); border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(99,102,241,.55); }
+::-webkit-scrollbar-thumb { background: var(--ios-bg-elevated); border-radius: 10px; }
 
-/* === TOAST NOTIFICATIONS === */
-#toast-container { position: fixed; top: 20px; right: 20px; z-index: 99999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+/* === TOAST NOTIFICATIONS (Solid, no blur) === */
+#toast-container {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
 .toast {
-  padding: 14px 22px;
-  border-radius: 16px;
+  padding: 12px 18px;
+  border-radius: 14px;
   color: #fff;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   display: flex;
   align-items: center;
   gap: 10px;
   transform: translateX(140%);
-  transition: transform .45s cubic-bezier(.4,0,.2,1);
-  box-shadow: 0 12px 40px rgba(0,0,0,.35);
+  transition: transform .4s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
   pointer-events: auto;
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,.1);
-  max-width: 320px;
+  border: 1px solid var(--ios-border);
+  max-width: 300px;
 }
 .toast.show { transform: translateX(0); }
-.toast.suc { background: rgba(16,185,129,.92); }
-.toast.err { background: rgba(239,68,68,.92); }
-.toast.inf { background: rgba(99,102,241,.92); }
-.toast.warn { background: rgba(245,158,11,.92); }
+.toast.suc { background: #34c759; }
+.toast.err { background: #ff3b30; }
+.toast.inf { background: #6366f1; }
+.toast.warn { background: #ff9500; }
 
-/* === MODAL SYSTEM === */
+/* === MODAL SYSTEM (Solid overlay, no blur) === */
 .modal-overlay {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(0,0,0,0.85);
   z-index: 10000;
   justify-content: center;
   align-items: center;
   padding: 20px;
-  animation: modalFadeIn .3s ease;
 }
-.modal-overlay.active { display: flex; }
+.modal-overlay.active { display: flex; animation: modalFadeIn .25s ease; }
 @keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* === CELEBRATION MODAL (Badge/Level Up) === */
+/* === CELEBRATION MODAL (Solid, no blur) === */
 .celebration-modal {
   display: none;
   position: fixed;
@@ -191,226 +179,311 @@ body {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  background: rgba(0,0,0,.85);
-  backdrop-filter: blur(20px);
+  background: rgba(0,0,0,0.9);
 }
-.celebration-modal.active { display: flex; animation: celebrateIn .5s ease forwards; }
+.celebration-modal.active {
+  display: flex;
+  animation: celebrateIn .4s ease forwards;
+}
 @keyframes celebrateIn {
-  0% { opacity: 0; transform: scale(.8); }
+  0% { opacity: 0; transform: scale(0.85); }
   50% { transform: scale(1.02); }
   100% { opacity: 1; transform: scale(1); }
 }
 
-/* === CONFETTI === */
+/* === CONFETTI (Triggered animation, not continuous) === */
 .confetti-container { position: fixed; inset: 0; pointer-events: none; z-index: 10002; overflow: hidden; }
 .confetti-piece {
   position: absolute;
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   top: -10px;
   animation: confettiFall linear forwards;
 }
 @keyframes confettiFall {
   0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
-  100% { transform: translateY(110vh) rotate(720deg) scale(.5); opacity: 0; }
+  100% { transform: translateY(110vh) rotate(720deg) scale(0.5); opacity: 0; }
 }
 
-/* === XP BAR === */
+/* === XP BAR (Solid, clean) === */
 .xpbc {
-  background: rgba(255,255,255,.06);
-  border-radius: 12px;
-  height: 10px;
+  background: var(--ios-bg-tertiary);
+  border-radius: 10px;
+  height: 8px;
   overflow: hidden;
-  position: relative;
-  border: 1px solid rgba(255,255,255,.05);
+  border: 1px solid var(--ios-border);
 }
 .xpbf {
   height: 100%;
-  background: linear-gradient(90deg, #818cf8, #c084fc, #a78bfa);
-  border-radius: 12px;
-  transition: width 1s cubic-bezier(.4,0,.2,1);
-  position: relative;
-  box-shadow: 0 0 10px rgba(129,140,248,.3);
+  background: linear-gradient(90deg, #6366f1, #a855f7);
+  border-radius: 10px;
+  transition: width .8s cubic-bezier(.4,0,.2,1);
 }
-.xpbf::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 25px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,.4));
-  border-radius: 0 12px 12px 0;
-  animation: shimmerBar 2s infinite;
-}
-@keyframes shimmerBar { 0% { opacity: .3; } 50% { opacity: 1; } 100% { opacity: .3; } }
 
 /* === LEVEL BADGE === */
 .lvb {
-  background: linear-gradient(135deg, #818cf8, #c084fc);
+  background: linear-gradient(135deg, #6366f1, #a855f7);
   color: #fff;
   font-weight: 800;
-  font-size: 11px;
-  padding: 3px 12px;
-  border-radius: 20px;
-  box-shadow: 0 4px 18px rgba(129,140,248,.4);
-  letter-spacing: .5px;
+  font-size: 10px;
+  padding: 2px 10px;
+  border-radius: 12px;
+  letter-spacing: .3px;
 }
 
 /* === BADGE STYLES === */
 .bdg {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 5px 12px;
-  border-radius: 20px;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 12px;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   border: 1px solid;
-  transition: all .3s ease;
 }
-.bdg:hover { transform: scale(1.08); }
 
 /* === QUIZ OPTIONS === */
 .qopt {
-  background: rgba(255,255,255,.04);
-  border: 1px solid rgba(255,255,255,.1);
-  border-radius: 16px;
-  padding: 16px 18px;
+  background: var(--ios-bg-tertiary);
+  border: 1px solid var(--ios-border);
+  border-radius: 14px;
+  padding: 14px 16px;
   cursor: pointer;
-  transition: all .3s ease;
+  transition: all .2s ease;
   font-size: 14px;
   line-height: 1.5;
 }
-.qopt:hover { background: rgba(255,255,255,.1); border-color: rgba(129,140,248,.5); transform: translateX(4px); }
-.qopt.cr { background: rgba(34,197,94,.18) !important; border-color: rgba(34,197,94,.5) !important; color: #4ade80 !important; }
-.qopt.wr { background: rgba(239,68,68,.18) !important; border-color: rgba(239,68,68,.5) !important; color: #f87171 !important; }
+.qopt:active { transform: scale(0.98); }
+.qopt.cr { background: rgba(52,199,89,0.15) !important; border-color: rgba(52,199,89,0.4) !important; color: #34c759 !important; }
+.qopt.wr { background: rgba(255,59,48,0.15) !important; border-color: rgba(255,59,48,0.4) !important; color: #ff3b30 !important; }
 
 /* === TEACHER CARD === */
 .tch {
-  background: rgba(255,255,255,.04);
-  border: 1px solid rgba(255,255,255,.08);
-  border-radius: 16px;
-  padding: 14px;
-  transition: all .3s ease;
+  background: var(--ios-bg-tertiary);
+  border: 1px solid var(--ios-border);
+  border-radius: 14px;
+  padding: 12px;
+  transition: all .2s ease;
 }
-.tch:hover { background: rgba(255,255,255,.08); border-color: rgba(129,140,248,.3); transform: translateX(6px); }
 
 /* === TIMER CIRCLE === */
 .tmr-c {
-  width: 200px;
-  height: 200px;
+  width: 180px;
+  height: 180px;
   border-radius: 50%;
-  background: conic-gradient(#818cf8 var(--p,0%), rgba(255,255,255,.06) 0);
+  background: conic-gradient(#6366f1 var(--p,0%), var(--ios-bg-tertiary) 0);
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  box-shadow: 0 0 40px rgba(99,102,241,.2), inset 0 0 40px rgba(0,0,0,.2);
 }
-.tmr-c::before { content: ''; position: absolute; width: 172px; height: 172px; border-radius: 50%; background: rgba(11,17,32,.92); }
-.tmr-d { position: relative; z-index: 1; font-size: 2.8rem; font-weight: 800; color: #e2e8f0; font-variant-numeric: tabular-nums; }
+.tmr-c::before {
+  content: '';
+  position: absolute;
+  width: 156px;
+  height: 156px;
+  border-radius: 50%;
+  background: var(--ios-bg-secondary);
+}
+.tmr-d {
+  position: relative;
+  z-index: 1;
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--ios-text);
+  font-variant-numeric: tabular-nums;
+}
 
 /* === CURSOR BLINK === */
-.tc::after { content: '|'; animation: blink 1s infinite; color: #818cf8; font-weight: bold; }
+.tc::after { content: '|'; animation: blink 1s infinite; color: #6366f1; font-weight: bold; }
 @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
 /* === RANK STYLES === */
-.rk1 { background: linear-gradient(135deg, rgba(250,204,21,.18), rgba(234,179,8,.12)); border: 1px solid rgba(250,204,21,.3); }
-.rk2 { background: linear-gradient(135deg, rgba(148,163,184,.18), rgba(100,116,139,.12)); border: 1px solid rgba(148,163,184,.3); }
-.rk3 { background: linear-gradient(135deg, rgba(180,83,9,.18), rgba(217,119,6,.12)); border: 1px solid rgba(217,119,6,.3); }
+.rk1 { background: rgba(255,204,0,0.1); border: 1px solid rgba(255,204,0,0.25); }
+.rk2 { background: rgba(142,142,147,0.1); border: 1px solid rgba(142,142,147,0.25); }
+.rk3 { background: rgba(209,122,0,0.1); border: 1px solid rgba(209,122,0,0.25); }
 
 /* === VOICE BUTTON === */
-.vb { width: 38px; height: 38px; border-radius: 50%; background: rgba(34,197,94,.12); color: #4ade80; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .3s; border: 1px solid rgba(34,197,94,.2); }
-.vb:hover { background: #22c55e; color: #fff; box-shadow: 0 0 20px rgba(34,197,94,.4); }
+.vb {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(52,199,89,0.12);
+  color: #34c759;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all .2s;
+  border: 1px solid rgba(52,199,89,0.2);
+}
 .vb.sp { animation: voicePulse 1s infinite; }
-@keyframes voicePulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,.4); } 50% { box-shadow: 0 0 0 14px rgba(34,197,94,0); } }
+@keyframes voicePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(52,199,89,0.3); }
+  50% { box-shadow: 0 0 0 10px rgba(52,199,89,0); }
+}
 
 /* === SUBJECT DETAIL === */
-.sub-d { background: rgba(255,255,255,.03); border-radius: 14px; padding: 14px; margin-top: 10px; border: 1px solid rgba(255,255,255,.06); }
-.sp { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; font-size: 12px; }
-.spb { height: 6px; background: rgba(255,255,255,.06); border-radius: 3px; flex: 1; margin: 0 10px; }
-.spf { height: 100%; border-radius: 3px; transition: width 1s cubic-bezier(.4,0,.2,1); }
+.sub-d { background: var(--ios-bg); border-radius: 12px; padding: 12px; margin-top: 8px; border: 1px solid var(--ios-border); }
+.sp { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 12px; }
+.spb { height: 5px; background: var(--ios-bg-tertiary); border-radius: 3px; flex: 1; margin: 0 8px; }
+.spf { height: 100%; border-radius: 3px; transition: width .8s cubic-bezier(.4,0,.2,1); }
 
 /* === MUSIC PLAYER (Compact 260px) === */
-.mpl { position: fixed; bottom: 90px; right: 16px; width: 260px; z-index: 100; transition: all .45s cubic-bezier(.4,0,.2,1); }
-.mpl.cl { width: 56px; height: 56px; border-radius: 50%; overflow: hidden; }
-.mpl.cl .pc { opacity: 0; pointer-events: none; transform: scale(.8); }
-.pc { transition: opacity .3s ease, transform .3s ease; }
-.mviz { display: flex; align-items: flex-end; gap: 3px; height: 36px; justify-content: center; }
-.vzb { width: 4px; background: linear-gradient(to top, #818cf8, #c084fc); border-radius: 2px; transition: height .1s ease; }
+.mpl {
+  position: fixed;
+  bottom: 90px;
+  right: 16px;
+  width: 260px;
+  z-index: 100;
+  transition: all .4s cubic-bezier(.4,0,.2,1);
+}
+.mpl.cl { width: 52px; height: 52px; border-radius: 50%; overflow: hidden; }
+.mpl.cl .pc { opacity: 0; pointer-events: none; transform: scale(0.8); }
+.pc { transition: opacity .25s ease, transform .25s ease; }
+.mviz { display: flex; align-items: flex-end; gap: 2px; height: 32px; justify-content: center; }
+.vzb {
+  width: 3px;
+  background: linear-gradient(to top, #6366f1, #a855f7);
+  border-radius: 2px;
+  transition: height .1s ease;
+}
 
 /* === MUSIC SEEKBAR === */
 .seekbar-container { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
-.seekbar-time { font-size: 10px; color: #94a3b8; font-variant-numeric: tabular-nums; min-width: 32px; }
-.seekbar-track { flex: 1; height: 4px; background: rgba(255,255,255,.1); border-radius: 2px; position: relative; cursor: pointer; }
-.seekbar-fill { height: 100%; background: linear-gradient(90deg, #818cf8, #c084fc); border-radius: 2px; width: 0%; transition: width .3s linear; position: relative; }
-.seekbar-thumb { position: absolute; right: -5px; top: -3px; width: 10px; height: 10px; background: #c084fc; border-radius: 50%; box-shadow: 0 0 8px rgba(192,132,252,.6); opacity: 0; transition: opacity .2s; }
+.seekbar-time { font-size: 10px; color: var(--ios-text-secondary); font-variant-numeric: tabular-nums; min-width: 30px; }
+.seekbar-track {
+  flex: 1;
+  height: 4px;
+  background: var(--ios-bg-tertiary);
+  border-radius: 2px;
+  position: relative;
+  cursor: pointer;
+}
+.seekbar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6366f1, #a855f7);
+  border-radius: 2px;
+  width: 0%;
+  transition: width .3s linear;
+  position: relative;
+}
+.seekbar-thumb {
+  position: absolute;
+  right: -4px;
+  top: -3px;
+  width: 10px;
+  height: 10px;
+  background: #a855f7;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity .2s;
+}
 .seekbar-track:hover .seekbar-thumb { opacity: 1; }
 
 /* === ATTENDANCE CALENDAR === */
-.att-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
-.att-d { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-size: 11px; font-weight: 700; transition: all .2s; }
-.att-p { background: rgba(34,197,94,.18); color: #4ade80; border: 1px solid rgba(34,197,94,.3); }
-.att-a { background: rgba(239,68,68,.12); color: #f87171; border: 1px solid rgba(239,68,68,.2); }
-.att-f { background: rgba(255,255,255,.03); color: #64748b; }
-.att-t { border: 2px solid #818cf8; box-shadow: 0 0 12px rgba(99,102,241,.35); color: #e2e8f0; background: rgba(99,102,241,.15); }
+.att-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.att-d {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  transition: all .15s;
+}
+.att-p { background: rgba(52,199,89,0.15); color: #34c759; border: 1px solid rgba(52,199,89,0.3); }
+.att-a { background: rgba(255,59,48,0.1); color: #ff3b30; border: 1px solid rgba(255,59,48,0.2); }
+.att-f { background: var(--ios-bg-tertiary); color: var(--ios-text-secondary); }
+.att-t {
+  border: 2px solid #6366f1;
+  color: var(--ios-text);
+  background: rgba(99,102,241,0.12);
+}
 
 /* === AI CHAT FORMATTING === */
-.ai-res { line-height: 1.95; font-size: 14px; }
+.ai-res { line-height: 1.85; font-size: 14px; }
 .ai-res b, .ai-res strong { color: #a78bfa; font-weight: 700; }
 .ai-res i, .ai-res em { color: #c084fc; }
-.ai-res .fb { background: rgba(99,102,241,.08); border-left: 3px solid #818cf8; padding: 10px 14px; border-radius: 0 10px 10px 0; margin: 8px 0; font-family: 'Courier New', monospace; font-size: 13px; overflow-x: auto; color: #c7d2fe; }
+.ai-res .fb {
+  background: rgba(99,102,241,0.08);
+  border-left: 3px solid #6366f1;
+  padding: 10px 14px;
+  border-radius: 0 10px 10px 0;
+  margin: 8px 0;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  overflow-x: auto;
+  color: #c7d2fe;
+}
 .ai-res ul { padding-left: 18px; margin: 6px 0; }
 .ai-res ul li { margin: 4px 0; list-style: disc; color: #cbd5e1; }
 .ai-res ol { padding-left: 18px; margin: 6px 0; }
 .ai-res ol li { margin: 4px 0; color: #cbd5e1; }
-.ai-res .st { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; padding: 10px 12px; margin: 6px 0; color: #e2e8f0; }
-.ai-res h3 { color: #a78bfa; font-weight: 700; margin: 14px 0 8px; font-size: 16px; border-bottom: 1px solid rgba(129,140,248,.2); padding-bottom: 4px; }
+.ai-res .st {
+  background: var(--ios-bg-tertiary);
+  border: 1px solid var(--ios-border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin: 6px 0;
+  color: #e2e8f0;
+}
+.ai-res h3 { color: #a78bfa; font-weight: 700; margin: 14px 0 8px; font-size: 16px; border-bottom: 1px solid rgba(99,102,241,0.15); padding-bottom: 4px; }
 .ai-res h4 { color: #818cf8; font-weight: 600; margin: 12px 0 6px; font-size: 14px; }
-.ai-res .hl { background: rgba(168,85,247,.2); padding: 2px 6px; border-radius: 4px; color: #e9d5ff; }
-.ai-res .mx { display: inline-flex; flex-direction: column; align-items: center; border-left: 2px solid #818cf8; border-right: 2px solid #818cf8; padding: 4px 10px; margin: 4px; background: rgba(99,102,241,.08); border-radius: 4px; }
+.ai-res .hl { background: rgba(168,85,247,0.2); padding: 2px 6px; border-radius: 4px; color: #e9d5ff; }
+.ai-res .mx { display: inline-flex; flex-direction: column; align-items: center; border-left: 2px solid #6366f1; border-right: 2px solid #6366f1; padding: 4px 10px; margin: 4px; background: rgba(99,102,241,0.08); border-radius: 4px; }
 .ai-res .mxr { display: flex; gap: 12px; }
 .ai-res .mxc { min-width: 24px; text-align: center; font-family: 'Courier New', monospace; }
-.ai-res code { background: rgba(168,85,247,.2); padding: 2px 6px; border-radius: 4px; color: #e9d5ff; font-size: 13px; }
-.ai-res pre { background: rgba(99,102,241,.08); border: 1px solid rgba(99,102,241,.2); border-radius: 10px; padding: 12px; overflow-x: auto; margin: 8px 0; }
+.ai-res code { background: rgba(168,85,247,0.2); padding: 2px 6px; border-radius: 4px; color: #e9d5ff; font-size: 13px; }
+.ai-res pre { background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.2); border-radius: 10px; padding: 12px; overflow-x: auto; margin: 8px 0; }
 .ai-res pre code { background: none; padding: 0; }
-.ai-res blockquote { border-left: 3px solid #c084fc; padding-left: 12px; margin: 8px 0; color: #cbd5e1; font-style: italic; }
-.ai-res a { color: #818cf8; text-decoration: underline; }
+.ai-res blockquote { border-left: 3px solid #a855f7; padding-left: 12px; margin: 8px 0; color: #cbd5e1; font-style: italic; }
+.ai-res a { color: #6366f1; text-decoration: underline; }
 
-/* === PARTICLES === */
-#particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
-
-/* === CHAT BOX === */
-#chat-box::-webkit-scrollbar { width: 5px; }
-#chat-box::-webkit-scrollbar-thumb { background: rgba(99,102,241,.3); border-radius: 10px; }
-
-/* === LOGIN SCREEN === */
-#login-screen { display: flex; opacity: 1; visibility: visible; transition: opacity .7s ease, visibility .7s ease; }
+/* === LOGIN SCREEN (Solid) === */
+#login-screen {
+  display: flex;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity .5s ease, visibility .5s ease;
+  background: var(--ios-bg);
+}
 #login-screen.hidden { display: none !important; opacity: 0; visibility: hidden; }
 #login-screen.fade-out { opacity: 0; visibility: hidden; }
 
-/* === BOTTOM NAV === */
-#bottom-nav { transition: all .4s cubic-bezier(.4,0,.2,1); }
+/* === BOTTOM NAV (Solid iOS tab bar) === */
+#bottom-nav {
+  background: rgba(28,28,30,0.95);
+  border-top: 1px solid var(--ios-border);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transition: all .3s cubic-bezier(.4,0,.2,1);
+}
 
-/* === INPUT FOCUS === */
-input:focus, textarea:focus { outline: none; border-color: #818cf8; box-shadow: 0 0 0 3px rgba(99,102,241,.12); }
+/* === INPUT FOCUS (Solid ring) === */
+input:focus, textarea:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+}
 
 /* === PROFILE PIC UPLOAD === */
-.profile-upload { position: relative; cursor: pointer; transition: all .3s ease; }
+.profile-upload { position: relative; cursor: pointer; }
 .profile-upload:hover::after {
   content: '\f030';
   font-family: 'Font Awesome 6 Free';
   font-weight: 900;
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,.5);
+  background: rgba(0,0,0,0.5);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-size: 20px;
+  font-size: 18px;
 }
 
 /* === PWA INSTALL BUTTON === */
@@ -419,22 +492,31 @@ input:focus, textarea:focus { outline: none; border-color: #818cf8; box-shadow: 
   bottom: 90px;
   left: 16px;
   z-index: 99;
-  background: linear-gradient(135deg, rgba(34,197,94,.9), rgba(16,185,129,.9));
-  color: #fff;
-  padding: 12px 18px;
-  border-radius: 16px;
+  background: var(--ios-bg-tertiary);
+  color: var(--ios-text);
+  padding: 12px 16px;
+  border-radius: 14px;
   font-weight: 700;
   font-size: 13px;
-  border: none;
-  box-shadow: 0 8px 30px rgba(34,197,94,.3);
-  transition: all .3s ease;
-  animation: slideUp .5s ease;
+  border: 1px solid var(--ios-border);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  transition: all .2s ease;
+  animation: slideUp .4s ease;
 }
-@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-.pwa-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(34,197,94,.4); }
+@keyframes slideUp { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
 /* === AI CHAT FULL SCREEN === */
-#ai.active-section { position: fixed; inset: 0; z-index: 999; background: #0b1120; display: flex; flex-direction: column; opacity: 1; transform: translateY(0) scale(1); animation: none; }
+#ai.active-section {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: var(--ios-bg);
+  display: flex;
+  flex-direction: column;
+  opacity: 1;
+  transform: none;
+  animation: none;
+}
 
 /* === HIDDEN === */
 .hidden { display: none !important; }
@@ -446,56 +528,58 @@ input:focus, textarea:focus { outline: none; border-color: #818cf8; box-shadow: 
   #toast-container { left: 10px; right: 10px; }
   .toast { max-width: 100%; }
 }
+
+/* === REDUCED MOTION SUPPORT === */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 </style>
 </head>
 
-<body class="bg-ani min-h-screen pb-24">
-<div class="fixed inset-0 bg-gradient-to-br from-indigo-950/80 via-slate-950/90 to-purple-950/80 z-[-1]"></div>
-<div id="particles"></div>
+<body class="bg-black min-h-screen pb-24">
 <div id="toast-container"></div>
 
 <!-- ========================================== -->
-<!-- LOGIN SCREEN                               -->
+<!-- LOGIN SCREEN (Solid iOS Style)             -->
 <!-- ========================================== -->
-<div id="login-screen" class="fixed inset-0 z-[200] bg-[#0b1120] flex flex-col items-center justify-center p-6 text-center">
-  <div class="absolute inset-0 overflow-hidden">
-    <div class="absolute top-1/4 left-1/4 w-72 h-72 bg-indigo-600/15 rounded-full blur-3xl animate-pulse"></div>
-    <div class="absolute bottom-1/4 right-1/4 w-72 h-72 bg-purple-600/15 rounded-full blur-3xl animate-pulse" style="animation-delay:1s"></div>
-    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-600/8 rounded-full blur-3xl"></div>
-  </div>
-  <div class="w-32 h-32 bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 rounded-[2.2rem] rotate-45 flex items-center justify-center text-white text-5xl shadow-2xl mb-8 float glow relative z-10">
+<div id="login-screen" class="fixed inset-0 z-[200] flex flex-col items-center justify-center p-6 text-center">
+  <div class="w-28 h-28 bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 rounded-[2rem] rotate-45 flex items-center justify-center text-white text-4xl shadow-xl mb-8 relative z-10">
     <i class="fa-solid fa-atom -rotate-45"></i>
   </div>
-  <h1 class="text-5xl font-black text-white tracking-tight mb-3 relative z-10">StudyGram <span class="shimmer">Pro</span></h1>
-  <p class="text-gray-400 font-medium mb-12 text-lg relative z-10">The Ultimate 12th Science Hub</p>
-  <button id="login-btn" class="w-full max-w-sm glass py-4 rounded-2xl flex items-center justify-center gap-4 font-bold text-white shadow-xl hover:bg-white/15 active:scale-95 transition-all btn-press no-select relative z-10 border border-white/20">
-    <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-7 h-7" alt="G"> Continue with Google
+  <h1 class="text-4xl font-black text-white tracking-tight mb-2 relative z-10">StudyGram <span style="background: linear-gradient(90deg,#818cf8,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Pro</span></h1>
+  <p class="text-gray-500 font-medium mb-10 text-base relative z-10">The Ultimate 12th Science Hub</p>
+  <button id="login-btn" class="w-full max-w-sm bg-[#2c2c2e] border border-white/10 py-4 rounded-2xl flex items-center justify-center gap-3 font-bold text-white shadow-lg active:scale-95 transition-all btn-press no-select relative z-10 hover:bg-[#323234]">
+    <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-6 h-6" alt="G"> Continue with Google
   </button>
   <p id="login-error" class="mt-4 text-red-400 text-sm font-medium hidden relative z-10"></p>
-  <p class="mt-6 text-xs text-gray-500 relative z-10">By continuing, you agree to our Terms</p>
+  <p class="mt-6 text-xs text-gray-600 relative z-10">By continuing, you agree to our Terms</p>
 </div>
 
 <!-- ========================================== -->
-<!-- TOP NAVIGATION                             -->
+<!-- TOP NAVIGATION (Solid iOS Style)           -->
 <!-- ========================================== -->
-<nav id="main-nav" class="sticky top-0 z-50 glass px-5 py-3.5 flex justify-between items-center m-3 rounded-3xl shadow-lg hidden border border-white/10">
+<nav id="main-nav" class="sticky top-0 z-50 bg-[#1c1c1e] border-b border-white/10 px-5 py-3 flex justify-between items-center m-3 rounded-2xl shadow-lg hidden">
   <div class="flex items-center gap-3">
-    <div class="w-10 h-10 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white text-sm shadow-lg glow">
+    <div class="w-9 h-9 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white text-sm shadow-lg">
       <i class="fa-solid fa-book-open"></i>
     </div>
     <div>
-      <h2 class="text-lg font-bold tracking-wide text-white">StudyGram</h2>
+      <h2 class="text-base font-bold tracking-wide text-white">StudyGram</h2>
       <div class="flex items-center gap-1.5">
         <span class="lvb" id="nav-level">Lv.1</span>
-        <span class="text-[10px] text-gray-400 font-medium" id="nav-xp-text">0 / 100 XP</span>
+        <span class="text-[10px] text-gray-500 font-medium" id="nav-xp-text">0 / 100 XP</span>
       </div>
     </div>
   </div>
-  <div class="flex gap-2.5 items-center">
-    <button onclick="toggleMusicPlayer()" class="w-10 h-10 rounded-full bg-white/8 flex items-center justify-center text-gray-300 hover:bg-white/15 hover:text-white active:scale-90 transition-all btn-press border border-white/5" title="Music">
+  <div class="flex gap-2 items-center">
+    <button onclick="toggleMusicPlayer()" class="w-9 h-9 rounded-full bg-[#2c2c2e] flex items-center justify-center text-gray-400 hover:bg-[#3a3a3c] hover:text-white active:scale-90 transition-all btn-press border border-white/5" title="Music">
       <i class="fa-solid fa-music" id="music-icon"></i>
     </button>
-    <button onclick="switchTab('admin')" class="w-10 h-10 rounded-full bg-white/8 flex items-center justify-center text-gray-300 hover:bg-white/15 hover:text-white active:scale-90 transition-all btn-press border border-white/5">
+    <button onclick="switchTab('admin')" class="w-9 h-9 rounded-full bg-[#2c2c2e] flex items-center justify-center text-gray-400 hover:bg-[#3a3a3c] hover:text-white active:scale-90 transition-all btn-press border border-white/5">
       <i class="fa-solid fa-shield-halved"></i>
     </button>
   </div>
@@ -507,164 +591,160 @@ input:focus, textarea:focus { outline: none; border-color: #818cf8; box-shadow: 
 <main class="p-4 max-w-lg mx-auto hidden" id="main-content">
 
 <!-- ===== HOME SECTION ===== -->
-<div id="home" class="section space-y-6">
+<div id="home" class="section space-y-5">
   <!-- User Card -->
-  <div class="glass p-6 rounded-[2rem] flex items-center gap-5 relative overflow-hidden shadow-lg border border-white/10">
-    <div class="absolute -right-10 -top-10 w-36 h-36 bg-indigo-500/10 rounded-full blur-3xl"></div>
-    <div class="absolute -left-5 -bottom-5 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl"></div>
-    <img id="user-img" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="w-16 h-16 rounded-2xl border-2 border-white/20 shadow-xl object-cover z-10 bg-white/10">
-    <div class="z-10 flex-1 min-w-0">
-      <p class="text-sm text-gray-400 font-medium">Welcome back,</p>
-      <h3 id="user-name" class="font-bold text-xl text-white truncate">Student</h3>
-      <div class="flex items-center gap-2 mt-1.5">
+  <div class="ios-card p-5 flex items-center gap-4 relative overflow-hidden">
+    <img id="user-img" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="w-14 h-14 rounded-2xl border-2 border-white/10 shadow-lg object-cover bg-[#2c2c2e] flex-shrink-0">
+    <div class="flex-1 min-w-0">
+      <p class="text-xs text-gray-500 font-medium">Welcome back,</p>
+      <h3 id="user-name" class="font-bold text-lg text-white truncate">Student</h3>
+      <div class="flex items-center gap-2 mt-1">
         <span class="lvb" id="home-level">Lv.1</span>
-        <div class="xpbc flex-1 max-w-[110px]"><div class="xpbf" id="home-xp-bar" style="width:0%"></div></div>
+        <div class="xpbc flex-1 max-w-[100px]"><div class="xpbf" id="home-xp-bar" style="width:0%"></div></div>
       </div>
     </div>
-    <div class="absolute right-4 top-4 flex items-center gap-1 bg-orange-500/20 px-3 py-1.5 rounded-full border border-orange-500/30">
-      <i class="fa-solid fa-fire text-orange-400 sf text-sm"></i>
-      <span id="streak-count" class="text-xs font-bold text-orange-300">0</span>
+    <div class="flex items-center gap-1 bg-orange-500/10 px-2.5 py-1 rounded-full border border-orange-500/20 flex-shrink-0">
+      <i class="fa-solid fa-fire text-orange-400 sf text-xs"></i>
+      <span id="streak-count" class="text-[11px] font-bold text-orange-300">0</span>
     </div>
   </div>
 
   <!-- Badges -->
-  <div class="glass p-5 rounded-[2rem] shadow-lg border border-white/10">
+  <div class="ios-card p-4">
     <div class="flex justify-between items-center mb-3">
-      <h4 class="font-bold text-white flex items-center gap-2 text-sm"><i class="fa-solid fa-medal text-yellow-400"></i> Badges</h4>
-      <span class="text-xs text-gray-400" id="badge-count">0 / 500</span>
+      <h4 class="font-bold text-white flex items-center gap-2 text-sm"><i class="fa-solid fa-medal text-yellow-500"></i> Badges</h4>
+      <span class="text-xs text-gray-500" id="badge-count">0 / 500</span>
     </div>
     <div id="badges-container" class="flex flex-wrap gap-2">
-      <span class="text-xs text-gray-500">No badges yet. Start studying!</span>
+      <span class="text-xs text-gray-600">No badges yet. Start studying!</span>
     </div>
   </div>
 
   <!-- Daily Quote -->
-  <div class="glass p-5 rounded-[2rem] shadow-lg border-l-4 border-purple-500 relative overflow-hidden border border-white/10">
-    <div class="absolute -right-4 -bottom-4 text-purple-500/10 text-7xl"><i class="fa-solid fa-quote-right"></i></div>
+  <div class="ios-card p-4 border-l-4 border-purple-500 relative overflow-hidden">
+    <div class="absolute -right-4 -bottom-4 text-purple-500/10 text-6xl"><i class="fa-solid fa-quote-right"></i></div>
     <div class="flex items-start gap-3 relative z-10">
-      <i class="fa-solid fa-quote-left text-purple-400/50 text-2xl mt-1"></i>
+      <i class="fa-solid fa-quote-left text-purple-400/40 text-xl mt-1"></i>
       <div>
-        <p id="daily-quote" class="text-sm text-gray-300 italic leading-relaxed">Loading motivation...</p>
-        <p id="quote-author" class="text-xs text-gray-500 mt-2 font-medium">- StudyGram</p>
+        <p id="daily-quote" class="text-sm text-gray-400 italic leading-relaxed">Loading motivation...</p>
+        <p id="quote-author" class="text-xs text-gray-600 mt-2 font-medium">- StudyGram</p>
       </div>
     </div>
   </div>
 
   <!-- Exam Countdown -->
-  <div class="bg-gradient-to-br from-indigo-900/90 via-indigo-800/90 to-purple-900/90 p-6 rounded-[2rem] text-white shadow-2xl relative overflow-hidden border border-white/10">
-    <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10"></div>
+  <div class="ios-card p-5 relative overflow-hidden" style="background: linear-gradient(135deg, #1c1c1e 0%, #2c1a4e 100%);">
     <div class="relative z-10">
-      <p class="text-indigo-300 text-sm font-medium mb-3"><i class="fa-solid fa-stopwatch mr-1.5"></i> Final Board Exams</p>
+      <p class="text-indigo-400 text-xs font-semibold mb-3 uppercase tracking-wider"><i class="fa-solid fa-stopwatch mr-1"></i> Final Board Exams</p>
       <div class="flex gap-3 mt-2">
-        <div class="bg-black/30 px-4 py-3 rounded-xl border border-white/10 text-center min-w-[70px] backdrop-blur-sm">
-          <span id="count-days" class="text-3xl font-black block text-white">00</span><span class="text-[10px] text-indigo-300 uppercase tracking-widest">Days</span>
+        <div class="bg-black/40 px-4 py-3 rounded-xl border border-white/10 text-center min-w-[65px]">
+          <span id="count-days" class="text-3xl font-black block text-white">00</span><span class="text-[9px] text-indigo-400 uppercase tracking-widest">Days</span>
         </div>
-        <div class="bg-black/30 px-4 py-3 rounded-xl border border-white/10 text-center min-w-[70px] backdrop-blur-sm">
-          <span id="count-hours" class="text-3xl font-black block text-white">00</span><span class="text-[10px] text-indigo-300 uppercase tracking-widest">Hours</span>
+        <div class="bg-black/40 px-4 py-3 rounded-xl border border-white/10 text-center min-w-[65px]">
+          <span id="count-hours" class="text-3xl font-black block text-white">00</span><span class="text-[9px] text-indigo-400 uppercase tracking-widest">Hours</span>
         </div>
-        <div class="bg-black/30 px-4 py-3 rounded-xl border border-white/10 text-center min-w-[70px] backdrop-blur-sm">
-          <span id="count-minutes" class="text-3xl font-black block text-white">00</span><span class="text-[10px] text-indigo-300 uppercase tracking-widest">Mins</span>
+        <div class="bg-black/40 px-4 py-3 rounded-xl border border-white/10 text-center min-w-[65px]">
+          <span id="count-minutes" class="text-3xl font-black block text-white">00</span><span class="text-[9px] text-indigo-400 uppercase tracking-widest">Mins</span>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Attendance -->
-  <div class="glass p-6 rounded-[2rem] shadow-lg border border-white/10">
-    <div class="flex justify-between items-center mb-4">
-      <h4 class="font-bold text-white flex items-center gap-2"><i class="fa-solid fa-calendar-check text-green-400"></i> Attendance</h4>
-      <span id="attendance-rate" class="text-xs font-bold bg-green-500/20 text-green-400 px-3 py-1.5 rounded-lg border border-green-500/30">0%</span>
+  <div class="ios-card p-5">
+    <div class="flex justify-between items-center mb-3">
+      <h4 class="font-bold text-white flex items-center gap-2 text-sm"><i class="fa-solid fa-calendar-check text-green-500"></i> Attendance</h4>
+      <span id="attendance-rate" class="text-xs font-bold bg-green-500/10 text-green-400 px-2.5 py-1 rounded-lg border border-green-500/20">0%</span>
     </div>
     <div class="att-cal" id="attendance-calendar"></div>
-    <button onclick="markAttendance()" id="att-btn" class="w-full mt-4 bg-gradient-to-r from-green-500/80 to-emerald-600/80 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-green-500/20 active:scale-95 transition-all btn-press border border-green-500/30 backdrop-blur-sm hover:shadow-green-500/30 flex items-center justify-center gap-2">
+    <button onclick="markAttendance()" id="att-btn" class="w-full mt-4 bg-[#34c759] text-white py-3 rounded-xl font-bold shadow-lg active:scale-95 transition-all btn-press flex items-center justify-center gap-2 hover:brightness-110">
       <i class="fa-solid fa-check-circle"></i> Mark Today's Attendance
     </button>
   </div>
 
   <!-- Focus Timer -->
-  <div class="glass p-6 rounded-[2rem] shadow-lg border border-white/10 text-center">
-    <h4 class="font-bold text-white mb-5"><i class="fa-solid fa-hourglass-half text-indigo-400 mr-2"></i>Focus Timer</h4>
-    <div class="flex justify-center mb-5">
+  <div class="ios-card p-5 text-center">
+    <h4 class="font-bold text-white mb-4"><i class="fa-solid fa-hourglass-half text-indigo-400 mr-2"></i>Focus Timer</h4>
+    <div class="flex justify-center mb-4">
       <div class="tmr-c" id="timer-circle" style="--p:0%"><div class="tmr-d" id="timer-display">25:00</div></div>
     </div>
     <div class="flex gap-3 justify-center">
-      <button onclick="startTimer()" id="timer-start" class="bg-indigo-600/80 text-white px-7 py-2.5 rounded-xl font-bold shadow-lg shadow-indigo-500/20 active:scale-95 btn-press border border-indigo-500/30 backdrop-blur-sm hover:bg-indigo-600 transition-colors">Start</button>
-      <button onclick="pauseTimer()" id="timer-pause" class="bg-amber-500/80 text-white px-7 py-2.5 rounded-xl font-bold shadow-lg shadow-amber-500/20 active:scale-95 btn-press hidden border border-amber-500/30 backdrop-blur-sm">Pause</button>
-      <button onclick="resetTimer()" class="bg-white/10 text-gray-300 px-7 py-2.5 rounded-xl font-bold shadow-md active:scale-95 btn-press border border-white/10 hover:bg-white/20 transition-colors">Reset</button>
+      <button onclick="startTimer()" id="timer-start" class="bg-[#6366f1] text-white px-6 py-2 rounded-xl font-bold shadow-lg active:scale-95 btn-press hover:brightness-110 transition-all">Start</button>
+      <button onclick="pauseTimer()" id="timer-pause" class="bg-[#ff9500] text-white px-6 py-2 rounded-xl font-bold shadow-lg active:scale-95 btn-press hidden hover:brightness-110 transition-all">Pause</button>
+      <button onclick="resetTimer()" class="bg-[#2c2c2e] text-gray-400 px-6 py-2 rounded-xl font-bold shadow-md active:scale-95 btn-press border border-white/10 hover:bg-[#3a3a3c] transition-all">Reset</button>
     </div>
-    <p class="text-xs text-gray-500 mt-4">25 min study + 5 min break</p>
+    <p class="text-xs text-gray-600 mt-3">25 min study + 5 min break</p>
   </div>
 
   <!-- Syllabus Progress -->
-  <div id="course-status" class="glass p-6 rounded-[2rem] space-y-5 shadow-lg border border-white/10">
-    <div class="text-center py-6"><i class="fa-solid fa-spinner fa-spin text-gray-500 text-2xl"></i><p class="text-xs text-gray-500 mt-3">Loading progress...</p></div>
+  <div id="course-status" class="ios-card p-5 space-y-4">
+    <div class="text-center py-6"><i class="fa-solid fa-spinner fa-spin text-gray-600 text-2xl"></i><p class="text-xs text-gray-600 mt-3">Loading progress...</p></div>
   </div>
 
   <!-- Quick Notes -->
-  <div class="glass p-5 rounded-[2rem] shadow-lg border border-white/10">
-    <h4 class="font-bold text-white mb-3"><i class="fa-solid fa-sticky-note text-yellow-400 mr-2"></i>Quick Notes</h4>
+  <div class="ios-card p-4">
+    <h4 class="font-bold text-white mb-3 text-sm"><i class="fa-solid fa-sticky-note text-yellow-500 mr-2"></i>Quick Notes</h4>
     <div class="flex gap-2 mb-3">
-      <input id="quick-note-input" type="text" placeholder="Add a quick note..." class="flex-1 p-3.5 border border-white/10 rounded-xl outline-none bg-white/5 text-sm text-white placeholder-gray-500 focus:border-indigo-500/50 transition-all">
-      <button onclick="addQuickNote()" class="bg-yellow-500/80 text-white px-5 rounded-xl font-bold shadow-lg shadow-yellow-500/20 active:scale-95 btn-press border border-yellow-500/30 backdrop-blur-sm hover:bg-yellow-500 transition-colors"><i class="fa-solid fa-plus"></i></button>
+      <input id="quick-note-input" type="text" placeholder="Add a quick note..." class="flex-1 p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-sm text-white placeholder-gray-600 focus:border-indigo-500/50 transition-all">
+      <button onclick="addQuickNote()" class="bg-[#ff9500] text-white px-4 rounded-xl font-bold shadow-lg active:scale-95 btn-press hover:brightness-110 transition-all"><i class="fa-solid fa-plus"></i></button>
     </div>
     <div id="quick-notes-list" class="space-y-2 max-h-40 overflow-y-auto"></div>
   </div>
 
   <!-- Leaderboard -->
-  <div class="glass p-5 rounded-[2rem] shadow-lg border border-white/10">
-    <h4 class="font-bold text-white mb-3"><i class="fa-solid fa-trophy text-yellow-400 mr-2"></i>Top Students</h4>
+  <div class="ios-card p-4">
+    <h4 class="font-bold text-white mb-3 text-sm"><i class="fa-solid fa-trophy text-yellow-500 mr-2"></i>Top Students</h4>
     <div id="leaderboard-list" class="space-y-2">
-      <div class="text-center text-gray-500 text-sm py-3"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Loading leaderboard...</div>
+      <div class="text-center text-gray-600 text-sm py-3"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Loading leaderboard...</div>
     </div>
   </div>
 </div>
 
 <!-- ===== NOTES SECTION ===== -->
-<div id="notes" class="section space-y-5">
-  <h2 class="text-3xl font-black text-white mb-4 pl-2 shimmer">Study Materials</h2>
-  <div id="notes-list" class="space-y-4"></div>
+<div id="notes" class="section space-y-4">
+  <h2 class="text-2xl font-black text-white mb-3 pl-1">Study Materials</h2>
+  <div id="notes-list" class="space-y-3"></div>
 </div>
 
 <!-- ===== NOTICE SECTION ===== -->
-<div id="notice" class="section space-y-6">
-  <h2 class="text-3xl font-black text-white pl-2 shimmer">Board Updates</h2>
-  <div id="notice-list" class="space-y-4"></div>
+<div id="notice" class="section space-y-4">
+  <h2 class="text-2xl font-black text-white pl-1">Board Updates</h2>
+  <div id="notice-list" class="space-y-3"></div>
 </div>
 
 <!-- ===== PROFILE SECTION ===== -->
-<div id="profile" class="section space-y-6">
-  <div class="glass p-8 rounded-[2rem] text-center relative mt-12 shadow-xl border border-white/10">
+<div id="profile" class="section space-y-5">
+  <div class="ios-card p-6 text-center relative mt-10">
     <!-- Profile Picture with Upload -->
-    <div class="absolute -top-14 left-1/2 transform -translate-x-1/2">
+    <div class="absolute -top-12 left-1/2 transform -translate-x-1/2">
       <div class="profile-upload" onclick="document.getElementById('dp-upload').click()">
-        <img id="prof-img" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="w-28 h-28 rounded-full object-cover border-4 border-indigo-500/50 shadow-2xl bg-white/10 transition-all hover:scale-105">
+        <img id="prof-img" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="w-24 h-24 rounded-full object-cover border-4 border-[#6366f1]/40 shadow-2xl bg-[#2c2c2e] transition-transform hover:scale-105">
         <input type="file" id="dp-upload" accept="image/*" class="hidden" onchange="handleProfilePicUpload(event)">
       </div>
-      <div class="absolute bottom-1 right-1 w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xs shadow-lg border-2 border-[#0b1120]">
+      <div class="absolute bottom-1 right-1 w-7 h-7 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xs shadow-lg border-2 border-black">
         <i class="fa-solid fa-camera"></i>
       </div>
     </div>
-    <div class="mt-16">
-      <h2 id="prof-name" class="text-2xl font-black text-white">Student</h2>
-      <p class="text-indigo-400 font-semibold text-sm mb-3">Class 12th - PCM</p>
-      <div class="flex justify-center gap-2 mb-4">
+    <div class="mt-14">
+      <h2 id="prof-name" class="text-xl font-black text-white">Student</h2>
+      <p class="text-indigo-400 font-semibold text-sm mb-2">Class 12th - PCM</p>
+      <div class="flex justify-center gap-2 mb-3">
         <span class="lvb" id="prof-level">Lv.1</span>
       </div>
-      <!-- Edit Name Button -->
-      <button onclick="toggleNameEdit()" class="text-xs text-gray-400 hover:text-indigo-400 transition-colors mb-4 flex items-center gap-1 mx-auto">
+      <button onclick="toggleNameEdit()" class="text-xs text-gray-500 hover:text-indigo-400 transition-colors mb-3 flex items-center gap-1 mx-auto">
         <i class="fa-solid fa-pen"></i> Edit Name
       </button>
-      <div id="name-edit-box" class="hidden mb-4">
-        <div class="flex gap-2 max-w-[260px] mx-auto">
-          <input id="name-edit-input" type="text" placeholder="Enter new name" class="flex-1 p-2.5 border border-white/10 rounded-xl outline-none bg-white/5 text-sm text-white placeholder-gray-500 focus:border-indigo-500/50 text-center">
-          <button onclick="saveDisplayName()" class="bg-indigo-600 text-white px-4 rounded-xl font-bold text-xs shadow-lg active:scale-95 btn-press"><i class="fa-solid fa-check"></i></button>
+      <div id="name-edit-box" class="hidden mb-3">
+        <div class="flex gap-2 max-w-[240px] mx-auto">
+          <input id="name-edit-input" type="text" placeholder="Enter new name" class="flex-1 p-2.5 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-sm text-white placeholder-gray-600 focus:border-indigo-500/50 text-center">
+          <button onclick="saveDisplayName()" class="bg-[#6366f1] text-white px-3 rounded-xl font-bold text-xs shadow-lg active:scale-95 btn-press"><i class="fa-solid fa-check"></i></button>
         </div>
       </div>
     </div>
 
     <!-- XP Progress -->
-    <div class="mb-6 px-4">
-      <div class="flex justify-between text-xs text-gray-400 mb-2">
+    <div class="mb-5 px-2">
+      <div class="flex justify-between text-xs text-gray-500 mb-1.5">
         <span>Experience</span>
         <span id="prof-xp-text">0 / 100 XP</span>
       </div>
@@ -672,163 +752,162 @@ input:focus, textarea:focus { outline: none; border-color: #818cf8; box-shadow: 
     </div>
 
     <!-- Badges -->
-    <div class="mb-6">
-      <h4 class="text-sm font-bold text-gray-400 mb-3">Badges Earned</h4>
+    <div class="mb-5">
+      <h4 class="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Badges Earned</h4>
       <div id="prof-badges" class="flex flex-wrap justify-center gap-2">
-        <span class="text-xs text-gray-500">No badges yet</span>
+        <span class="text-xs text-gray-600">No badges yet</span>
       </div>
     </div>
 
     <!-- Stats Grid -->
-    <div class="grid grid-cols-3 gap-3 mb-6">
-      <div class="gcard p-3 rounded-xl text-center">
-        <span id="prof-streak" class="text-2xl font-black text-orange-400 block">0</span>
-        <span class="text-[10px] text-gray-400 uppercase font-bold">Day Streak</span>
+    <div class="grid grid-cols-3 gap-2 mb-5">
+      <div class="ios-gcard p-3 text-center">
+        <span id="prof-streak" class="text-xl font-black text-orange-400 block">0</span>
+        <span class="text-[9px] text-gray-500 uppercase font-bold">Day Streak</span>
       </div>
-      <div class="gcard p-3 rounded-xl text-center">
-        <span id="prof-attendance" class="text-2xl font-black text-green-400 block">0%</span>
-        <span class="text-[10px] text-gray-400 uppercase font-bold">Attendance</span>
+      <div class="ios-gcard p-3 text-center">
+        <span id="prof-attendance" class="text-xl font-black text-green-400 block">0%</span>
+        <span class="text-[9px] text-gray-500 uppercase font-bold">Attendance</span>
       </div>
-      <div class="gcard p-3 rounded-xl text-center">
-        <span id="prof-focus" class="text-2xl font-black text-purple-400 block">0</span>
-        <span class="text-[10px] text-gray-400 uppercase font-bold">Focus Hrs</span>
+      <div class="ios-gcard p-3 text-center">
+        <span id="prof-focus" class="text-xl font-black text-purple-400 block">0</span>
+        <span class="text-[9px] text-gray-500 uppercase font-bold">Focus Hrs</span>
       </div>
     </div>
 
     <!-- Roll Number -->
-    <div class="gcard p-4 rounded-2xl mb-4 text-left">
+    <div class="ios-gcard p-4 rounded-2xl mb-4 text-left">
       <div class="flex justify-between items-center mb-2">
-        <span class="text-gray-400 text-sm font-medium">Roll Number</span>
+        <span class="text-gray-500 text-sm font-medium">Roll Number</span>
         <button onclick="editRollNumber()" class="text-indigo-400 text-xs hover:text-indigo-300 transition-colors flex items-center gap-1"><i class="fa-solid fa-pen"></i> Edit</button>
       </div>
       <span class="font-bold text-white text-lg" id="prof-roll">UP000000</span>
     </div>
 
     <!-- Faculty -->
-    <div class="gcard p-4 rounded-2xl mb-4 text-left">
+    <div class="ios-gcard p-4 rounded-2xl mb-4 text-left">
       <div class="flex items-center gap-2 mb-3">
         <i class="fa-solid fa-chalkboard-user text-indigo-400"></i>
         <span class="font-bold text-white text-sm">Faculty Details</span>
-        <span class="text-[10px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full border border-indigo-500/30">Locked</span>
+        <span class="text-[10px] bg-indigo-500/10 text-indigo-300 px-2 py-0.5 rounded-full border border-indigo-500/20">Locked</span>
       </div>
       <div class="space-y-2">
-        <div class="tch"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 text-xs"><i class="fa-solid fa-user-tie"></i></div><div><p class="text-xs text-gray-400">Class Teacher</p><p class="text-sm font-bold text-white">Mr. Sanjay Gupta</p></div></div></div>
-        <div class="tch"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 text-xs"><i class="fa-solid fa-atom"></i></div><div><p class="text-xs text-gray-400">Physics</p><p class="text-sm font-bold text-white">Mr. Sanjay Gupta</p></div></div></div>
-        <div class="tch"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 text-xs"><i class="fa-solid fa-flask"></i></div><div><p class="text-xs text-gray-400">Chemistry</p><p class="text-sm font-bold text-white">Mr. Shivkant Tiwari</p></div></div></div>
-        <div class="tch"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 text-xs"><i class="fa-solid fa-calculator"></i></div><div><p class="text-xs text-gray-400">Mathematics</p><p class="text-sm font-bold text-white">Mr. P.R. Verma</p></div></div></div>
-        <div class="tch"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center text-orange-400 text-xs"><i class="fa-solid fa-om"></i></div><div><p class="text-xs text-gray-400">Hindi</p><p class="text-sm font-bold text-white">Umasankar Gupta</p></div></div></div>
-        <div class="tch"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-pink-500/20 flex items-center justify-center text-pink-400 text-xs"><i class="fa-solid fa-book-open"></i></div><div><p class="text-xs text-gray-400">English</p><p class="text-sm font-bold text-white">Anupam Mishra</p></div></div></div>
+        <div class="tch"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400 text-xs"><i class="fa-solid fa-user-tie"></i></div><div><p class="text-[11px] text-gray-500">Class Teacher</p><p class="text-sm font-bold text-white">Mr. Sanjay Gupta</p></div></div></div>
+        <div class="tch"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-400 text-xs"><i class="fa-solid fa-atom"></i></div><div><p class="text-[11px] text-gray-500">Physics</p><p class="text-sm font-bold text-white">Mr. Sanjay Gupta</p></div></div></div>
+        <div class="tch"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center text-green-400 text-xs"><i class="fa-solid fa-flask"></i></div><div><p class="text-[11px] text-gray-500">Chemistry</p><p class="text-sm font-bold text-white">Mr. Shivkant Tiwari</p></div></div></div>
+        <div class="tch"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 text-xs"><i class="fa-solid fa-calculator"></i></div><div><p class="text-[11px] text-gray-500">Mathematics</p><p class="text-sm font-bold text-white">Mr. P.R. Verma</p></div></div></div>
+        <div class="tch"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-400 text-xs"><i class="fa-solid fa-om"></i></div><div><p class="text-[11px] text-gray-500">Hindi</p><p class="text-sm font-bold text-white">Umasankar Gupta</p></div></div></div>
+        <div class="tch"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-pink-500/10 flex items-center justify-center text-pink-400 text-xs"><i class="fa-solid fa-book-open"></i></div><div><p class="text-[11px] text-gray-500">English</p><p class="text-sm font-bold text-white">Anupam Mishra</p></div></div></div>
       </div>
     </div>
 
     <!-- Exam Button -->
-    <button onclick="openExamModal()" class="w-full bg-gradient-to-r from-indigo-600/80 to-purple-600/80 text-white py-4 rounded-2xl font-bold shadow-lg shadow-indigo-500/20 hover:shadow-xl active:scale-95 transition-all mb-6 flex justify-center items-center gap-2 btn-press border border-indigo-500/30 backdrop-blur-sm">
+    <button onclick="openExamModal()" class="w-full bg-[#6366f1] text-white py-3.5 rounded-2xl font-bold shadow-lg hover:brightness-110 active:scale-95 transition-all mb-5 flex justify-center items-center gap-2 btn-press">
       <i class="fa-solid fa-ticket"></i> View Exam Seat & Schedule
     </button>
 
     <!-- Info -->
-    <div class="gcard p-5 rounded-2xl text-left space-y-4">
+    <div class="ios-gcard p-4 rounded-2xl text-left space-y-3">
       <div class="flex justify-between items-center border-b border-white/10 pb-2">
-        <span class="text-gray-400 text-sm font-medium">Subjects</span>
+        <span class="text-gray-500 text-sm font-medium">Subjects</span>
         <span class="font-bold text-white text-sm">Hin, Eng, Math, Phy, Chem</span>
       </div>
       <div class="flex justify-between items-center">
-        <span class="text-gray-400 text-sm font-medium">Total XP</span>
+        <span class="text-gray-500 text-sm font-medium">Total XP</span>
         <span class="font-bold text-indigo-400" id="prof-total-xp">0</span>
       </div>
     </div>
 
     <!-- Logout -->
-    <button onclick="logout()" class="w-full mt-6 bg-red-500/10 text-red-400 hover:bg-red-500/20 py-3.5 rounded-2xl font-bold flex items-center justify-center gap-2 transition-colors btn-press border border-red-500/20">
+    <button onclick="logout()" class="w-full mt-5 bg-red-500/10 text-red-400 hover:bg-red-500/20 py-3 rounded-2xl font-bold flex items-center justify-center gap-2 transition-colors btn-press border border-red-500/20">
       <i class="fa-solid fa-power-off"></i> Logout
     </button>
   </div>
 </div>
-
 <!-- ===== QUIZ SECTION (HINDI) ===== -->
-<div id="quiz" class="section space-y-5">
-  <div class="flex items-center justify-between mb-4">
-    <h2 class="text-3xl font-black text-white pl-2 shimmer">AI Quiz Battle</h2>
+<div id="quiz" class="section space-y-4">
+  <div class="flex items-center justify-between mb-2">
+    <h2 class="text-2xl font-black text-white pl-1">AI Quiz Battle</h2>
     <div class="flex items-center gap-2">
       <span class="lvb" id="quiz-level">Lv.1</span>
     </div>
   </div>
 
   <div id="quiz-menu" class="space-y-4">
-    <div class="glass p-6 rounded-[2rem] text-center shadow-xl border border-white/10">
-      <div class="w-20 h-20 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-3xl mx-auto mb-4 shadow-lg glow">
+    <div class="ios-card p-5 text-center">
+      <div class="w-16 h-16 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-3 shadow-lg">
         <i class="fa-solid fa-brain"></i>
       </div>
-      <h3 class="text-xl font-bold text-white mb-2">Apni Pariksha Lein!</h3>
-      <p class="text-gray-400 text-sm mb-5">AI dwara banaye gaye prashnon ke saath apni jaanch karein</p>
+      <h3 class="text-lg font-bold text-white mb-1">Apni Pariksha Lein!</h3>
+      <p class="text-gray-500 text-sm mb-4">AI dwara banaye gaye prashnon ke saath apni jaanch karein</p>
       <div class="grid grid-cols-2 gap-3">
-        <button onclick="startQuiz('physics')" class="gcard p-4 rounded-xl text-center btn-press border border-white/10">
-          <i class="fa-solid fa-atom text-indigo-400 text-2xl mb-2 block"></i>
+        <button onclick="startQuiz('physics')" class="ios-gcard p-3 rounded-xl text-center btn-press">
+          <i class="fa-solid fa-atom text-indigo-400 text-xl mb-1 block"></i>
           <span class="text-sm font-bold text-white">Physics</span>
-          <span class="text-[10px] text-gray-500 block">Bhautik Vigyan</span>
+          <span class="text-[10px] text-gray-600 block">Bhautik Vigyan</span>
         </button>
-        <button onclick="startQuiz('chemistry')" class="gcard p-4 rounded-xl text-center btn-press border border-white/10">
-          <i class="fa-solid fa-flask text-green-400 text-2xl mb-2 block"></i>
+        <button onclick="startQuiz('chemistry')" class="ios-gcard p-3 rounded-xl text-center btn-press">
+          <i class="fa-solid fa-flask text-green-400 text-xl mb-1 block"></i>
           <span class="text-sm font-bold text-white">Chemistry</span>
-          <span class="text-[10px] text-gray-500 block">Rasayan Vigyan</span>
+          <span class="text-[10px] text-gray-600 block">Rasayan Vigyan</span>
         </button>
-        <button onclick="startQuiz('math')" class="gcard p-4 rounded-xl text-center btn-press border border-white/10">
-          <i class="fa-solid fa-calculator text-blue-400 text-2xl mb-2 block"></i>
+        <button onclick="startQuiz('math')" class="ios-gcard p-3 rounded-xl text-center btn-press">
+          <i class="fa-solid fa-calculator text-blue-400 text-xl mb-1 block"></i>
           <span class="text-sm font-bold text-white">Maths</span>
-          <span class="text-[10px] text-gray-500 block">Ganit</span>
+          <span class="text-[10px] text-gray-600 block">Ganit</span>
         </button>
-        <button onclick="startQuiz('mixed')" class="gcard p-4 rounded-xl text-center btn-press border border-white/10">
-          <i class="fa-solid fa-shuffle text-purple-400 text-2xl mb-2 block"></i>
+        <button onclick="startQuiz('mixed')" class="ios-gcard p-3 rounded-xl text-center btn-press">
+          <i class="fa-solid fa-shuffle text-purple-400 text-xl mb-1 block"></i>
           <span class="text-sm font-bold text-white">Mixed</span>
-          <span class="text-[10px] text-gray-500 block">Sab milakar</span>
+          <span class="text-[10px] text-gray-600 block">Sab milakar</span>
         </button>
       </div>
     </div>
 
-    <div class="glass p-5 rounded-[2rem] shadow-lg border border-white/10">
-      <h4 class="font-bold text-white mb-3"><i class="fa-solid fa-crown text-yellow-400 mr-2"></i>Quiz Champions</h4>
+    <div class="ios-card p-4">
+      <h4 class="font-bold text-white mb-3 text-sm"><i class="fa-solid fa-crown text-yellow-500 mr-2"></i>Quiz Champions</h4>
       <div id="quiz-leaderboard" class="space-y-2">
-        <div class="text-center text-gray-500 text-sm py-3"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Loading...</div>
+        <div class="text-center text-gray-600 text-sm py-3"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Loading...</div>
       </div>
     </div>
   </div>
 
   <!-- Quiz Game -->
   <div id="quiz-game" class="hidden space-y-4">
-    <div class="glass p-5 rounded-[2rem] shadow-lg border border-white/10">
-      <div class="flex justify-between items-center mb-4">
-        <span class="text-xs text-gray-400 font-medium">Prashn <span id="q-current">1</span>/<span id="q-total">5</span></span>
+    <div class="ios-card p-4">
+      <div class="flex justify-between items-center mb-3">
+        <span class="text-xs text-gray-500 font-medium">Prashn <span id="q-current">1</span>/<span id="q-total">5</span></span>
         <span class="text-xs text-indigo-400 font-bold" id="q-score">Score: 0</span>
       </div>
-      <div class="w-full bg-white/10 rounded-full h-2 mb-5 border border-white/5">
+      <div class="w-full bg-[#2c2c2e] rounded-full h-2 mb-4 border border-white/5">
         <div class="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full transition-all" id="q-progress" style="width:0%"></div>
       </div>
-      <h3 class="text-lg font-bold text-white mb-5 leading-relaxed" id="q-text">Loading prashn...</h3>
+      <h3 class="text-base font-bold text-white mb-4 leading-relaxed" id="q-text">Loading prashn...</h3>
       <div class="space-y-3" id="q-options"></div>
     </div>
   </div>
 
   <!-- Quiz Result -->
   <div id="quiz-result" class="hidden space-y-4">
-    <div class="glass p-8 rounded-[2rem] text-center shadow-xl border border-white/10">
-      <div class="w-24 h-24 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-4xl mx-auto mb-4 shadow-lg glow" id="result-icon">
+    <div class="ios-card p-6 text-center">
+      <div class="w-20 h-20 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-3xl mx-auto mb-3 shadow-lg" id="result-icon">
         <i class="fa-solid fa-trophy"></i>
       </div>
-      <h3 class="text-2xl font-black text-white mb-2" id="result-title">Quiz Purn!</h3>
-      <p class="text-gray-400 mb-5">Aapne kamaye <span class="text-indigo-400 font-bold" id="result-xp">+0 XP</span></p>
-      <div class="grid grid-cols-2 gap-3 mb-6">
-        <div class="gcard p-3 rounded-xl border border-white/10">
+      <h3 class="text-xl font-black text-white mb-1" id="result-title">Quiz Purn!</h3>
+      <p class="text-gray-500 mb-4">Aapne kamaye <span class="text-indigo-400 font-bold" id="result-xp">+0 XP</span></p>
+      <div class="grid grid-cols-2 gap-3 mb-5">
+        <div class="ios-gcard p-3 rounded-xl">
           <span class="text-2xl font-black text-white block" id="result-score">0/5</span>
-          <span class="text-[10px] text-gray-400 uppercase font-bold">Sahi Jawaab</span>
+          <span class="text-[10px] text-gray-600 uppercase font-bold">Sahi Jawaab</span>
         </div>
-        <div class="gcard p-3 rounded-xl border border-white/10">
+        <div class="ios-gcard p-3 rounded-xl">
           <span class="text-2xl font-black text-yellow-400 block" id="result-accuracy">0%</span>
-          <span class="text-[10px] text-gray-400 uppercase font-bold">Satakta</span>
+          <span class="text-[10px] text-gray-600 uppercase font-bold">Satakta</span>
         </div>
       </div>
-      <div id="result-badges" class="flex flex-wrap justify-center gap-2 mb-6"></div>
-      <div id="result-message" class="text-sm text-gray-400 mb-4"></div>
-      <button onclick="showQuizMenu()" class="w-full bg-gradient-to-r from-indigo-600/80 to-purple-600/80 text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 btn-press border border-indigo-500/30 backdrop-blur-sm">
+      <div id="result-badges" class="flex flex-wrap justify-center gap-2 mb-4"></div>
+      <div id="result-message" class="text-sm text-gray-500 mb-4"></div>
+      <button onclick="showQuizMenu()" class="w-full bg-[#6366f1] text-white py-3 rounded-xl font-bold shadow-lg active:scale-95 btn-press hover:brightness-110 transition-all">
         <i class="fa-solid fa-rotate-right mr-2"></i> Dobara Khelein
       </button>
     </div>
@@ -837,209 +916,211 @@ input:focus, textarea:focus { outline: none; border-color: #818cf8; box-shadow: 
 
 <!-- ===== ADMIN SECTION ===== -->
 <div id="admin" class="section pb-24">
-  <div id="admin-auth" class="glass p-8 rounded-[2rem] text-center max-w-sm mx-auto mt-10 shadow-xl border border-white/10">
-    <i class="fa-solid fa-user-shield text-5xl text-indigo-400 mb-4"></i>
-    <h2 class="text-2xl font-bold mb-6 text-white">Admin Login</h2>
-    <input id="admin-pass" type="password" placeholder="Enter Master Key" class="w-full py-3 px-4 rounded-xl mb-4 border border-white/10 focus:border-indigo-500/50 outline-none text-center font-mono tracking-widest bg-white/5 text-white placeholder-gray-500 transition-all">
-    <button onclick="unlockAdmin()" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white w-full py-3.5 rounded-xl font-bold shadow-lg shadow-indigo-500/20 hover:shadow-xl active:scale-95 transition-all btn-press border border-indigo-500/30">Unlock Portal</button>
+  <div id="admin-auth" class="ios-card p-6 text-center max-w-sm mx-auto mt-10">
+    <i class="fa-solid fa-user-shield text-5xl text-indigo-400 mb-3"></i>
+    <h2 class="text-xl font-bold mb-5 text-white">Admin Login</h2>
+    <input id="admin-pass" type="password" placeholder="Enter Master Key" class="w-full py-3 px-4 rounded-xl mb-3 border border-white/10 focus:border-indigo-500/50 outline-none text-center font-mono tracking-widest bg-[#2c2c2e] text-white placeholder-gray-600 transition-all">
+    <button onclick="unlockAdmin()" class="bg-[#6366f1] text-white w-full py-3 rounded-xl font-bold shadow-lg hover:brightness-110 active:scale-95 transition-all btn-press border border-indigo-500/30">Unlock Portal</button>
     <p id="admin-error" class="mt-3 text-red-400 text-sm hidden"></p>
   </div>
 
   <div id="admin-controls" class="hidden space-y-4">
-    <div class="flex justify-between items-center mb-4 pl-2">
-      <h2 class="text-2xl font-bold text-white">Control Panel</h2>
-      <button onclick="lockAdmin()" class="text-red-400 font-bold bg-red-500/10 px-4 py-2 rounded-xl text-sm shadow-sm hover:bg-red-500/20 transition-colors btn-press border border-red-500/20">
+    <div class="flex justify-between items-center mb-3 pl-1">
+      <h2 class="text-xl font-bold text-white">Control Panel</h2>
+      <button onclick="lockAdmin()" class="text-red-400 font-bold bg-red-500/10 px-3 py-2 rounded-xl text-sm hover:bg-red-500/20 transition-colors btn-press border border-red-500/20">
         <i class="fa-solid fa-lock mr-1"></i> Lock
       </button>
     </div>
 
-    <details class="glass p-5 rounded-2xl group cursor-pointer border-l-4 border-blue-500 shadow-lg border border-white/10" open>
+    <details class="ios-card p-4 group cursor-pointer border-l-4 border-blue-500" open>
       <summary class="font-bold text-lg text-blue-400 flex justify-between items-center list-none outline-none">
         <span class="flex items-center gap-2"><i class="fa-solid fa-users"></i> All Users (<span id="user-count">0</span>)</span>
         <i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i>
       </summary>
-      <div class="mt-4 cursor-default border-t border-white/10 pt-4">
-        <div id="users-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
-          <div class="text-center text-gray-500 text-sm py-4">Loading users...</div>
+      <div class="mt-3 cursor-default border-t border-white/10 pt-3">
+        <div id="users-list" class="space-y-2 max-h-56 overflow-y-auto pr-1">
+          <div class="text-center text-gray-600 text-sm py-4">Loading users...</div>
         </div>
       </div>
     </details>
 
     <div class="grid grid-cols-2 gap-3">
-      <div class="gcard p-4 rounded-2xl text-center border border-white/10">
-        <i class="fa-solid fa-users text-blue-400 text-2xl mb-2"></i>
-        <span id="stat-total-users" class="text-2xl font-black text-white block">0</span>
-        <span class="text-xs text-gray-400 font-medium">Total Users</span>
+      <div class="ios-gcard p-3 text-center">
+        <i class="fa-solid fa-users text-blue-400 text-xl mb-1"></i>
+        <span id="stat-total-users" class="text-xl font-black text-white block">0</span>
+        <span class="text-xs text-gray-600 font-medium">Total Users</span>
       </div>
-      <div class="gcard p-4 rounded-2xl text-center border border-white/10">
-        <i class="fa-solid fa-fire text-orange-400 text-2xl mb-2"></i>
-        <span id="stat-active-today" class="text-2xl font-black text-white block">0</span>
-        <span class="text-xs text-gray-400 font-medium">Active Today</span>
+      <div class="ios-gcard p-3 text-center">
+        <i class="fa-solid fa-fire text-orange-400 text-xl mb-1"></i>
+        <span id="stat-active-today" class="text-xl font-black text-white block">0</span>
+        <span class="text-xs text-gray-600 font-medium">Active Today</span>
       </div>
-      <div class="gcard p-4 rounded-2xl text-center border border-white/10">
-        <i class="fa-solid fa-book text-indigo-400 text-2xl mb-2"></i>
-        <span id="stat-total-notes" class="text-2xl font-black text-white block">0</span>
-        <span class="text-xs text-gray-400 font-medium">Total Notes</span>
+      <div class="ios-gcard p-3 text-center">
+        <i class="fa-solid fa-book text-indigo-400 text-xl mb-1"></i>
+        <span id="stat-total-notes" class="text-xl font-black text-white block">0</span>
+        <span class="text-xs text-gray-600 font-medium">Total Notes</span>
       </div>
-      <div class="gcard p-4 rounded-2xl text-center border border-white/10">
-        <i class="fa-solid fa-bullhorn text-amber-400 text-2xl mb-2"></i>
-        <span id="stat-total-notices" class="text-2xl font-black text-white block">0</span>
-        <span class="text-xs text-gray-400 font-medium">Notices</span>
+      <div class="ios-gcard p-3 text-center">
+        <i class="fa-solid fa-bullhorn text-amber-400 text-xl mb-1"></i>
+        <span id="stat-total-notices" class="text-xl font-black text-white block">0</span>
+        <span class="text-xs text-gray-600 font-medium">Notices</span>
       </div>
     </div>
 
-    <details class="glass p-5 rounded-2xl group cursor-pointer border-l-4 border-red-500 shadow-lg border border-white/10">
+    <details class="ios-card p-4 group cursor-pointer border-l-4 border-red-500">
       <summary class="font-bold text-lg text-red-400 flex justify-between items-center list-none outline-none">
         <span class="flex items-center gap-2"><i class="fa-solid fa-trash-can"></i> Manage Data</span>
         <i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i>
       </summary>
-      <div class="mt-4 space-y-4 cursor-default border-t border-white/10 pt-4">
-        <div class="text-sm font-bold text-gray-400 mb-2">Study Materials</div>
+      <div class="mt-3 space-y-3 cursor-default border-t border-white/10 pt-3">
+        <div class="text-sm font-bold text-gray-600 mb-1">Study Materials</div>
         <div id="manage-notes-list" class="space-y-2 max-h-40 overflow-y-auto pr-1">Loading...</div>
-        <div class="text-sm font-bold text-gray-400 mb-2 mt-4">Board Notices</div>
+        <div class="text-sm font-bold text-gray-600 mb-1 mt-3">Board Notices</div>
         <div id="manage-notices-list" class="space-y-2 max-h-40 overflow-y-auto pr-1">Loading...</div>
-        <div class="text-sm font-bold text-gray-400 mb-2 mt-4">Exam Schedule</div>
+        <div class="text-sm font-bold text-gray-600 mb-1 mt-3">Exam Schedule</div>
         <div id="manage-exams-list" class="space-y-2 max-h-40 overflow-y-auto pr-1">Loading...</div>
       </div>
     </details>
 
-    <details class="glass p-5 rounded-2xl group cursor-pointer shadow-lg border border-white/10">
+    <details class="ios-card p-4 group cursor-pointer">
       <summary class="font-bold text-lg text-indigo-400 flex justify-between items-center list-none outline-none">
         <span class="flex items-center gap-2"><i class="fa-solid fa-file-pdf"></i> Upload Material</span>
         <i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i>
       </summary>
-      <div class="mt-4 space-y-3 cursor-default">
-        <input id="n-title" placeholder="Title (e.g. Physics Ch-1)" class="w-full p-3 border border-white/10 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white/5 text-white placeholder-gray-500 transition-all">
-        <input id="n-link" placeholder="Drive Link" class="w-full p-3 border border-white/10 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white/5 text-white placeholder-gray-500 transition-all">
-        <button onclick="adminAction('note')" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-indigo-500/20 active:scale-95 transition-transform btn-press border border-indigo-500/30">Upload Note</button>
+      <div class="mt-3 space-y-2 cursor-default">
+        <input id="n-title" placeholder="Title (e.g. Physics Ch-1)" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600 transition-all focus:border-indigo-500/50">
+        <input id="n-link" placeholder="Drive Link" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600 transition-all focus:border-indigo-500/50">
+        <button onclick="adminAction('note')" class="w-full bg-[#6366f1] text-white py-3 rounded-xl font-bold shadow-lg hover:brightness-110 active:scale-95 transition-transform btn-press border border-indigo-500/30">Upload Note</button>
       </div>
     </details>
 
-    <details class="glass p-5 rounded-2xl group cursor-pointer shadow-lg border border-white/10">
+    <details class="ios-card p-4 group cursor-pointer">
       <summary class="font-bold text-lg text-blue-400 flex justify-between items-center list-none outline-none">
         <span class="flex items-center gap-2"><i class="fa-solid fa-chart-pie"></i> Update Progress</span>
         <i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i>
       </summary>
-      <div class="mt-4 space-y-3 cursor-default">
-        <div class="grid grid-cols-2 gap-3">
-          <input id="p-hin" type="number" min="0" max="100" placeholder="Hindi %" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-white/5 text-white placeholder-gray-500 transition-all">
-          <input id="p-eng" type="number" min="0" max="100" placeholder="English %" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-white/5 text-white placeholder-gray-500 transition-all">
-          <input id="p-math" type="number" min="0" max="100" placeholder="Math %" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-white/5 text-white placeholder-gray-500 transition-all">
-          <input id="p-phy" type="number" min="0" max="100" placeholder="Physics %" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-white/5 text-white placeholder-gray-500 transition-all">
+      <div class="mt-3 space-y-2 cursor-default">
+        <div class="grid grid-cols-2 gap-2">
+          <input id="p-hin" type="number" min="0" max="100" placeholder="Hindi %" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600 transition-all">
+          <input id="p-eng" type="number" min="0" max="100" placeholder="English %" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600 transition-all">
+          <input id="p-math" type="number" min="0" max="100" placeholder="Math %" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600 transition-all">
+          <input id="p-phy" type="number" min="0" max="100" placeholder="Physics %" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600 transition-all">
         </div>
-        <input id="p-chem" type="number" min="0" max="100" placeholder="Chemistry %" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-white/5 text-white placeholder-gray-500 transition-all">
+        <input id="p-chem" type="number" min="0" max="100" placeholder="Chemistry %" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600 transition-all">
 
-        <div class="border-t border-white/10 pt-3 mt-3">
-          <p class="text-xs font-bold text-gray-400 mb-2">Hindi Sub-parts</p>
+        <div class="border-t border-white/10 pt-2 mt-2">
+          <p class="text-xs font-bold text-gray-600 mb-1">Hindi Sub-parts</p>
           <div class="grid grid-cols-2 gap-2">
-            <input id="p-hin-gadya" type="number" min="0" max="100" placeholder="Gadya %" class="w-full p-2 border border-white/10 rounded-lg outline-none bg-white/5 text-white text-sm placeholder-gray-500 transition-all">
-            <input id="p-hin-padya" type="number" min="0" max="100" placeholder="Padya %" class="w-full p-2 border border-white/10 rounded-lg outline-none bg-white/5 text-white text-sm placeholder-gray-500 transition-all">
-            <input id="p-hin-kahani" type="number" min="0" max="100" placeholder="Kahani %" class="w-full p-2 border border-white/10 rounded-lg outline-none bg-white/5 text-white text-sm placeholder-gray-500 transition-all">
-            <input id="p-hin-natak" type="number" min="0" max="100" placeholder="Natak %" class="w-full p-2 border border-white/10 rounded-lg outline-none bg-white/5 text-white text-sm placeholder-gray-500 transition-all">
-            <input id="p-hin-vyakaran" type="number" min="0" max="100" placeholder="Vyakaran %" class="w-full p-2 border border-white/10 rounded-lg outline-none bg-white/5 text-white text-sm placeholder-gray-500 transition-all">
-            <input id="p-hin-sanskrit" type="number" min="0" max="100" placeholder="Sanskrit %" class="w-full p-2 border border-white/10 rounded-lg outline-none bg-white/5 text-white text-sm placeholder-gray-500 transition-all">
+            <input id="p-hin-gadya" type="number" min="0" max="100" placeholder="Gadya %" class="w-full p-2 border border-white/10 rounded-lg outline-none bg-[#2c2c2e] text-white text-sm placeholder-gray-600">
+            <input id="p-hin-padya" type="number" min="0" max="100" placeholder="Padya %" class="w-full p-2 border border-white/10 rounded-lg outline-none bg-[#2c2c2e] text-white text-sm placeholder-gray-600">
+            <input id="p-hin-kahani" type="number" min="0" max="100" placeholder="Kahani %" class="w-full p-2 border border-white/10 rounded-lg outline-none bg-[#2c2c2e] text-white text-sm placeholder-gray-600">
+            <input id="p-hin-natak" type="number" min="0" max="100" placeholder="Natak %" class="w-full p-2 border border-white/10 rounded-lg outline-none bg-[#2c2c2e] text-white text-sm placeholder-gray-600">
+            <input id="p-hin-vyakaran" type="number" min="0" max="100" placeholder="Vyakaran %" class="w-full p-2 border border-white/10 rounded-lg outline-none bg-[#2c2c2e] text-white text-sm placeholder-gray-600">
+            <input id="p-hin-sanskrit" type="number" min="0" max="100" placeholder="Sanskrit %" class="w-full p-2 border border-white/10 rounded-lg outline-none bg-[#2c2c2e] text-white text-sm placeholder-gray-600">
           </div>
         </div>
 
-        <div class="border-t border-white/10 pt-3 mt-3">
-          <p class="text-xs font-bold text-gray-400 mb-2">English Sub-parts</p>
+        <div class="border-t border-white/10 pt-2 mt-2">
+          <p class="text-xs font-bold text-gray-600 mb-1">English Sub-parts</p>
           <div class="grid grid-cols-2 gap-2">
-            <input id="p-eng-prose" type="number" min="0" max="100" placeholder="Prose %" class="w-full p-2 border border-white/10 rounded-lg outline-none bg-white/5 text-white text-sm placeholder-gray-500 transition-all">
-            <input id="p-eng-poetry" type="number" min="0" max="100" placeholder="Poetry %" class="w-full p-2 border border-white/10 rounded-lg outline-none bg-white/5 text-white text-sm placeholder-gray-500 transition-all">
-            <input id="p-eng-supp" type="number" min="0" max="100" placeholder="Supplementary %" class="w-full p-2 border border-white/10 rounded-lg outline-none bg-white/5 text-white text-sm placeholder-gray-500 transition-all">
-            <input id="p-eng-grammar" type="number" min="0" max="100" placeholder="Grammar %" class="w-full p-2 border border-white/10 rounded-lg outline-none bg-white/5 text-white text-sm placeholder-gray-500 transition-all">
+            <input id="p-eng-prose" type="number" min="0" max="100" placeholder="Prose %" class="w-full p-2 border border-white/10 rounded-lg outline-none bg-[#2c2c2e] text-white text-sm placeholder-gray-600">
+            <input id="p-eng-poetry" type="number" min="0" max="100" placeholder="Poetry %" class="w-full p-2 border border-white/10 rounded-lg outline-none bg-[#2c2c2e] text-white text-sm placeholder-gray-600">
+            <input id="p-eng-supp" type="number" min="0" max="100" placeholder="Supplementary %" class="w-full p-2 border border-white/10 rounded-lg outline-none bg-[#2c2c2e] text-white text-sm placeholder-gray-600">
+            <input id="p-eng-grammar" type="number" min="0" max="100" placeholder="Grammar %" class="w-full p-2 border border-white/10 rounded-lg outline-none bg-[#2c2c2e] text-white text-sm placeholder-gray-600">
           </div>
         </div>
 
-        <button onclick="adminAction('progress')" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-blue-500/20 active:scale-95 transition-transform btn-press border border-blue-500/30">Save Progress</button>
+        <button onclick="adminAction('progress')" class="w-full bg-[#6366f1] text-white py-3 rounded-xl font-bold shadow-lg hover:brightness-110 active:scale-95 transition-transform btn-press border border-indigo-500/30">Save Progress</button>
       </div>
     </details>
 
-    <details class="glass p-5 rounded-2xl group cursor-pointer shadow-lg border border-white/10">
+    <details class="ios-card p-4 group cursor-pointer">
       <summary class="font-bold text-lg text-amber-400 flex justify-between items-center list-none outline-none">
         <span class="flex items-center gap-2"><i class="fa-solid fa-bullhorn"></i> Push Notice</span>
         <i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i>
       </summary>
-      <div class="mt-4 space-y-3 cursor-default">
-        <input id="nt-title" placeholder="Notice Title" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-white/5 text-white placeholder-gray-500 transition-all">
-        <textarea id="nt-desc" placeholder="Details..." class="w-full p-3 border border-white/10 rounded-xl h-24 outline-none resize-none bg-white/5 text-white placeholder-gray-500 transition-all"></textarea>
-        <button onclick="adminAction('notice')" class="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-amber-500/20 active:scale-95 transition-transform btn-press border border-amber-500/30">Publish Notice</button>
+      <div class="mt-3 space-y-2 cursor-default">
+        <input id="nt-title" placeholder="Notice Title" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600 transition-all">
+        <textarea id="nt-desc" placeholder="Details..." class="w-full p-3 border border-white/10 rounded-xl h-20 outline-none resize-none bg-[#2c2c2e] text-white placeholder-gray-600 transition-all"></textarea>
+        <button onclick="adminAction('notice')" class="w-full bg-[#ff9500] text-white py-3 rounded-xl font-bold shadow-lg hover:brightness-110 active:scale-95 transition-transform btn-ress border border-amber-500/30">Publish Notice</button>
       </div>
     </details>
 
-    <details class="glass p-5 rounded-2xl group cursor-pointer shadow-lg border border-white/10">
+    <details class="ios-card p-4 group cursor-pointer">
       <summary class="font-bold text-lg text-purple-400 flex justify-between items-center list-none outline-none">
         <span class="flex items-center gap-2"><i class="fa-solid fa-calendar-days"></i> Add Exam Schedule</span>
         <i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i>
       </summary>
-      <div class="mt-4 space-y-3 cursor-default">
-        <input id="ex-name" placeholder="Exam (e.g. Pre-Board)" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-white/5 text-white placeholder-gray-500 transition-all">
-        <input id="ex-sub" placeholder="Subject" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-white/5 text-white placeholder-gray-500 transition-all">
-        <input id="ex-date" type="date" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-white/5 text-white placeholder-gray-500 transition-all">
+      <div class="mt-3 space-y-2 cursor-default">
+        <input id="ex-name" placeholder="Exam (e.g. Pre-Board)" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600">
+        <input id="ex-sub" placeholder="Subject" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600">
+        <input id="ex-date" type="date" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600">
         <div class="flex gap-2">
-          <input id="ex-time" type="time" class="w-1/2 p-3 border border-white/10 rounded-xl outline-none bg-white/5 text-white placeholder-gray-500 transition-all">
-          <input id="ex-meet" placeholder="Meeting (Shift)" class="w-1/2 p-3 border border-white/10 rounded-xl outline-none bg-white/5 text-white placeholder-gray-500 transition-all">
+          <input id="ex-time" type="time" class="w-1/2 p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white">
+          <input id="ex-meet" placeholder="Meeting (Shift)" class="w-1/2 p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600">
         </div>
-        <button onclick="adminAction('exam')" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-purple-500/20 active:scale-95 transition-transform btn-press border border-purple-500/30">Add to Schedule</button>
+        <button onclick="adminAction('exam')" class="w-full bg-[#a855f7] text-white py-3 rounded-xl font-bold shadow-lg hover:brightness-110 active:scale-95 transition-transform btn-press border border-purple-500/30">Add to Schedule</button>
       </div>
     </details>
 
-    <details class="glass p-5 rounded-2xl group cursor-pointer shadow-lg border border-white/10">
+    <details class="ios-card p-4 group cursor-pointer">
       <summary class="font-bold text-lg text-green-400 flex justify-between items-center list-none outline-none">
         <span class="flex items-center gap-2"><i class="fa-solid fa-stopwatch"></i> Set Exam Timer</span>
         <i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i>
       </summary>
-      <div class="mt-4 space-y-3 cursor-default">
-        <input id="cd-date" type="datetime-local" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-white/5 text-white placeholder-gray-500 transition-all">
-        <button onclick="adminAction('countdown')" class="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-green-500/20 active:scale-95 transition-transform btn-press border border-green-500/30">Update Timer</button>
+      <div class="mt-3 space-y-2 cursor-default">
+        <input id="cd-date" type="datetime-local" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white">
+        <button onclick="adminAction('countdown')" class="w-full bg-[#34c759] text-white py-3 rounded-xl font-bold shadow-lg hover:brightness-110 active:scale-95 transition-transform btn-press border border-green-500/30">Update Timer</button>
       </div>
     </details>
   </div>
 </div>
 </main>
 
-<!-- ===== AI CHAT SECTION ===== -->
+<!-- ========================================== -->
+<!-- AI CHAT SECTION                            -->
+<!-- ========================================== -->
 <div id="ai" class="section">
-  <div class="bg-[#0b1120] px-4 py-4 flex items-center justify-between shadow-lg z-10 border-b border-white/10 relative">
+  <div class="bg-[#1c1c1e] px-4 py-3 flex items-center justify-between shadow-lg z-10 border-b border-white/10 relative">
     <div class="flex items-center gap-3">
-      <button onclick="switchTab('home')" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-gray-300 hover:bg-white/20 active:scale-90 transition-all btn-press border border-white/10">
+      <button onclick="switchTab('home')" class="w-9 h-9 bg-[#2c2c2e] rounded-full flex items-center justify-center text-gray-400 hover:bg-[#3a3a3c] hover:text-white active:scale-90 transition-all btn-press border border-white/10">
         <i class="fa-solid fa-arrow-left"></i>
       </button>
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-gradient-to-tr from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-white shadow-lg">
+        <div class="w-9 h-9 bg-gradient-to-tr from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-white shadow-lg">
           <i class="fa-solid fa-robot"></i>
         </div>
         <div>
-          <h3 class="font-bold text-white leading-tight text-sm">Llama 3.3 <span class="text-[10px] bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded font-bold ml-1 border border-green-500/30"><i class="fa-solid fa-bolt"></i> Groq</span></h3>
+          <h3 class="font-bold text-white leading-tight text-sm">Llama 3.3 <span class="text-[10px] bg-green-500/15 text-green-400 px-1.5 py-0.5 rounded font-bold ml-1 border border-green-500/25"><i class="fa-solid fa-bolt"></i> Groq</span></h3>
           <p class="text-[10px] text-green-400 font-bold uppercase tracking-wider">Ultra Fast - Hindi AI</p>
         </div>
       </div>
     </div>
     <div class="flex gap-2">
       <button onclick="speakLastMessage()" class="vb" title="Read aloud"><i class="fa-solid fa-volume-high text-sm"></i></button>
-      <button onclick="clearChat()" class="text-sm text-gray-400 hover:text-red-400 transition-colors bg-white/10 px-3 py-2 rounded-lg btn-press border border-white/10">
+      <button onclick="clearChat()" class="text-sm text-gray-500 hover:text-red-400 transition-colors bg-[#2c2c2e] px-3 py-2 rounded-lg btn-press border border-white/10">
         <i class="fa-solid fa-trash-can"></i>
       </button>
     </div>
   </div>
 
-  <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-4 bg-[#0b1120]">
+  <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-4 bg-black">
     <div class="flex items-start gap-3">
       <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-green-500 to-emerald-600 flex items-center justify-center text-white flex-shrink-0 mt-1 shadow-sm">
         <i class="fa-solid fa-robot text-xs"></i>
       </div>
-      <div class="glass p-4 rounded-2xl rounded-tl-none shadow-md text-sm text-gray-200 max-w-[85%] border border-white/10 ai-res">
+      <div class="ios-card p-4 rounded-2xl rounded-tl-none shadow-md text-sm text-gray-300 max-w-[85%] ai-res">
         <div class="tc" id="welcome-msg"></div>
       </div>
     </div>
   </div>
 
-  <div class="p-4 bg-[#0b1120] border-t border-white/10 shadow-[0_-5px_20px_rgba(0,0,0,0.3)]">
+  <div class="p-4 bg-[#1c1c1e] border-t border-white/10">
     <div class="flex gap-2 relative">
       <input id="ai-input" type="text" placeholder="Sawal pucho... Hindi mein jawab milega!" autocomplete="off"
-        class="flex-1 py-3.5 pl-5 pr-14 rounded-full bg-white/5 focus:bg-white/10 border border-white/10 focus:border-green-500/30 focus:ring-2 focus:ring-green-500/10 outline-none transition-all text-sm text-white placeholder-gray-500"
+        class="flex-1 py-3 pl-5 pr-12 rounded-full bg-[#2c2c2e] focus:bg-[#323234] border border-white/10 focus:border-green-500/30 outline-none transition-all text-sm text-white placeholder-gray-600"
         onkeydown="if(event.key==='Enter') askGroq()">
-      <button onclick="askGroq()" id="ai-btn" class="absolute right-1.5 top-1.5 bottom-1.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white w-10 rounded-full flex items-center justify-center transition-all active:scale-90 shadow-lg btn-press hover:shadow-green-500/30">
+      <button onclick="askGroq()" id="ai-btn" class="absolute right-1.5 top-1.5 bottom-1.5 bg-[#22c55e] text-white w-9 rounded-full flex items-center justify-center transition-all active:scale-90 shadow-lg btn-press hover:brightness-110">
         <i class="fa-solid fa-paper-plane text-sm"></i>
       </button>
     </div>
@@ -1048,20 +1129,20 @@ input:focus, textarea:focus { outline: none; border-color: #818cf8; box-shadow: 
 
 <!-- ===== MUSIC PLAYER (COMPACT 260px) ===== -->
 <div id="music-player" class="mpl cl">
-  <div class="glass rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
-    <div class="p-3 flex items-center justify-between bg-white/5 cursor-pointer" onclick="toggleMusicPlayer()">
+  <div class="ios-card rounded-2xl overflow-hidden shadow-2xl">
+    <div class="p-3 flex items-center justify-between bg-[#1c1c1e] cursor-pointer" onclick="toggleMusicPlayer()">
       <div class="flex items-center gap-2 min-w-0">
-        <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg flex-shrink-0">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg flex-shrink-0">
           <i class="fa-solid fa-music" id="player-icon"></i>
         </div>
         <div class="pc min-w-0">
-          <p class="text-xs font-bold text-white truncate max-w-[130px]" id="player-title">Music Player</p>
-          <p class="text-[10px] text-gray-400" id="player-status">Click to expand</p>
+          <p class="text-xs font-bold text-white truncate max-w-[120px]" id="player-title">Music Player</p>
+          <p class="text-[10px] text-gray-500" id="player-status">Click to expand</p>
         </div>
       </div>
-      <i class="fa-solid fa-chevron-up text-gray-400 pc transition-transform text-xs" id="player-chevron"></i>
+      <i class="fa-solid fa-chevron-up text-gray-500 pc transition-transform text-xs" id="player-chevron"></i>
     </div>
-    <div class="pc p-3.5 space-y-3">
+    <div class="pc p-3 space-y-3">
       <!-- Visualizer -->
       <div class="mviz" id="visualizer"></div>
 
@@ -1076,52 +1157,52 @@ input:focus, textarea:focus { outline: none; border-color: #818cf8; box-shadow: 
 
       <!-- Controls Row 1: Prev, Play/Pause, Next, Skip -->
       <div class="flex items-center justify-center gap-2">
-        <button onclick="skipBackward()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-gray-400 hover:bg-white/20 hover:text-white active:scale-90 btn-press transition-all" title="-10s">
+        <button onclick="skipBackward()" class="w-8 h-8 rounded-full bg-[#2c2c2e] flex items-center justify-center text-gray-500 hover:bg-[#3a3a3c] hover:text-white active:scale-90 btn-press transition-all border border-white/5" title="-10s">
           <i class="fa-solid fa-backward text-xs"></i>
         </button>
-        <button onclick="prevTrack()" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-gray-300 hover:bg-white/20 active:scale-90 btn-press transition-all">
+        <button onclick="prevTrack()" class="w-8 h-8 rounded-full bg-[#2c2c2e] flex items-center justify-center text-gray-400 hover:bg-[#3a3a3c] active:scale-90 btn-press transition-all border border-white/5">
           <i class="fa-solid fa-backward-step text-sm"></i>
         </button>
-        <button onclick="togglePlay()" id="play-btn" class="w-11 h-11 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg glow active:scale-90 btn-press transition-all">
+        <button onclick="togglePlay()" id="play-btn" class="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg active:scale-90 btn-press transition-all hover:brightness-110">
           <i class="fa-solid fa-play" id="play-icon"></i>
         </button>
-        <button onclick="nextTrack()" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-gray-300 hover:bg-white/20 active:scale-90 btn-press transition-all">
+        <button onclick="nextTrack()" class="w-8 h-8 rounded-full bg-[#2c2c2e] flex items-center justify-center text-gray-400 hover:bg-[#3a3a3c] active:scale-90 btn-press transition-all border border-white/5">
           <i class="fa-solid fa-forward-step text-sm"></i>
         </button>
-        <button onclick="skipForward()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-gray-400 hover:bg-white/20 hover:text-white active:scale-90 btn-press transition-all" title="+10s">
+        <button onclick="skipForward()" class="w-8 h-8 rounded-full bg-[#2c2c2e] flex items-center justify-center text-gray-500 hover:bg-[#3a3a3c] hover:text-white active:scale-90 btn-press transition-all border border-white/5" title="+10s">
           <i class="fa-solid fa-forward text-xs"></i>
         </button>
       </div>
 
       <!-- YouTube Link Input -->
       <div class="flex gap-2">
-        <input id="yt-link" type="text" placeholder="Paste YouTube Link..." class="flex-1 p-2.5 border border-white/10 rounded-xl outline-none bg-white/5 text-xs text-white placeholder-gray-500 focus:border-indigo-500/50 transition-all">
-        <button onclick="loadYouTubeMusic()" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-3.5 rounded-xl font-bold shadow-md active:scale-95 btn-press border border-indigo-500/30">
+        <input id="yt-link" type="text" placeholder="Paste YouTube Link..." class="flex-1 p-2 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-xs text-white placeholder-gray-600 focus:border-indigo-500/50 transition-all">
+        <button onclick="loadYouTubeMusic()" class="bg-[#6366f1] text-white px-3 rounded-xl font-bold shadow-md active:scale-95 btn-press border border-indigo-500/30 hover:brightness-110 transition-all">
           <i class="fa-solid fa-play"></i>
         </button>
       </div>
 
       <!-- Playlist Controls -->
       <div class="flex gap-2">
-        <button onclick="togglePlaylistMode()" id="playlist-btn" class="flex-1 bg-white/10 text-gray-300 py-2 rounded-xl text-xs font-bold border border-white/10 hover:bg-white/20 transition-all btn-press">
+        <button onclick="togglePlaylistMode()" id="playlist-btn" class="flex-1 bg-[#2c2c2e] text-gray-400 py-2 rounded-xl text-xs font-bold border border-white/10 hover:bg-[#3a3a3c] transition-all btn-press">
           <i class="fa-solid fa-list mr-1"></i> Playlist: Off
         </button>
-        <button onclick="saveToPlaylist()" id="save-pl-btn" class="flex-1 bg-white/10 text-gray-300 py-2 rounded-xl text-xs font-bold border border-white/10 hover:bg-white/20 transition-all btn-press hidden">
+        <button onclick="saveToPlaylist()" id="save-pl-btn" class="flex-1 bg-[#2c2c2e] text-gray-400 py-2 rounded-xl text-xs font-bold border border-white/10 hover:bg-[#3a3a3c] transition-all btn-press hidden">
           <i class="fa-solid fa-plus mr-1"></i> Save
         </button>
       </div>
 
       <!-- Playlist Items -->
-      <div id="playlist-container" class="hidden space-y-2 max-h-28 overflow-y-auto">
-        <p class="text-xs text-gray-400 font-bold mb-1">Your Playlist</p>
+      <div id="playlist-container" class="hidden space-y-2 max-h-24 overflow-y-auto">
+        <p class="text-xs text-gray-500 font-bold mb-1">Your Playlist</p>
         <div id="playlist-items"></div>
       </div>
 
       <!-- Volume -->
       <div class="flex items-center gap-2">
-        <i class="fa-solid fa-volume-low text-gray-500 text-[10px]"></i>
-        <input type="range" min="0" max="100" value="50" id="volume-slider" oninput="setVolume(this.value)" class="flex-1 h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-indigo-500">
-        <i class="fa-solid fa-volume-high text-gray-500 text-[10px]"></i>
+        <i class="fa-solid fa-volume-low text-gray-600 text-[10px]"></i>
+        <input type="range" min="0" max="100" value="50" id="volume-slider" oninput="setVolume(this.value)" class="flex-1 h-1 bg-[#2c2c2e] rounded-full appearance-none cursor-pointer accent-indigo-500">
+        <i class="fa-solid fa-volume-high text-gray-600 text-[10px]"></i>
       </div>
 
       <div id="yt-player" class="hidden"></div>
@@ -1129,66 +1210,66 @@ input:focus, textarea:focus { outline: none; border-color: #818cf8; box-shadow: 
   </div>
 </div>
 
-<!-- ===== BOTTOM NAVIGATION ===== -->
-<div id="bottom-nav" class="fixed bottom-4 left-4 right-4 glass rounded-3xl flex justify-around items-center px-2 z-50 shadow-2xl border border-white/10 h-[72px] hidden">
-  <button onclick="switchTab('home')" class="nav-btn w-12 h-12 flex items-center justify-center text-xl text-gray-400 hover:text-white transition-all btn-press rounded-2xl" data-target="home">
+<!-- ===== BOTTOM NAVIGATION (Solid iOS Tab Bar) ===== -->
+<div id="bottom-nav" class="fixed bottom-3 left-3 right-3 bg-[#1c1c1e]/95 rounded-2xl flex justify-around items-center px-2 z-50 shadow-2xl border border-white/10 h-[68px] hidden">
+  <button onclick="switchTab('home')" class="nav-btn w-11 h-11 flex items-center justify-center text-lg text-gray-500 hover:text-white transition-all btn-press rounded-xl" data-target="home">
     <i class="fa-solid fa-house"></i>
   </button>
-  <button onclick="switchTab('notes')" class="nav-btn w-12 h-12 flex items-center justify-center text-xl text-gray-400 hover:text-white transition-all btn-press rounded-2xl" data-target="notes">
+  <button onclick="switchTab('notes')" class="nav-btn w-11 h-11 flex items-center justify-center text-lg text-gray-500 hover:text-white transition-all btn-press rounded-xl" data-target="notes">
     <i class="fa-solid fa-book-open"></i>
   </button>
-  <button onclick="switchTab('quiz')" class="nav-btn w-12 h-12 flex items-center justify-center text-xl text-gray-400 hover:text-white transition-all btn-press rounded-2xl" data-target="quiz">
+  <button onclick="switchTab('quiz')" class="nav-btn w-11 h-11 flex items-center justify-center text-lg text-gray-500 hover:text-white transition-all btn-press rounded-xl" data-target="quiz">
     <i class="fa-solid fa-brain"></i>
   </button>
 
-  <div class="relative -top-5">
-    <button onclick="switchTab('ai')" class="w-14 h-14 bg-gradient-to-tr from-green-500 to-emerald-600 rounded-full border-[3px] border-[#0b1120] flex items-center justify-center text-white text-2xl shadow-[0_8px_25px_rgba(34,197,94,0.4)] transition-transform active:scale-90 btn-press" data-target="ai">
+  <div class="relative -top-4">
+    <button onclick="switchTab('ai')" class="w-12 h-12 bg-gradient-to-tr from-green-500 to-emerald-600 rounded-full border-[3px] border-black flex items-center justify-center text-white text-xl shadow-lg shadow-green-500/30 active:scale-90 btn-press" data-target="ai">
       <i class="fa-solid fa-robot"></i>
     </button>
   </div>
 
-  <button onclick="switchTab('notice')" class="nav-btn w-12 h-12 flex items-center justify-center text-xl text-gray-400 hover:text-white transition-all btn-press rounded-2xl" data-target="notice">
+  <button onclick="switchTab('notice')" class="nav-btn w-11 h-11 flex items-center justify-center text-lg text-gray-500 hover:text-white transition-all btn-press rounded-xl" data-target="notice">
     <i class="fa-solid fa-bell"></i>
   </button>
-  <button onclick="switchTab('profile')" class="nav-btn w-12 h-12 flex items-center justify-center text-xl text-gray-400 hover:text-white transition-all btn-press rounded-2xl" data-target="profile">
+  <button onclick="switchTab('profile')" class="nav-btn w-11 h-11 flex items-center justify-center text-lg text-gray-500 hover:text-white transition-all btn-press rounded-xl" data-target="profile">
     <i class="fa-solid fa-user-astronaut"></i>
   </button>
 </div>
 
 <!-- ===== WELCOME BACK MODAL ===== -->
 <div id="welcome-modal" class="modal-overlay">
-  <div class="bg-gradient-to-br from-[#0b1120] to-[#1e1b4b] w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl relative border border-white/15 text-center">
+  <div class="bg-[#1c1c1e] w-full max-w-sm rounded-[2rem] p-8 shadow-2xl relative border border-white/10 text-center">
     <div class="absolute -top-12 left-1/2 transform -translate-x-1/2">
-      <div class="w-24 h-24 bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-3xl shadow-2xl glow border-4 border-[#0b1120]">
+      <div class="w-20 h-20 bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-2xl shadow-2xl border-4 border-black">
         <i class="fa-solid fa-hand-holding-heart"></i>
       </div>
     </div>
-    <div class="mt-10">
-      <h2 class="text-2xl font-black text-white mb-1" id="welcome-title">Welcome Back!</h2>
-      <p class="text-indigo-400 font-semibold text-sm mb-5" id="welcome-name">Student</p>
-      <div class="glass p-5 rounded-2xl mb-6 border border-white/10 relative overflow-hidden">
-        <i class="fa-solid fa-quote-left text-purple-400/30 text-xl absolute top-3 left-3"></i>
-        <p id="welcome-quote" class="text-gray-300 text-sm italic leading-relaxed relative z-10 pt-2"></p>
-        <p class="text-xs text-gray-500 mt-3 font-medium">- StudyGram Pro</p>
+    <div class="mt-8">
+      <h2 class="text-xl font-black text-white mb-1" id="welcome-title">Welcome Back!</h2>
+      <p class="text-indigo-400 font-semibold text-sm mb-4" id="welcome-name">Student</p>
+      <div class="ios-card p-4 rounded-2xl mb-5 relative overflow-hidden text-left">
+        <i class="fa-solid fa-quote-left text-purple-400/20 text-lg absolute top-3 left-3"></i>
+        <p id="welcome-quote" class="text-gray-400 text-sm italic leading-relaxed relative z-10 pt-2"></p>
+        <p class="text-xs text-gray-600 mt-2 font-medium">- StudyGram Pro</p>
       </div>
-      <button onclick="closeWelcomeModal()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3.5 rounded-2xl font-bold shadow-lg shadow-indigo-500/25 active:scale-95 transition-all btn-press border border-indigo-500/30">
+      <button onclick="closeWelcomeModal()" class="w-full bg-[#6366f1] text-white py-3 rounded-2xl font-bold shadow-lg shadow-indigo-500/25 active:scale-95 transition-all btn-press border border-indigo-500/30 hover:brightness-110">
         <i class="fa-solid fa-rocket mr-2"></i> Chaliye Shuru Karein!
       </button>
     </div>
   </div>
 </div>
 
-<!-- ===== CELEBRATION MODAL (Badge/Level Up) ===== -->
+<!-- ===== CELEBRATION MODAL ===== -->
 <div id="celebration-modal" class="celebration-modal">
   <div class="confetti-container" id="confetti-container"></div>
   <div class="relative z-10 text-center px-6 max-w-sm">
-    <div class="w-28 h-28 bg-gradient-to-tr from-yellow-400 via-orange-500 to-pink-500 rounded-full flex items-center justify-center text-white text-5xl mx-auto mb-6 shadow-2xl glow animate-bounce" id="celebration-icon">
+    <div class="w-24 h-24 bg-gradient-to-tr from-yellow-400 via-orange-500 to-pink-500 rounded-full flex items-center justify-center text-white text-4xl mx-auto mb-4 shadow-2xl animate-bounce" id="celebration-icon">
       <i class="fa-solid fa-trophy"></i>
     </div>
-    <h2 class="text-4xl font-black text-white mb-2 shimmer" id="celebration-title">Level Up!</h2>
-    <p class="text-xl text-indigo-300 font-bold mb-2" id="celebration-subtitle"></p>
-    <p class="text-gray-400 text-sm mb-8" id="celebration-message"></p>
-    <button onclick="closeCelebrationModal()" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-10 py-4 rounded-2xl font-bold shadow-xl shadow-indigo-500/30 active:scale-95 transition-all btn-press border border-indigo-500/30 text-lg">
+    <h2 class="text-3xl font-black text-white mb-1" style="background: linear-gradient(90deg,#818cf8,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;" id="celebration-title">Level Up!</h2>
+    <p class="text-lg text-indigo-300 font-bold mb-1" id="celebration-subtitle"></p>
+    <p class="text-gray-500 text-sm mb-6" id="celebration-message"></p>
+    <button onclick="closeCelebrationModal()" class="bg-[#6366f1] text-white px-8 py-3 rounded-2xl font-bold shadow-xl shadow-indigo-500/30 active:scale-95 transition-all btn-press border border-indigo-500/30 text-base hover:brightness-110">
       <i class="fa-solid fa-star mr-2"></i> Awesome!
     </button>
   </div>
@@ -1196,27 +1277,27 @@ input:focus, textarea:focus { outline: none; border-color: #818cf8; box-shadow: 
 
 <!-- ===== EXAM MODAL ===== -->
 <div id="exam-modal" class="modal-overlay">
-  <div class="bg-gradient-to-br from-[#0b1120] to-[#1e1b4b] w-full max-w-sm rounded-[2rem] p-6 shadow-2xl relative border border-white/10">
-    <button onclick="closeExamModal()" class="absolute top-4 right-4 w-9 h-9 bg-white/10 rounded-full flex items-center justify-center text-gray-300 hover:bg-red-500/20 hover:text-red-400 transition-all btn-press border border-white/10">
+  <div class="bg-[#1c1c1e] w-full max-w-sm rounded-[2rem] p-6 shadow-2xl relative border border-white/10">
+    <button onclick="closeExamModal()" class="absolute top-4 right-4 w-8 h-8 bg-[#2c2c2e] rounded-full flex items-center justify-center text-gray-400 hover:bg-red-500/20 hover:text-red-400 transition-all btn-press border border-white/10">
       <i class="fa-solid fa-xmark"></i>
     </button>
-    <h2 class="text-2xl font-black text-white mb-2"><i class="fa-solid fa-id-card-clip text-indigo-400 mr-2"></i>Exam Seat</h2>
-    <p class="text-sm text-gray-400 mb-4 border-b border-white/10 pb-4">Check your upcoming schedule below.</p>
+    <h2 class="text-xl font-black text-white mb-2"><i class="fa-solid fa-id-card-clip text-indigo-400 mr-2"></i>Exam Seat</h2>
+    <p class="text-sm text-gray-500 mb-4 border-b border-white/10 pb-4">Check your upcoming schedule below.</p>
     <div id="modal-schedule-list" class="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
-      <div class="text-center text-gray-500 text-sm py-6"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Loading schedule...</div>
+      <div class="text-center text-gray-600 text-sm py-6"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Loading schedule...</div>
     </div>
   </div>
 </div>
 
 <!-- ===== ROLL EDIT MODAL ===== -->
 <div id="roll-modal" class="modal-overlay">
-  <div class="bg-gradient-to-br from-[#0b1120] to-[#1e1b4b] w-full max-w-sm rounded-[2rem] p-6 shadow-2xl relative border border-white/10">
-    <button onclick="closeRollModal()" class="absolute top-4 right-4 w-9 h-9 bg-white/10 rounded-full flex items-center justify-center text-gray-300 hover:bg-red-500/20 hover:text-red-400 transition-all btn-press border border-white/10">
+  <div class="bg-[#1c1c1e] w-full max-w-sm rounded-[2rem] p-6 shadow-2xl relative border border-white/10">
+    <button onclick="closeRollModal()" class="absolute top-4 right-4 w-8 h-8 bg-[#2c2c2e] rounded-full flex items-center justify-center text-gray-400 hover:bg-red-500/20 hover:text-red-400 transition-all btn-press border border-white/10">
       <i class="fa-solid fa-xmark"></i>
     </button>
-    <h2 class="text-2xl font-black text-white mb-5"><i class="fa-solid fa-pen-to-square text-indigo-400 mr-2"></i>Edit Roll Number</h2>
-    <input id="roll-input" type="text" placeholder="Enter your roll number..." class="w-full p-3.5 border border-white/10 rounded-xl outline-none bg-white/5 text-white placeholder-gray-500 mb-4 focus:border-indigo-500/50 transition-all text-center">
-    <button onclick="saveRollNumber()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 btn-press border border-indigo-500/30">Save Roll Number</button>
+    <h2 class="text-xl font-black text-white mb-4"><i class="fa-solid fa-pen-to-square text-indigo-400 mr-2"></i>Edit Roll Number</h2>
+    <input id="roll-input" type="text" placeholder="Enter your roll number..." class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600 mb-4 focus:border-indigo-500/50 transition-all text-center">
+    <button onclick="saveRollNumber()" class="w-full bg-[#6366f1] text-white py-3 rounded-xl font-bold shadow-lg active:scale-95 btn-press border border-indigo-500/30 hover:brightness-110 transition-all">Save Roll Number</button>
   </div>
 </div>
 
@@ -1224,6 +1305,7 @@ input:focus, textarea:focus { outline: none; border-color: #818cf8; box-shadow: 
 <button id="pwa-install-btn" class="pwa-btn hidden" onclick="installPWA()">
   <i class="fa-solid fa-download mr-2"></i> Install App
 </button>
+
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
@@ -1250,7 +1332,6 @@ try {
     storage = getStorage(app);
     provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
-    // PERSISTENT LOGIN
     setPersistence(auth, browserLocalPersistence).then(() => {
         console.log("Firebase persistence set to LOCAL");
     }).catch(e => console.warn("Persistence error:", e));
@@ -1274,7 +1355,7 @@ let lastAIResponse = "";
 let welcomeShown = false;
 
 // ==========================================
-// LEVEL SYSTEM (EXPONENTIAL)
+// LEVEL SYSTEM (EXPONENTIAL - Preserved)
 // ==========================================
 const LEVEL_XP_NEEDED = [
   100,500,800,929,1079,1253,1455,1690,1963,2280,
@@ -1317,6 +1398,9 @@ function calculateLevel(totalXP) {
     return { level: MAX_LEVEL, xpIntoLevel: 0, xpForNext: 0, progress: 100 };
 }
 
+// ==========================================
+// USER DATA (WITH FIREBASE SYNC - FIXED)
+// ==========================================
 function getUserData() {
     const uid = currentUser?.uid;
     if (!uid) return { level: 1, xp: 0, totalXp: 0, badges: [], rollNumber: 'UP' + Math.floor(100000 + Math.random() * 900000), displayName: '' };
@@ -1337,6 +1421,31 @@ function saveUserData(data) {
     localStorage.setItem('sg_user_' + uid, JSON.stringify(data));
 }
 
+// NEW: Sync user data from Firebase to localStorage and UI
+async function syncUserDataFromFirebase(uid) {
+    if (!db || !uid) return;
+    try {
+        const statsSnap = await get(ref(db, 'users/' + uid + '/stats'));
+        if (statsSnap.exists()) {
+            const stats = statsSnap.val();
+            // Merge Firebase data with local data (Firebase wins)
+            const localData = JSON.parse(localStorage.getItem('sg_user_' + uid) || '{}');
+            const mergedData = {
+                level: stats.level || localData.level || 1,
+                xp: stats.xp || localData.xp || 0,
+                totalXp: stats.totalXp || localData.totalXp || 0,
+                badges: stats.badges || localData.badges || [],
+                rollNumber: localData.rollNumber || 'UP' + Math.floor(100000 + Math.random() * 900000),
+                displayName: localData.displayName || currentUser?.displayName || 'Student'
+            };
+            localStorage.setItem('sg_user_' + uid, JSON.stringify(mergedData));
+            console.log("User data synced from Firebase:", mergedData);
+        }
+    } catch (e) {
+        console.warn("Firebase sync failed, using localStorage:", e);
+    }
+}
+
 function addXP(amount, reason) {
     const uid = currentUser?.uid;
     if (!uid) return;
@@ -1350,7 +1459,6 @@ function addXP(amount, reason) {
     saveUserData(data);
     updateLevelUI();
 
-    // Check for level up
     if (calc.level > oldLevel) {
         showCelebration('level', calc.level);
         if (calc.level % 10 === 0) addBadge('level_' + calc.level, 'Level ' + calc.level + ' Master', 'indigo');
@@ -1394,14 +1502,14 @@ function updateBadgesUI() {
     };
     let html = '';
     if (data.badges.length === 0) {
-        html = '<span class="text-xs text-gray-500">No badges yet. Start studying!</span>';
+        html = '<span class="text-xs text-gray-600">No badges yet. Start studying!</span>';
     } else {
         data.badges.slice(0, 8).forEach(b => {
             const cc = badgeColors[b.color] || badgeColors.indigo;
             html += '<span class="bdg ' + cc + '"><i class="fa-solid fa-medal"></i> ' + b.name + '</span>';
         });
         if (data.badges.length > 8) {
-            html += '<span class="bdg border-gray-500 text-gray-400 bg-gray-500/10">+' + (data.badges.length - 8) + ' more</span>';
+            html += '<span class="bdg border-gray-600 text-gray-500 bg-gray-500/10">+' + (data.badges.length - 8) + ' more</span>';
         }
     }
     const bc = document.getElementById('badges-container');
@@ -1411,7 +1519,7 @@ function updateBadgesUI() {
     const profBadges = document.getElementById('prof-badges');
     if (profBadges) {
         if (data.badges.length === 0) {
-            profBadges.innerHTML = '<span class="text-xs text-gray-500">No badges yet</span>';
+            profBadges.innerHTML = '<span class="text-xs text-gray-600">No badges yet</span>';
         } else {
             profBadges.innerHTML = data.badges.map(b => {
                 const cc = badgeColors[b.color] || badgeColors.indigo;
@@ -1485,13 +1593,13 @@ function launchConfetti() {
     if (!container) return;
     container.innerHTML = '';
     const colors = ['#818cf8', '#c084fc', '#fbbf24', '#f87171', '#4ade80', '#60a5fa', '#f472b6', '#a78bfa'];
-    for (let i = 0; i < 80; i++) {
+    for (let i = 0; i < 60; i++) {
         const piece = document.createElement('div');
         piece.className = 'confetti-piece';
         piece.style.left = Math.random() * 100 + 'vw';
         piece.style.background = colors[Math.floor(Math.random() * colors.length)];
-        piece.style.width = (6 + Math.random() * 8) + 'px';
-        piece.style.height = (6 + Math.random() * 8) + 'px';
+        piece.style.width = (6 + Math.random() * 6) + 'px';
+        piece.style.height = (6 + Math.random() * 6) + 'px';
         piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
         piece.style.animationDuration = (2 + Math.random() * 3) + 's';
         piece.style.animationDelay = Math.random() * 2 + 's';
@@ -1536,12 +1644,9 @@ window.handleProfilePicUpload = async function(event) {
         const sRef = storageRef(storage, 'profile_pics/' + currentUser.uid + '.jpg');
         await uploadBytes(sRef, file);
         const downloadURL = await getDownloadURL(sRef);
-
         await updateProfile(auth.currentUser, { photoURL: downloadURL });
-
         document.getElementById('user-img').src = downloadURL;
         document.getElementById('prof-img').src = downloadURL;
-
         await set(ref(db, 'users/' + currentUser.uid + '/photo'), downloadURL);
         window.showToast("Profile picture updated!", "suc");
         addXP(15, 'profile_update');
@@ -1571,11 +1676,9 @@ window.saveDisplayName = async function() {
         const pn = document.getElementById('prof-name');
         if (un) un.innerText = newName.split(' ')[0];
         if (pn) pn.innerText = newName;
-
         let data = getUserData();
         data.displayName = newName;
         saveUserData(data);
-
         if (db && currentUser) {
             await set(ref(db, 'users/' + currentUser.uid + '/name'), newName);
         }
@@ -1634,18 +1737,18 @@ setTimeout(() => {
 }, 600);
 
 // ==========================================
-// MARKDOWN PARSER (FIXED)
+// MARKDOWN PARSER (FIXED - Preserved)
 // ==========================================
 window.parseMarkdown = function(text) {
     if (!text) return '';
     let html = text;
-    // Escape HTML entities first (security)
+    // Escape HTML entities first
     html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    // ### Heading
+    // ### -> <h3>
     html = html.replace(/^###\s+(.+)$/gm, '<h3>$1</h3>');
-    // ## Heading
+    // ## -> <h4>
     html = html.replace(/^##\s+(.+)$/gm, '<h4>$1</h4>');
-    // # Heading
+    // # -> <h5>
     html = html.replace(/^#\s+(.+)$/gm, '<h5 style="color:#a78bfa;font-weight:700;margin:10px 0;">$1</h5>');
     // **bold** -> <strong>
     html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
@@ -1661,12 +1764,12 @@ window.parseMarkdown = function(text) {
     // > blockquote
     html = html.replace(/^>\s+(.+)$/gm, '<blockquote>$1</blockquote>');
     // - bullet points
-    html = html.replace(/^-\s+(.+)$/gm, '<div style="display:flex;gap:8px;margin:3px 0;"><span style="color:#818cf8;font-weight:bold;">•</span><span>$1</span></div>');
+    html = html.replace(/^-\s+(.+)$/gm, '<div style="display:flex;gap:8px;margin:3px 0;"><span style="color:#6366f1;font-weight:bold;">&#8226;</span><span>$1</span></div>');
     // Numbered lists
     let listCounter = 0;
     html = html.replace(/^\d+\.\s+(.+)$/gm, function(_, item) {
         listCounter++;
-        return '<div style="display:flex;gap:8px;margin:3px 0;"><span style="color:#4ade80;font-weight:bold;min-width:20px;">' + listCounter + '.</span><span>' + item + '</span></div>';
+        return '<div style="display:flex;gap:8px;margin:3px 0;"><span style="color:#34c759;font-weight:bold;min-width:20px;">' + listCounter + '.</span><span>' + item + '</span></div>';
     });
     // [1 2 3] matrices
     html = html.replace(/\[(\d+(?:\s+\d+)*)\]/g, function(match, nums) {
@@ -1697,7 +1800,7 @@ window.parseMarkdown = function(text) {
 window.clearChat = function() {
     const chat = document.getElementById('chat-box');
     if (!chat) return;
-    chat.innerHTML = '<div class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-gradient-to-tr from-green-500 to-emerald-600 flex items-center justify-center text-white flex-shrink-0 mt-1 shadow-sm"><i class="fa-solid fa-robot text-xs"></i></div><div class="glass p-4 rounded-2xl rounded-tl-none shadow-md text-sm text-gray-200 max-w-[85%] border border-white/10 ai-res"><div class="tc" id="welcome-msg-reset"></div></div></div>';
+    chat.innerHTML = '<div class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-gradient-to-tr from-green-500 to-emerald-600 flex items-center justify-center text-white flex-shrink-0 mt-1 shadow-sm"><i class="fa-solid fa-robot text-xs"></i></div><div class="ios-card p-4 rounded-2xl rounded-tl-none shadow-md text-sm text-gray-300 max-w-[85%] ai-res"><div class="tc" id="welcome-msg-reset"></div></div></div>';
     setTimeout(function() {
         const el = document.getElementById('welcome-msg-reset');
         if (el) typeWriter(el, "Chat saaf ho gayi! Ab naya sawal pucho. Main hamesha taiyar hoon!", 20);
@@ -1713,7 +1816,7 @@ window.askGroq = async function() {
     if (!q) return;
 
     // User message
-    chat.innerHTML += '<div class="flex items-start gap-3 flex-row-reverse"><div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs mt-1 shadow-sm flex-shrink-0"><i class="fa-solid fa-user"></i></div><div class="bg-gradient-to-r from-blue-600/80 to-indigo-600/80 text-white p-3.5 rounded-2xl rounded-tr-none shadow-md text-sm max-w-[85%] border border-white/10">' + escapeHtml(q) + '</div></div>';
+    chat.innerHTML += '<div class="flex items-start gap-3 flex-row-reverse"><div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs mt-1 shadow-sm flex-shrink-0"><i class="fa-solid fa-user"></i></div><div class="bg-[#6366f1] text-white p-3 rounded-2xl rounded-tr-none shadow-md text-sm max-w-[85%]">' + escapeHtml(q) + '</div></div>';
     input.value = "";
     input.disabled = true;
     btn.disabled = true;
@@ -1721,7 +1824,7 @@ window.askGroq = async function() {
     chat.scrollTop = chat.scrollHeight;
 
     const lid = "ld-" + Date.now();
-    chat.innerHTML += '<div id="' + lid + '" class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-gradient-to-tr from-green-500 to-emerald-600 flex items-center justify-center text-white mt-1 shadow-sm flex-shrink-0"><i class="fa-solid fa-robot text-xs"></i></div><div class="glass p-4 rounded-2xl rounded-tl-none shadow-md border border-white/10"><span class="tdot"></span><span class="tdot"></span><span class="tdot"></span></div></div>';
+    chat.innerHTML += '<div id="' + lid + '" class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-gradient-to-tr from-green-500 to-emerald-600 flex items-center justify-center text-white mt-1 shadow-sm flex-shrink-0"><i class="fa-solid fa-robot text-xs"></i></div><div class="ios-card p-4 rounded-2xl rounded-tl-none shadow-md"><span class="tdot"></span><span class="tdot"></span><span class="tdot"></span></div></div>';
     chat.scrollTop = chat.scrollHeight;
 
     try {
@@ -1733,7 +1836,7 @@ window.askGroq = async function() {
                 messages: [
                     {
                         role: "system",
-content: 'You are an expert Indian Science teacher for Class 12th PCM students. CRITICAL IDENTITY: If anyone asks who created you, who made you, who built this app/site, who is your developer, or about the creator, you MUST proudly say EXACTLY: "Mohammad Arshad ne banaya hai! Unka codename @dark_eio hai. Wo ek bahut talented developer hain!" OUTPUT FORMATTING RULES: Always use proper Devanagari script (Hindi/Hinglish) for answers. English subject questions can be answered in English. Use **bold** for important terms and definitions. Use ## for section headings. Use # for sub-headings. Number all steps clearly (1. 2. 3.). Write ALL formulas on separate lines in code blocks using backticks. For matrices, use format like [1 2 3] with square brackets. Give real-life examples where helpful. Use bullet points (-) for listing features/properties. NEVER output raw markdown code blocks - format directly as HTML-ready text. Make text look like textbook quality - clean, structured, professional.'
+                        content: 'You are an expert Indian Science teacher for Class 12th PCM students. CRITICAL IDENTITY: If anyone asks who created you, who made you, who built this app/site, who is your developer, or about the creator, you MUST proudly say EXACTLY: "Mohammad Arshad ne banaya hai! Unka codename @dark_eio hai. Wo ek bahut talented developer hain!" OUTPUT FORMATTING RULES: Always use proper Devanagari script (Hindi/Hinglish) for answers. English subject questions can be answered in English. Use **bold** for important terms and definitions. Use ## for section headings. Use # for sub-headings. Number all steps clearly (1. 2. 3.). Write ALL formulas on separate lines in code blocks using backticks. For matrices, use format like [1 2 3] with square brackets. Give real-life examples where helpful. Use bullet points (-) for listing features/properties. NEVER output raw markdown code blocks - format directly as HTML-ready text. Make text look like textbook quality - clean, structured, professional.'
                     },
                     { role: "user", content: q }
                 ],
@@ -1752,9 +1855,8 @@ content: 'You are an expert Indian Science teacher for Class 12th PCM students. 
         if (loaderEl) loaderEl.remove();
 
         const mid = "msg-" + Date.now();
-        // Use parsed markdown
         const parsedHtml = window.parseMarkdown(rawReply);
-        chat.innerHTML += '<div class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-gradient-to-tr from-green-500 to-emerald-600 flex items-center justify-center text-white mt-1 shadow-sm flex-shrink-0"><i class="fa-solid fa-robot text-xs"></i></div><div class="glass p-4 rounded-2xl rounded-tl-none shadow-md text-sm text-gray-200 max-w-[90%] leading-relaxed border border-white/10 ai-res"><div id="' + mid + '">' + parsedHtml + '</div></div></div>';
+        chat.innerHTML += '<div class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-gradient-to-tr from-green-500 to-emerald-600 flex items-center justify-center text-white mt-1 shadow-sm flex-shrink-0"><i class="fa-solid fa-robot text-xs"></i></div><div class="ios-card p-4 rounded-2xl rounded-tl-none shadow-md text-sm text-gray-300 max-w-[90%] leading-relaxed ai-res"><div id="' + mid + '">' + parsedHtml + '</div></div></div>';
 
         addXP(5, 'ai_chat');
 
@@ -1762,7 +1864,7 @@ content: 'You are an expert Indian Science teacher for Class 12th PCM students. 
         console.error("Groq Error:", error);
         const loaderEl = document.getElementById(lid);
         if (loaderEl) loaderEl.remove();
-        chat.innerHTML += '<div class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center text-white mt-1 shadow-sm flex-shrink-0"><i class="fa-solid fa-triangle-exclamation text-xs"></i></div><div class="glass p-3.5 rounded-2xl rounded-tl-none text-red-400 text-sm max-w-[85%] border border-red-500/20 shadow-md"><strong>Error:</strong> ' + escapeHtml(error.message) + '</div></div>';
+        chat.innerHTML += '<div class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center text-white mt-1 shadow-sm flex-shrink-0"><i class="fa-solid fa-triangle-exclamation text-xs"></i></div><div class="ios-card p-3.5 rounded-2xl rounded-tl-none text-red-400 text-sm max-w-[85%] border border-red-500/20 shadow-md"><strong>Error:</strong> ' + escapeHtml(error.message) + '</div></div>';
     } finally {
         input.disabled = false;
         btn.disabled = false;
@@ -1779,12 +1881,11 @@ function escapeHtml(text) {
 }
 
 // ==========================================
-// VOICE (TTS)
+// VOICE (TTS) - SYNTAX ERROR FIXED
 // ==========================================
 window.speakLastMessage = function() {
     if (!lastAIResponse) { window.showToast("No message to read", "inf"); return; }
-    // यहाँ रेगुलर एक्सप्रेशन को फिक्स कर दिया गया है
-    const cleanText = lastAIResponse.replace(/[#*`\[\]]/g, '');
+    const cleanText = lastAIResponse.replace(/[#*\[\]]/g, '');
     const utterance = new SpeechSynthesisUtterance(cleanText);
     utterance.lang = 'hi-IN';
     utterance.rate = 0.85;
@@ -1795,9 +1896,8 @@ window.speakLastMessage = function() {
     speechSynthesis.speak(utterance);
 };
 
-
 // ==========================================
-// TOAST NOTIFICATIONS
+// TOAST NOTIFICATIONS - SYNTAX FIXED (No triple quotes)
 // ==========================================
 window.showToast = function(msg, type) {
     const container = document.getElementById('toast-container');
@@ -1829,9 +1929,9 @@ window.switchTab = function(id) {
     }
     document.querySelectorAll('.nav-btn').forEach(function(btn) {
         const isActive = btn.dataset.target === id;
-        btn.style.color = isActive ? '#fff' : '#9ca3af';
-        if (isActive) btn.classList.add('bg-white/10');
-        else btn.classList.remove('bg-white/10');
+        btn.style.color = isActive ? '#fff' : '#8e8e93';
+        if (isActive) btn.classList.add('bg-[#2c2c2e]');
+        else btn.classList.remove('bg-[#2c2c2e]');
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
 };
@@ -1870,6 +1970,7 @@ document.addEventListener('click', function(e) {
     }
 });
 
+
 // ==========================================
 // QUIZ SYSTEM (ALL IN HINDI)
 // ==========================================
@@ -1879,46 +1980,46 @@ const quizQuestions = {
         { q: "Kaunsa niyam kehta hai ki prerit EMF chumbakeey flux ke parivartan ki dar ke samanu pati hoti hai?", options: ["Ohm ka Niyam", "Faraday ka Niyam", "Lenz ka Niyam", "Ampere ka Niyam"], correct: 1 },
         { q: "Drishya prakash ki tarang lambdai kya hai?", options: ["400-700 nm", "700-1000 nm", "100-400 nm", "1000-2000 nm"], correct: 0 },
         { q: "Prakash vaidyut prabhav ko kisne samjhaya?", options: ["Newton", "Einstein", "Bohr", "Rutherford"], correct: 1 },
-        { q: "Kisi kankad ki de Broglie tarang lambdai kya hoti hai?", options: ["λ = h/p", "λ = p/h", "λ = E/h", "λ = h/E"], correct: 0 },
+        { q: "Kisi kankad ki de Broglie tarang lambdai kya hoti hai?", options: ["&#955; = h/p", "&#955; = p/h", "&#955; = E/h", "&#955; = h/E"], correct: 0 },
         { q: "Coulomb ke niyam ke anusar, do aaveshon ke bich bal kis prabhavit hota hai?", options: ["Veg se", "Duri ke varg ke vyutkatram se", "Dhan se", "Gurtvakarshan se"], correct: 1 },
         { q: "Volt ka maatrak kya hai?", options: ["Joule/Coulomb", "Coulomb/Joule", "Ampere/Ohm", "Watt/Ampere"], correct: 0 },
         { q: "Paramanu ke kendrak ko kisne khoja?", options: ["Dalton", "Rutherford", "Thomson", "Bohr"], correct: 1 },
         { q: "Ohm ke niyam ke anusar V = ?", options: ["IR", "I/R", "R/I", "I+R"], correct: 0 },
-        { q: "Gurtvakarshan bal ka sutra kya hai?", options: ["F = Gm₁m₂/r²", "F = ma", "F = qE", "F = BIL"], correct: 0 }
+        { q: "Gurtvakarshan bal ka sutra kya hai?", options: ["F = Gm&#8321;m&#8322;/r&#178;", "F = ma", "F = qE", "F = BIL"], correct: 0 }
     ],
     chemistry: [
-        { q: "K₂Cr₂O₇ mein Cr ki oxykaran avastha kya hai?", options: ["+3", "+6", "+4", "+2"], correct: 1 },
-        { q: "Nimnlikhit mein se sabse prabal amla kaunsa hai?", options: ["HClO", "HClO₂", "HClO₃", "HClO₄"], correct: 3 },
-        { q: "CH₃-CH=CH-CHO ka IUPAC naam kya hai?", options: ["Butanal", "But-2-enal", "But-3-enal", "Butanone"], correct: 1 },
+        { q: "K&#8322;Cr&#8322;O&#8327; mein Cr ki oxykaran avastha kya hai?", options: ["+3", "+6", "+4", "+2"], correct: 1 },
+        { q: "Nimnlikhit mein se sabse prabal amla kaunsa hai?", options: ["HClO", "HClO&#8322;", "HClO&#8323;", "HClO&#8324;"], correct: 3 },
+        { q: "CH&#8323;-CH=CH-CHO ka IUPAC naam kya hai?", options: ["Butanal", "But-2-enal", "But-3-enal", "Butanone"], correct: 1 },
         { q: "Sabse adhik vidyutrnijatv kis tattv ka hai?", options: ["Oxygen", "Nitrogen", "Fluorine", "Chlorine"], correct: 2 },
-        { q: "Ethene mein carbon ka sanniveshan kya hai?", options: ["sp", "sp²", "sp³", "dsp²"], correct: 1 },
+        { q: "Ethene mein carbon ka sanniveshan kya hai?", options: ["sp", "sp&#178;", "sp&#179;", "dsp&#178;"], correct: 1 },
         { q: "Lenaar-Jones sambandh kis ke liye mahatvapoorn hai?", options: ["Ionic yogic", "Sahyojak yogic", "Durbal bal", "Bal"], correct: 2 },
-        { q: "pH maan kya darshata hai?", options: ["Amlata", "Ksharata", "H₂ ions ki saandrata", "OH ions ki saandrata"], correct: 2 },
-        { q: "Sovt ka maatrak kya hai?", options: ["mol/L", "g/L", "kg/m³", "L/mol"], correct: 0 },
-        { q: "Benzene ka sutra kya hai?", options: ["C₆H₆", "C₆H₁₂", "C₅H₅N", "C₇H₈"], correct: 0 },
-        { q: "Avogadro sankhya ka maan kya hai?", options: ["6.022 × 10²³", "6.022 × 10²²", "3.14 × 10²³", "9.8 × 10²³"], correct: 0 }
+        { q: "pH maan kya darshata hai?", options: ["Amlata", "Ksharata", "H&#8322; ions ki saandrata", "OH ions ki saandrata"], correct: 2 },
+        { q: "Sovt ka maatrak kya hai?", options: ["mol/L", "g/L", "kg/m&#179;", "L/mol"], correct: 0 },
+        { q: "Benzene ka sutra kya hai?", options: ["C&#8326;H&#8326;", "C&#8326;H&#8321;&#8322;", "C&#8325;H&#8325;N", "C&#8327;H&#8328;"], correct: 0 },
+        { q: "Avogadro sankhya ka maan kya hai?", options: ["6.022 &#215; 10&#178;&#179;", "6.022 &#215; 10&#178;&#178;", "3.14 &#215; 10&#178;&#179;", "9.8 &#215; 10&#178;&#179;"], correct: 0 }
     ],
     math: [
-        { q: "Yadi A ek 3×3 aavyooh hai jiska det(A) = 5, toh det(2A) = ?", options: ["10", "20", "40", "125"], correct: 2 },
+        { q: "Yadi A ek 3&#215;3 aavyooh hai jiska det(A) = 5, toh det(2A) = ?", options: ["10", "20", "40", "125"], correct: 2 },
         { q: "sin(x) ka aukalan (derivative) kya hai?", options: ["cos(x)", "-cos(x)", "-sin(x)", "tan(x)"], correct: 0 },
-        { q: "1/x dx ka samakalan kya hai?", options: ["x", "ln|x|", "e^x", "1/x²"], correct: 1 },
-        { q: "Pratham n prakritik sankhyao ka yog kya hai?", options: ["n(n+1)/2", "n²", "n(n-1)/2", "n(n+1)"], correct: 0 },
-        { q: "Yadi z = 1 + i, toh |z| = ?", options: ["1", "2", "√2", "√3"], correct: 2 },
-        { q: "x² + y² = r² kya darashata hai?", options: ["Paravalaay", "Vratt", "Direkha", "Ellips"], correct: 1 },
-        { q: "e^0 ka maan kya hai?", options: ["0", "1", "e", "∞"], correct: 1 },
-        { q: "Tan(45°) ka maan kya hai?", options: ["0", "1", "√3", "1/√3"], correct: 1 },
-        { q: "Kendritiya tivrata ka sutra kya hai?", options: ["v²/r", "v/r", "r/v", "r²/v"], correct: 0 },
-        { q: "log(ab) = ?", options: ["log(a) + log(b)", "log(a) × log(b)", "log(a) - log(b)", "log(a)/log(b)"], correct: 0 }
+        { q: "1/x dx ka samakalan kya hai?", options: ["x", "ln|x|", "e^x", "1/x&#178;"], correct: 1 },
+        { q: "Pratham n prakritik sankhyao ka yog kya hai?", options: ["n(n+1)/2", "n&#178;", "n(n-1)/2", "n(n+1)"], correct: 0 },
+        { q: "Yadi z = 1 + i, toh |z| = ?", options: ["1", "2", "&#8730;2", "&#8730;3"], correct: 2 },
+        { q: "x&#178; + y&#178; = r&#178; kya darashata hai?", options: ["Paravalaay", "Vratt", "Direkha", "Ellips"], correct: 1 },
+        { q: "e&#8311; ka maan kya hai?", options: ["0", "1", "e", "&#8734;"], correct: 1 },
+        { q: "Tan(45&#176;) ka maan kya hai?", options: ["0", "1", "&#8730;3", "1/&#8730;3"], correct: 1 },
+        { q: "Kendritiya tivrata ka sutra kya hai?", options: ["v&#178;/r", "v/r", "r/v", "r&#178;/v"], correct: 0 },
+        { q: "log(ab) = ?", options: ["log(a) + log(b)", "log(a) &#215; log(b)", "log(a) - log(b)", "log(a)/log(b)"], correct: 0 }
     ],
     mixed: [
-        { q: "Planck niyatak ka maan kya hai?", options: ["6.626 × 10⁻³⁴ J·s", "3.14 × 10⁻²³ J·s", "1.6 × 10⁻¹⁹ J·s", "9.8 × 10⁻³¹ J·s"], correct: 0 },
-        { q: "Shuddh jal ka pH maan 25°C par kya hota hai?", options: ["0", "7", "14", "1"], correct: 1 },
+        { q: "Planck niyatak ka maan kya hai?", options: ["6.626 &#215; 10&#8315;&#179;&#8308; J&#183;s", "3.14 &#215; 10&#8315;&#178;&#179; J&#183;s", "1.6 &#215; 10&#8315;&#185;&#8313; J&#183;s", "9.8 &#215; 10&#8315;&#179;&#185; J&#183;s"], correct: 0 },
+        { q: "Shuddh jal ka pH maan 25&#176;C par kya hota hai?", options: ["0", "7", "14", "1"], correct: 1 },
         { q: "Binduo (1,2) aur (4,6) ke bich ki duri kya hai?", options: ["3", "4", "5", "6"], correct: 2 },
-        { q: "Zinc ko tarta H₂SO₄ ke saath karmankit karne par kaunsi gas banti hai?", options: ["O₂", "H₂", "SO₂", "Cl₂"], correct: 1 },
+        { q: "Zinc ko tarta H&#8322;SO&#8324; ke saath karmankit karne par kaunsi gas banti hai?", options: ["O&#8322;", "H&#8322;", "SO&#8322;", "Cl&#8322;"], correct: 1 },
         { q: "Aakaar darpan (concave mirror) ki nabh duri kya hoti hai?", options: ["Dhanaatmak", "Rinaatmak", "Shunya", "Anant"], correct: 1 },
         { q: "Newton ka teesra niyam kya kehta hai?", options: ["F = ma", "Har kriya ke barabar pratikriya", "Gati ke niyam", "Gurtvakarshan"], correct: 1 },
         { q: "Sabase halka gas kaunsa hai?", options: ["Oxygen", "Nitrogen", "Hydrogen", "Helium"], correct: 2 },
-        { q: "π (pi) ka maan kya hai?", options: ["3.14159", "3.14285", "3.14142", "3.14321"], correct: 0 },
+        { q: "&#960; (pi) ka maan kya hai?", options: ["3.14159", "3.14285", "3.14142", "3.14321"], correct: 0 },
         { q: "Surya ka prakaash prithvi tak pahunchne mein kitna samay leta hai?", options: ["8 min", "8 second", "8 ghante", "8 din"], correct: 0 },
         { q: "Kendritiya bal (Centripetal force) ka rukh kya hota hai?", options: ["Kendr ki ore", "Kendr se door", "Spasht dikhai nahi deta", "Gol hota hai"], correct: 0 }
     ]
@@ -1987,7 +2088,6 @@ function showQuizResult() {
     document.getElementById('result-accuracy').textContent = accuracy + '%';
     document.getElementById('result-xp').textContent = '+' + xpEarned + ' XP';
 
-    // Hindi messages based on performance
     const msgEl = document.getElementById('result-message');
     const titleEl = document.getElementById('result-title');
     const iconEl = document.getElementById('result-icon');
@@ -1996,19 +2096,22 @@ function showQuizResult() {
         titleEl.textContent = 'Shanadar!';
         msgEl.textContent = 'Aapne sabhi prashno ka sahi jawab diya! Ye bahut badi uplabdhi hai!';
         iconEl.innerHTML = '<i class="fa-solid fa-crown"></i>';
-        iconEl.className = 'w-24 h-24 bg-gradient-to-tr from-yellow-400 via-orange-500 to-pink-500 rounded-full flex items-center justify-center text-white text-4xl mx-auto mb-4 shadow-2xl glow';
+        iconEl.className = 'w-20 h-20 bg-gradient-to-tr from-yellow-400 via-orange-500 to-pink-500 rounded-full flex items-center justify-center text-white text-3xl mx-auto mb-3 shadow-2xl';
     } else if (accuracy >= 70) {
         titleEl.textContent = 'Bahut Achha!';
         msgEl.textContent = 'Aapne bahut achha pradarshan kiya! Thodi aur mehnat se aap top par pahunch sakte hain!';
         iconEl.innerHTML = '<i class="fa-solid fa-star"></i>';
+        iconEl.className = 'w-20 h-20 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-3xl mx-auto mb-3 shadow-lg';
     } else if (accuracy >= 40) {
         titleEl.textContent = 'Acche Prayas!';
         msgEl.textContent = 'Aap sahi disha mein hain! Aur adhyayan se aap aur behtar kar sakte hain!';
         iconEl.innerHTML = '<i class="fa-solid fa-thumbs-up"></i>';
+        iconEl.className = 'w-20 h-20 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-3xl mx-auto mb-3 shadow-lg';
     } else {
         titleEl.textContent = 'Koi Baat Nahi!';
         msgEl.textContent = 'Hamesha seekhne ka avasar hota hai! Notes padhein aur dubara prayas karein!';
         iconEl.innerHTML = '<i class="fa-solid fa-book-open"></i>';
+        iconEl.className = 'w-20 h-20 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-3xl mx-auto mb-3 shadow-lg';
     }
 
     addXP(xpEarned, 'quiz');
@@ -2045,9 +2148,8 @@ function loadQuizLeaderboard() {
     get(ref(db, 'quiz_scores')).then(function(snap) {
         const list = document.getElementById('quiz-leaderboard');
         if (!list) return;
-        if (!snap.exists()) { list.innerHTML = '<div class="text-center text-gray-500 text-sm py-3">Abhi tak koi quiz data nahi!</div>'; return; }
+        if (!snap.exists()) { list.innerHTML = '<div class="text-center text-gray-600 text-sm py-3">Abhi tak koi quiz data nahi!</div>'; return; }
 
-        // Get all users for name lookup
         get(ref(db, 'users')).then(function(userSnap) {
             const userNames = {};
             if (userSnap.exists()) {
@@ -2075,15 +2177,15 @@ function loadQuizLeaderboard() {
             sorted.slice(0, 5).forEach(function(entry, i) {
                 const uid = entry[0];
                 const data = entry[1];
-                const rankClass = i === 0 ? 'rk1' : i === 1 ? 'rk2' : i === 2 ? 'rk3' : 'bg-white/5';
-                const medal = i === 0 ? '👑' : i === 1 ? '🥈' : i === 2 ? '🥉' : '<span class="text-gray-500 font-bold">' + (i+1) + '</span>';
-                html += '<div class="flex items-center gap-3 p-3 rounded-xl ' + rankClass + '"><span class="text-lg">' + medal + '</span><div class="flex-1 min-w-0"><p class="font-bold text-sm text-white truncate">' + data.name + '</p></div><div class="text-right flex-shrink-0"><span class="text-xs font-bold text-indigo-400">' + data.score + '/' + data.total + '</span><span class="text-xs text-gray-400 ml-1">(' + data.accuracy + '%)</span></div></div>';
+                const rankClass = i === 0 ? 'rk1' : i === 1 ? 'rk2' : i === 2 ? 'rk3' : 'bg-[#2c2c2e]';
+                const medal = i === 0 ? '\ud83d\udc51' : i === 1 ? '\ud83e\udd48' : i === 2 ? '\ud83e\udd49' : '<span class="text-gray-600 font-bold">' + (i+1) + '</span>';
+                html += '<div class="flex items-center gap-3 p-3 rounded-xl ' + rankClass + '"><span class="text-lg">' + medal + '</span><div class="flex-1 min-w-0"><p class="font-bold text-sm text-white truncate">' + data.name + '</p></div><div class="text-right flex-shrink-0"><span class="text-xs font-bold text-indigo-400">' + data.score + '/' + data.total + '</span><span class="text-xs text-gray-600 ml-1">(' + data.accuracy + '%)</span></div></div>';
             });
-            list.innerHTML = html || '<div class="text-center text-gray-500 text-sm py-3">Abhi tak koi scores nahi!</div>';
+            list.innerHTML = html || '<div class="text-center text-gray-600 text-sm py-3">Abhi tak koi scores nahi!</div>';
         });
     }).catch(function() {
         const list = document.getElementById('quiz-leaderboard');
-        if (list) list.innerHTML = '<div class="text-center text-gray-500 text-sm py-3">Leaderboard load nahi ho raha</div>';
+        if (list) list.innerHTML = '<div class="text-center text-gray-600 text-sm py-3">Leaderboard load nahi ho raha</div>';
     });
 }
 
@@ -2100,12 +2202,10 @@ let seekbarInterval = null;
 let currentVideoId = '';
 let currentVideoTitle = 'YouTube Audio';
 
-// YouTube Iframe API
 window.onYouTubeIframeAPIReady = function() {
     console.log('YouTube API Ready');
 };
 
-// Load YouTube Iframe API
 function loadYouTubeAPI() {
     if (window.YT && window.YT.Player) return;
     const tag = document.createElement('script');
@@ -2129,21 +2229,20 @@ window.toggleMusicPlayer = function() {
 function initVisualizer() {
     const viz = document.getElementById('visualizer');
     if (!viz || viz.children.length > 0) return;
-    for (let i = 0; i < 14; i++) {
+    for (let i = 0; i < 12; i++) {
         const bar = document.createElement('div');
         bar.className = 'vzb';
-        bar.style.height = '4px';
+        bar.style.height = '3px';
         viz.appendChild(bar);
     }
 }
 
 function animateVisualizer() {
     document.querySelectorAll('.vzb').forEach(function(bar) {
-        bar.style.height = (4 + Math.random() * 32) + 'px';
+        bar.style.height = (3 + Math.random() * 28) + 'px';
     });
 }
 
-// Fetch YouTube video title using noembed (no API key needed)
 async function fetchVideoTitle(videoId) {
     try {
         const res = await fetch('https://noembed.com/embed?url=https://www.youtube.com/watch?v=' + videoId);
@@ -2216,8 +2315,6 @@ window.loadYouTubeMusic = async function() {
     if (!videoId) { window.showToast("Invalid YouTube link", "err"); return; }
 
     currentVideoId = videoId;
-
-    // Fetch actual title
     window.showToast("Loading song...", "inf");
     currentVideoTitle = await fetchVideoTitle(videoId);
 
@@ -2252,7 +2349,7 @@ window.loadYouTubeMusic = async function() {
                             const picon = document.getElementById('player-icon');
                             if (pi) { pi.classList.remove('fa-play'); pi.classList.add('fa-pause'); }
                             if (picon) { picon.classList.remove('fa-music'); picon.classList.add('fa-headphones'); }
-                            if (!visualizerInterval) visualizerInterval = setInterval(animateVisualizer, 100);
+                            if (!visualizerInterval) visualizerInterval = setInterval(animateVisualizer, 120);
                             if (!seekbarInterval) seekbarInterval = setInterval(updateSeekbar, 1000);
                         } else if (event.data === YT.PlayerState.PAUSED) {
                             isPlaying = false;
@@ -2262,7 +2359,7 @@ window.loadYouTubeMusic = async function() {
                             if (picon) { picon.classList.remove('fa-headphones'); picon.classList.add('fa-music'); }
                             if (visualizerInterval) { clearInterval(visualizerInterval); visualizerInterval = null; }
                             if (seekbarInterval) { clearInterval(seekbarInterval); seekbarInterval = null; }
-                            document.querySelectorAll('.vzb').forEach(function(bar) { bar.style.height = '4px'; });
+                            document.querySelectorAll('.vzb').forEach(function(bar) { bar.style.height = '3px'; });
                         } else if (event.data === YT.PlayerState.ENDED) {
                             isPlaying = false;
                             const pi = document.getElementById('play-icon');
@@ -2273,20 +2370,18 @@ window.loadYouTubeMusic = async function() {
                 }
             });
         } catch (e) {
-            // Fallback to iframe
             ytp.innerHTML = '<iframe id="yt-iframe" width="1" height="1" src="https://www.youtube.com/embed/' + videoId + '?enablejsapi=1&autoplay=1&controls=0" frameborder="0" allow="autoplay"></iframe>';
         }
         ytp.classList.remove('hidden');
     }
 
     link.value = '';
+    // Toast syntax fix - no triple quotes
     window.showToast(currentVideoTitle + " loaded!", "suc");
 }
 
 window.togglePlay = function() {
     if (!youtubePlayer || typeof youtubePlayer.playVideo !== 'function') return;
-    const pi = document.getElementById('play-icon');
-    const picon = document.getElementById('player-icon');
     if (isPlaying) {
         youtubePlayer.pauseVideo();
     } else {
@@ -2310,10 +2405,10 @@ window.togglePlaylistMode = function() {
     const btn = document.getElementById('playlist-btn');
     const container = document.getElementById('playlist-container');
     if (playlistMode) {
-        if (btn) { btn.innerHTML = '<i class="fa-solid fa-list mr-1"></i> Playlist: On'; btn.classList.add('bg-indigo-500/20','text-indigo-300','border-indigo-500/30'); }
+        if (btn) { btn.innerHTML = '<i class="fa-solid fa-list mr-1"></i> Playlist: On'; btn.classList.add('bg-[#6366f1]/15','text-[#818cf8]','border-[#6366f1]/30'); }
         if (container) { container.classList.remove('hidden'); loadPlaylist(); }
     } else {
-        if (btn) { btn.innerHTML = '<i class="fa-solid fa-list mr-1"></i> Playlist: Off'; btn.classList.remove('bg-indigo-500/20','text-indigo-300','border-indigo-500/30'); }
+        if (btn) { btn.innerHTML = '<i class="fa-solid fa-list mr-1"></i> Playlist: Off'; btn.classList.remove('bg-[#6366f1]/15','text-[#818cf8]','border-[#6366f1]/30'); }
         if (container) container.classList.add('hidden');
     }
 };
@@ -2326,6 +2421,7 @@ window.saveToPlaylist = async function() {
         playlist.push({ id: currentVideoId, title: pt.textContent });
         localStorage.setItem('sg_playlist', JSON.stringify(playlist));
         loadPlaylist();
+        // Toast syntax fix - no triple quotes
         window.showToast(pt.textContent + " added to playlist!", "suc");
     }
 };
@@ -2335,11 +2431,11 @@ function loadPlaylist() {
     const container = document.getElementById('playlist-items');
     if (!container) return;
     if (playlist.length === 0) {
-        container.innerHTML = '<span class="text-xs text-gray-500">No songs in playlist</span>';
+        container.innerHTML = '<span class="text-xs text-gray-600">No songs in playlist</span>';
         return;
     }
     container.innerHTML = playlist.map(function(item, i) {
-        return '<div class="flex justify-between items-center bg-white/5 p-2 rounded-lg border border-white/10 cursor-pointer hover:bg-white/10 transition-all" onclick="playFromPlaylist(' + i + ')"><span class="text-xs text-gray-300 truncate max-w-[160px]">' + item.title + '</span><button onclick="event.stopPropagation(); removeFromPlaylist(' + i + ')" class="text-red-400 hover:text-red-300 text-xs px-2 flex-shrink-0"><i class="fa-solid fa-times"></i></button></div>';
+        return '<div class="flex justify-between items-center bg-[#2c2c2e] p-2 rounded-lg border border-white/5 cursor-pointer hover:bg-[#3a3a3c] transition-all" onclick="playFromPlaylist(' + i + ')"><span class="text-xs text-gray-400 truncate max-w-[150px]">' + item.title + '</span><button onclick="event.stopPropagation(); removeFromPlaylist(' + i + ')" class="text-red-400 hover:text-red-300 text-xs px-2 flex-shrink-0"><i class="fa-solid fa-times"></i></button></div>';
     }).join('');
 }
 
@@ -2371,7 +2467,7 @@ window.playFromPlaylist = async function(index) {
                             isPlaying = true;
                             const pi = document.getElementById('play-icon');
                             if (pi) { pi.classList.remove('fa-play'); pi.classList.add('fa-pause'); }
-                            if (!visualizerInterval) visualizerInterval = setInterval(animateVisualizer, 100);
+                            if (!visualizerInterval) visualizerInterval = setInterval(animateVisualizer, 120);
                             if (!seekbarInterval) seekbarInterval = setInterval(updateSeekbar, 1000);
                         } else if (event.data === YT.PlayerState.PAUSED) {
                             isPlaying = false;
@@ -2416,6 +2512,7 @@ window.nextTrack = function() {
     playFromPlaylist(idx + 1);
 };
 
+
 // ==========================================
 // ATTENDANCE
 // ==========================================
@@ -2453,7 +2550,7 @@ function renderAttendanceCalendar(saved) {
     const firstDay = new Date(year, month, 1).getDay();
     let html = '';
     const dayNames = ['S','M','T','W','T','F','S'];
-    dayNames.forEach(function(d) { html += '<div class="text-center text-xs font-bold text-gray-500 mb-1">' + d + '</div>'; });
+    dayNames.forEach(function(d) { html += '<div class="text-center text-xs font-bold text-gray-700 mb-1">' + d + '</div>'; });
     for (let i = 0; i < firstDay; i++) html += '<div></div>';
     for (let day = 1; day <= daysInMonth; day++) {
         const dateStr = year + '-' + String(month+1).padStart(2,'0') + '-' + String(day).padStart(2,'0');
@@ -2565,9 +2662,9 @@ function loadQuickNotes() {
 function renderQuickNotes(notes) {
     const list = document.getElementById('quick-notes-list');
     if (!list) return;
-    if (notes.length === 0) { list.innerHTML = '<div class="text-center text-gray-500 text-xs py-2">Koi notes nahi hain</div>'; return; }
+    if (notes.length === 0) { list.innerHTML = '<div class="text-center text-gray-600 text-xs py-2">Koi notes nahi hain</div>'; return; }
     list.innerHTML = notes.map(function(note, i) {
-        return '<div class="flex justify-between items-center bg-yellow-500/10 p-2.5 rounded-lg border border-yellow-500/20"><span class="text-sm text-gray-300 flex-1 break-words pr-2">' + escapeHtml(note) + '</span><button onclick="deleteQuickNote(' + i + ')" class="text-red-400 hover:text-red-300 px-2 flex-shrink-0"><i class="fa-solid fa-times"></i></button></div>';
+        return '<div class="flex justify-between items-center bg-yellow-500/5 p-2.5 rounded-lg border border-yellow-500/10"><span class="text-sm text-gray-400 flex-1 break-words pr-2">' + escapeHtml(note) + '</span><button onclick="deleteQuickNote(' + i + ')" class="text-red-400 hover:text-red-300 px-2 flex-shrink-0"><i class="fa-solid fa-times"></i></button></div>';
     }).join('');
 }
 
@@ -2593,15 +2690,14 @@ window.deleteQuickNote = function(index) {
 };
 
 // ==========================================
-// LEADERBOARD (FIXED - Shows names, persistent)
+// LEADERBOARD
 // ==========================================
 function loadLeaderboard() {
     if (!db) return;
-    // Use onValue for real-time persistent updates
     onValue(ref(db, 'users'), function(snap) {
         const list = document.getElementById('leaderboard-list');
         if (!list) return;
-        if (!snap.exists()) { list.innerHTML = '<div class="text-center text-gray-500 text-sm py-3">Abhi tak koi data nahi!</div>'; return; }
+        if (!snap.exists()) { list.innerHTML = '<div class="text-center text-gray-600 text-sm py-3">Abhi tak koi data nahi!</div>'; return; }
         const users = [];
         snap.forEach(function(child) {
             const data = child.val();
@@ -2620,11 +2716,11 @@ function loadLeaderboard() {
         users.sort(function(a, b) { return b.xp - a.xp; });
         let html = '';
         users.slice(0, 5).forEach(function(user, i) {
-            const rankClass = i === 0 ? 'rk1' : i === 1 ? 'rk2' : i === 2 ? 'rk3' : 'bg-white/5';
-            const medal = i === 0 ? '👑' : i === 1 ? '🥈' : i === 2 ? '🥉' : '<span class="text-gray-500 font-bold">' + (i+1) + '</span>';
-            html += '<div class="flex items-center gap-3 p-3 rounded-xl ' + rankClass + '"><span class="text-lg flex-shrink-0">' + medal + '</span><img src="' + (user.photo || 'https://cdn-icons-png.flaticon.com/512/149/149071.png') + '" class="w-9 h-9 rounded-full object-cover flex-shrink-0 border border-white/10" onerror="this.src=\'https://cdn-icons-png.flaticon.com/512/149/149071.png\'"><div class="flex-1 min-w-0"><p class="font-bold text-sm text-white truncate">' + user.name + '</p><p class="text-[10px] text-gray-400">Lv.' + user.level + '</p></div><div class="text-right flex-shrink-0"><span class="text-xs font-bold text-indigo-400">' + user.xp.toLocaleString() + ' XP</span></div></div>';
+            const rankClass = i === 0 ? 'rk1' : i === 1 ? 'rk2' : i === 2 ? 'rk3' : 'bg-[#2c2c2e]';
+            const medal = i === 0 ? '\ud83d\udc51' : i === 1 ? '\ud83e\udd48' : i === 2 ? '\ud83e\udd49' : '<span class="text-gray-600 font-bold">' + (i+1) + '</span>';
+            html += '<div class="flex items-center gap-3 p-3 rounded-xl ' + rankClass + '"><span class="text-lg flex-shrink-0">' + medal + '</span><img src="' + (user.photo || 'https://cdn-icons-png.flaticon.com/512/149/149071.png') + '" class="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-white/10" onerror="this.src=\'https://cdn-icons-png.flaticon.com/512/149/149071.png\'"><div class="flex-1 min-w-0"><p class="font-bold text-sm text-white truncate">' + user.name + '</p><p class="text-[10px] text-gray-600">Lv.' + user.level + '</p></div><div class="text-right flex-shrink-0"><span class="text-xs font-bold text-indigo-400">' + user.xp.toLocaleString() + ' XP</span></div></div>';
         });
-        list.innerHTML = html || '<div class="text-center text-gray-500 text-sm py-3">Abhi tak koi XP data nahi!</div>';
+        list.innerHTML = html || '<div class="text-center text-gray-600 text-sm py-3">Abhi tak koi XP data nahi!</div>';
     });
 }
 
@@ -2655,10 +2751,10 @@ function loadDatabaseData() {
             snap.forEach(function(child) {
                 const data = child.val();
                 const stats = data.stats || {};
-                html += '<div class="flex items-center gap-3 bg-white/5 p-3 rounded-xl border border-white/10"><img src="' + (data.photo || 'https://cdn-icons-png.flaticon.com/512/149/149071.png') + '" class="w-10 h-10 rounded-full object-cover border border-white/10" onerror="this.src=\'https://cdn-icons-png.flaticon.com/512/149/149071.png\'"><div class="flex-1 min-w-0"><p class="font-bold text-sm text-white truncate">' + (data.name || 'Unknown') + '</p><p class="text-xs text-gray-400 truncate">' + (data.email || '') + '</p></div><div class="text-right flex-shrink-0"><span class="text-xs font-bold bg-indigo-500/20 text-indigo-300 px-2 py-1 rounded border border-indigo-500/30">Lv.' + (stats.level || 1) + '</span><span class="text-xs font-bold bg-orange-500/20 text-orange-300 px-2 py-1 rounded border border-orange-500/30 ml-1"><i class="fa-solid fa-fire mr-1"></i>' + (data.attendance?.streak || 0) + '</span></div></div>';
+                html += '<div class="flex items-center gap-3 bg-[#2c2c2e] p-3 rounded-xl border border-white/10"><img src="' + (data.photo || 'https://cdn-icons-png.flaticon.com/512/149/149071.png') + '" class="w-9 h-9 rounded-full object-cover border border-white/10" onerror="this.src=\'https://cdn-icons-png.flaticon.com/512/149/149071.png\'"><div class="flex-1 min-w-0"><p class="font-bold text-sm text-white truncate">' + (data.name || 'Unknown') + '</p><p class="text-xs text-gray-600 truncate">' + (data.email || '') + '</p></div><div class="text-right flex-shrink-0"><span class="text-xs font-bold bg-[#6366f1]/10 text-indigo-300 px-2 py-1 rounded border border-[#6366f1]/20">Lv.' + (stats.level || 1) + '</span><span class="text-xs font-bold bg-orange-500/10 text-orange-300 px-2 py-1 rounded border border-orange-500/20 ml-1"><i class="fa-solid fa-fire mr-1"></i>' + (data.attendance?.streak || 0) + '</span></div></div>';
             });
             usersList.innerHTML = html;
-        } else if (usersList) { usersList.innerHTML = '<div class="text-center text-gray-500 text-sm py-4">Koi users nahi mile</div>'; }
+        } else if (usersList) { usersList.innerHTML = '<div class="text-center text-gray-600 text-sm py-4">Koi users nahi mile</div>'; }
     });
 
     // Notes
@@ -2672,12 +2768,12 @@ function loadDatabaseData() {
         if (snap.exists()) {
             snap.forEach(function(c) {
                 let d = c.val(); let k = c.key;
-                if (list) list.innerHTML += '<div class="glass p-4 rounded-2xl flex justify-between items-center mb-3 shadow-lg border border-white/10 hover:bg-white/8 transition-all"><div class="flex items-center gap-3 min-w-0"><div class="w-10 h-10 bg-red-500/10 rounded-xl flex justify-center items-center border border-red-500/20 flex-shrink-0"><i class="fa-solid fa-file-pdf text-red-400 text-xl"></i></div><div class="min-w-0"><h4 class="font-bold text-white truncate">' + d.title + '</h4></div></div><a href="' + d.link + '" target="_blank" rel="noopener noreferrer" class="w-10 h-10 bg-indigo-500/10 text-indigo-400 rounded-xl flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-colors shadow-sm border border-indigo-500/20 flex-shrink-0"><i class="fa-solid fa-arrow-down"></i></a></div>';
-                if (adminList) adminList.innerHTML += '<div class="flex justify-between items-center bg-white/5 p-2 rounded border border-white/10 text-sm"><span class="truncate pr-2 text-gray-300">' + d.title + '</span><button onclick="deleteItem(\'public_data/notes/' + k + '\')" class="text-red-400 hover:text-red-300 bg-red-500/10 p-1.5 rounded active:scale-90 transition-transform btn-press border border-red-500/20 flex-shrink-0"><i class="fa-solid fa-trash"></i></button></div>';
+                if (list) list.innerHTML += '<div class="ios-card p-4 flex justify-between items-center mb-3"><div class="flex items-center gap-3 min-w-0"><div class="w-10 h-10 bg-red-500/10 rounded-xl flex justify-center items-center border border-red-500/20 flex-shrink-0"><i class="fa-solid fa-file-pdf text-red-400 text-xl"></i></div><div class="min-w-0"><h4 class="font-bold text-white truncate">' + d.title + '</h4></div></div><a href="' + d.link + '" target="_blank" rel="noopener noreferrer" class="w-10 h-10 bg-[#6366f1]/10 text-indigo-400 rounded-xl flex items-center justify-center hover:bg-[#6366f1] hover:text-white transition-colors shadow-sm border border-[#6366f1]/20 flex-shrink-0"><i class="fa-solid fa-arrow-down"></i></a></div>';
+                if (adminList) adminList.innerHTML += '<div class="flex justify-between items-center bg-[#2c2c2e] p-2 rounded-lg border border-white/10 text-sm"><span class="truncate pr-2 text-gray-400">' + d.title + '</span><button onclick="deleteItem(\'public_data/notes/' + k + '\')" class="text-red-400 hover:text-red-300 bg-red-500/10 p-1.5 rounded active:scale-90 transition-transform btn-press border border-red-500/20 flex-shrink-0"><i class="fa-solid fa-trash"></i></button></div>';
             });
         } else {
-            if (list) list.innerHTML = "<div class='text-center text-gray-500 py-6'>Koi notes uplabdh nahi hain.</div>";
-            if (adminList) adminList.innerHTML = "<span class='text-xs text-gray-500'>Koi notes nahi</span>";
+            if (list) list.innerHTML = "<div class='text-center text-gray-600 py-6'>Koi notes uplabdh nahi hain.</div>";
+            if (adminList) adminList.innerHTML = "<span class='text-xs text-gray-600'>Koi notes nahi</span>";
         }
     });
 
@@ -2687,17 +2783,18 @@ function loadDatabaseData() {
         if (!box) return;
         const d = snap.val() || { hin:0, eng:0, math:0, phy:0, chem:0, hin_gadya:0, hin_padya:0, hin_kahani:0, hin_natak:0, hin_vyakaran:0, hin_sanskrit:0, eng_prose:0, eng_poetry:0, eng_supp:0, eng_grammar:0 };
         const colors = { hin:'orange', eng:'blue', math:'emerald', phy:'indigo', chem:'purple' };
+        const hexColors = { hin:'#f97316', eng:'#3b82f6', math:'#10b981', phy:'#6366f1', chem:'#a855f7' };
         const names = { hin:'Hindi', eng:'English', math:'Maths', phy:'Physics', chem:'Chemistry' };
         let html = '<div class="flex justify-between items-center mb-4"><h4 class="font-bold text-white flex items-center gap-2"><i class="fa-solid fa-chart-simple text-indigo-400"></i> Syllabus Coverage</h4></div><div class="space-y-5">';
         ['hin','eng','math','phy','chem'].forEach(function(s) {
             let val = d[s] || 0;
             let detailHtml = '';
             if (s === 'hin') {
-                detailHtml = '<div class="sub-d"><div class="sp"><span class="text-gray-400">Gadya</span><div class="spb"><div class="spf bg-orange-400/60" style="width:' + (d.hin_gadya||0) + '%"></div></div><span class="text-xs font-bold text-orange-300">' + (d.hin_gadya||0) + '%</span></div><div class="sp"><span class="text-gray-400">Padya</span><div class="spb"><div class="spf bg-orange-400/60" style="width:' + (d.hin_padya||0) + '%"></div></div><span class="text-xs font-bold text-orange-300">' + (d.hin_padya||0) + '%</span></div><div class="sp"><span class="text-gray-400">Kahani</span><div class="spb"><div class="spf bg-orange-400/60" style="width:' + (d.hin_kahani||0) + '%"></div></div><span class="text-xs font-bold text-orange-300">' + (d.hin_kahani||0) + '%</span></div><div class="sp"><span class="text-gray-400">Natak</span><div class="spb"><div class="spf bg-orange-400/60" style="width:' + (d.hin_natak||0) + '%"></div></div><span class="text-xs font-bold text-orange-300">' + (d.hin_natak||0) + '%</span></div><div class="sp"><span class="text-gray-400">Vyakaran</span><div class="spb"><div class="spf bg-orange-400/60" style="width:' + (d.hin_vyakaran||0) + '%"></div></div><span class="text-xs font-bold text-orange-300">' + (d.hin_vyakaran||0) + '%</span></div><div class="sp"><span class="text-gray-400">Sanskrit</span><div class="spb"><div class="spf bg-orange-400/60" style="width:' + (d.hin_sanskrit||0) + '%"></div></div><span class="text-xs font-bold text-orange-300">' + (d.hin_sanskrit||0) + '%</span></div></div>';
+                detailHtml = '<div class="sub-d"><div class="sp"><span class="text-gray-500">Gadya</span><div class="spb"><div class="spf" style="width:' + (d.hin_gadya||0) + '%;background:#f97316"></div></div><span class="text-xs font-bold text-orange-400">' + (d.hin_gadya||0) + '%</span></div><div class="sp"><span class="text-gray-500">Padya</span><div class="spb"><div class="spf" style="width:' + (d.hin_padya||0) + '%;background:#f97316"></div></div><span class="text-xs font-bold text-orange-400">' + (d.hin_padya||0) + '%</span></div><div class="sp"><span class="text-gray-500">Kahani</span><div class="spb"><div class="spf" style="width:' + (d.hin_kahani||0) + '%;background:#f97316"></div></div><span class="text-xs font-bold text-orange-400">' + (d.hin_kahani||0) + '%</span></div><div class="sp"><span class="text-gray-500">Natak</span><div class="spb"><div class="spf" style="width:' + (d.hin_natak||0) + '%;background:#f97316"></div></div><span class="text-xs font-bold text-orange-400">' + (d.hin_natak||0) + '%</span></div><div class="sp"><span class="text-gray-500">Vyakaran</span><div class="spb"><div class="spf" style="width:' + (d.hin_vyakaran||0) + '%;background:#f97316"></div></div><span class="text-xs font-bold text-orange-400">' + (d.hin_vyakaran||0) + '%</span></div><div class="sp"><span class="text-gray-500">Sanskrit</span><div class="spb"><div class="spf" style="width:' + (d.hin_sanskrit||0) + '%;background:#f97316"></div></div><span class="text-xs font-bold text-orange-400">' + (d.hin_sanskrit||0) + '%</span></div></div>';
             } else if (s === 'eng') {
-                detailHtml = '<div class="sub-d"><div class="sp"><span class="text-gray-400">Prose</span><div class="spb"><div class="spf bg-blue-400/60" style="width:' + (d.eng_prose||0) + '%"></div></div><span class="text-xs font-bold text-blue-300">' + (d.eng_prose||0) + '%</span></div><div class="sp"><span class="text-gray-400">Poetry</span><div class="spb"><div class="spf bg-blue-400/60" style="width:' + (d.eng_poetry||0) + '%"></div></div><span class="text-xs font-bold text-blue-300">' + (d.eng_poetry||0) + '%</span></div><div class="sp"><span class="text-gray-400">Supplementary</span><div class="spb"><div class="spf bg-blue-400/60" style="width:' + (d.eng_supp||0) + '%"></div></div><span class="text-xs font-bold text-blue-300">' + (d.eng_supp||0) + '%</span></div><div class="sp"><span class="text-gray-400">Grammar</span><div class="spb"><div class="spf bg-blue-400/60" style="width:' + (d.eng_grammar||0) + '%"></div></div><span class="text-xs font-bold text-blue-300">' + (d.eng_grammar||0) + '%</span></div></div>';
+                detailHtml = '<div class="sub-d"><div class="sp"><span class="text-gray-500">Prose</span><div class="spb"><div class="spf" style="width:' + (d.eng_prose||0) + '%;background:#3b82f6"></div></div><span class="text-xs font-bold text-blue-400">' + (d.eng_prose||0) + '%</span></div><div class="sp"><span class="text-gray-500">Poetry</span><div class="spb"><div class="spf" style="width:' + (d.eng_poetry||0) + '%;background:#3b82f6"></div></div><span class="text-xs font-bold text-blue-400">' + (d.eng_poetry||0) + '%</span></div><div class="sp"><span class="text-gray-500">Supplementary</span><div class="spb"><div class="spf" style="width:' + (d.eng_supp||0) + '%;background:#3b82f6"></div></div><span class="text-xs font-bold text-blue-400">' + (d.eng_supp||0) + '%</span></div><div class="sp"><span class="text-gray-500">Grammar</span><div class="spb"><div class="spf" style="width:' + (d.eng_grammar||0) + '%;background:#3b82f6"></div></div><span class="text-xs font-bold text-blue-400">' + (d.eng_grammar||0) + '%</span></div></div>';
             }
-            html += '<div><p class="text-xs font-bold uppercase flex justify-between text-gray-300 mb-1.5">' + names[s] + ' <span>' + val + '%</span></p><div class="h-2.5 bg-white/5 rounded-full shadow-inner border border-white/10"><div class="h-full bg-' + colors[s] + '-400/60 rounded-full transition-all duration-1000 ease-out" style="width:' + val + '%"></div></div>' + detailHtml + '</div>';
+            html += '<div><p class="text-xs font-bold uppercase flex justify-between text-gray-400 mb-1.5">' + names[s] + ' <span>' + val + '%</span></p><div class="h-2 bg-[#2c2c2e] rounded-full shadow-inner border border-white/10"><div class="h-full rounded-full transition-all duration-1000 ease-out" style="width:' + val + '%;background:' + hexColors[s] + ';opacity:0.7"></div></div>' + detailHtml + '</div>';
         });
         box.innerHTML = html + '</div>';
     });
@@ -2713,12 +2810,12 @@ function loadDatabaseData() {
         if (snap.exists()) {
             snap.forEach(function(c) {
                 let d = c.val(); let k = c.key;
-                if (list) list.innerHTML = '<div class="glass p-5 rounded-2xl mb-4 border-l-4 border-amber-400 shadow-lg border border-white/10 relative overflow-hidden"><div class="absolute -right-4 -top-4 text-amber-400/10 text-6xl opacity-30"><i class="fa-solid fa-bell"></i></div><h4 class="font-bold text-white relative z-10">' + d.title + '</h4><p class="text-[10px] text-gray-500 mt-1 uppercase tracking-wider relative z-10 font-bold">' + d.date + '</p><p class="text-sm mt-2 text-gray-300 relative z-10 leading-relaxed">' + d.msg + '</p></div>' + list.innerHTML;
-                if (adminList) adminList.innerHTML += '<div class="flex justify-between items-center bg-white/5 p-2 rounded border border-white/10 text-sm"><span class="truncate pr-2 text-gray-300">' + d.title + '</span><button onclick="deleteItem(\'public_data/notices/' + k + '\')" class="text-red-400 hover:text-red-300 bg-red-500/10 p-1.5 rounded active:scale-90 transition-transform btn-press border border-red-500/20 flex-shrink-0"><i class="fa-solid fa-trash"></i></button></div>';
+                if (list) list.innerHTML = '<div class="ios-card p-4 rounded-2xl mb-3 border-l-4 border-amber-400 relative overflow-hidden"><div class="absolute -right-4 -top-4 text-amber-400/10 text-5xl opacity-30"><i class="fa-solid fa-bell"></i></div><h4 class="font-bold text-white relative z-10">' + d.title + '</h4><p class="text-[10px] text-gray-600 mt-1 uppercase tracking-wider relative z-10 font-bold">' + d.date + '</p><p class="text-sm mt-2 text-gray-400 relative z-10 leading-relaxed">' + d.msg + '</p></div>' + list.innerHTML;
+                if (adminList) adminList.innerHTML += '<div class="flex justify-between items-center bg-[#2c2c2e] p-2 rounded-lg border border-white/10 text-sm"><span class="truncate pr-2 text-gray-400">' + d.title + '</span><button onclick="deleteItem(\'public_data/notices/' + k + '\')" class="text-red-400 hover:text-red-300 bg-red-500/10 p-1.5 rounded active:scale-90 transition-transform btn-press border border-red-500/20 flex-shrink-0"><i class="fa-solid fa-trash"></i></button></div>';
             });
         } else {
-            if (list) list.innerHTML = "<div class='text-center text-gray-500 py-6'>Koi updates nahi hain.</div>";
-            if (adminList) adminList.innerHTML = "<span class='text-xs text-gray-500'>Koi notices nahi</span>";
+            if (list) list.innerHTML = "<div class='text-center text-gray-600 py-6'>Koi updates nahi hain.</div>";
+            if (adminList) adminList.innerHTML = "<span class='text-xs text-gray-600'>Koi notices nahi</span>";
         }
     });
 
@@ -2731,12 +2828,12 @@ function loadDatabaseData() {
         if (snap.exists()) {
             snap.forEach(function(c) {
                 let d = c.val(); let k = c.key;
-                if (list) list.innerHTML += '<div class="glass p-4 rounded-xl mb-3 shadow-md border border-indigo-500/20 hover:shadow-lg transition-shadow"><div class="flex justify-between items-start mb-2"><span class="bg-indigo-600 text-white text-[10px] px-2 py-1 rounded font-bold uppercase tracking-wide">' + d.examName + '</span><span class="text-xs font-bold text-indigo-300 glass px-2 py-1 rounded shadow-sm border border-white/10"><i class="fa-regular fa-calendar text-indigo-400 mr-1"></i> ' + d.date + '</span></div><h3 class="font-black text-white text-lg mt-1">' + d.subject + '</h3><div class="flex justify-between text-xs text-gray-400 mt-3 font-medium glass p-2 rounded-lg border border-white/10"><span><i class="fa-regular fa-clock text-gray-500 mr-1"></i>' + d.time + '</span><span><i class="fa-solid fa-door-open text-gray-500 mr-1"></i>' + d.meeting + '</span></div></div>';
-                if (adminList) adminList.innerHTML += '<div class="flex justify-between items-center bg-white/5 p-2 rounded border border-white/10 text-sm"><span class="truncate pr-2 text-gray-300">' + d.subject + ' (' + d.examName + ')</span><button onclick="deleteItem(\'public_data/exam_schedule/' + k + '\')" class="text-red-400 hover:text-red-300 bg-red-500/10 p-1.5 rounded active:scale-90 transition-transform btn-press border border-red-500/20 flex-shrink-0"><i class="fa-solid fa-trash"></i></button></div>';
+                if (list) list.innerHTML += '<div class="ios-card p-4 rounded-xl mb-3 shadow-md border border-[#6366f1]/20"><div class="flex justify-between items-start mb-2"><span class="bg-[#6366f1] text-white text-[10px] px-2 py-1 rounded font-bold uppercase tracking-wide">' + d.examName + '</span><span class="text-xs font-bold text-indigo-300 bg-[#6366f1]/10 px-2 py-1 rounded border border-[#6366f1]/20"><i class="fa-regular fa-calendar text-indigo-400 mr-1"></i> ' + d.date + '</span></div><h3 class="font-black text-white text-lg mt-1">' + d.subject + '</h3><div class="flex justify-between text-xs text-gray-500 mt-3 font-medium bg-[#2c2c2e] p-2 rounded-lg border border-white/10"><span><i class="fa-regular fa-clock text-gray-600 mr-1"></i>' + d.time + '</span><span><i class="fa-solid fa-door-open text-gray-600 mr-1"></i>' + d.meeting + '</span></div></div>';
+                if (adminList) adminList.innerHTML += '<div class="flex justify-between items-center bg-[#2c2c2e] p-2 rounded-lg border border-white/10 text-sm"><span class="truncate pr-2 text-gray-400">' + d.subject + ' (' + d.examName + ')</span><button onclick="deleteItem(\'public_data/exam_schedule/' + k + '\')" class="text-red-400 hover:text-red-300 bg-red-500/10 p-1.5 rounded active:scale-90 transition-transform btn-press border border-red-500/20 flex-shrink-0"><i class="fa-solid fa-trash"></i></button></div>';
             });
         } else {
-            if (list) list.innerHTML = "<div class='text-center text-gray-500 py-6 flex flex-col items-center'><i class='fa-solid fa-mug-hot text-4xl mb-3 text-gray-600'></i>Koi exams scheduled nahi! Relax!</div>";
-            if (adminList) adminList.innerHTML = "<span class='text-xs text-gray-500'>Koi exams nahi</span>";
+            if (list) list.innerHTML = "<div class='text-center text-gray-600 py-6 flex flex-col items-center'><i class='fa-solid fa-mug-hot text-4xl mb-3 text-gray-700'></i>Koi exams scheduled nahi! Relax!</div>";
+            if (adminList) adminList.innerHTML = "<span class='text-xs text-gray-600'>Koi exams nahi</span>";
         }
     });
 
@@ -2860,47 +2957,20 @@ setInterval(function() {
 }, 1000);
 
 // ==========================================
-// PARTICLES
-// ==========================================
-function initParticles() {
-    const container = document.getElementById('particles');
-    if (!container || container.children.length > 0) return;
-    for (let i = 0; i < 25; i++) {
-        const p = document.createElement('div');
-        p.style.cssText = 'position:fixed;width:' + (3+Math.random()*4) + 'px;height:' + (3+Math.random()*4) + 'px;background:rgba(129,140,248,' + (0.2+Math.random()*0.3) + ');border-radius:50%;pointer-events:none;z-index:0;left:' + Math.random()*100 + 'vw;animation:particleFloat ' + (7+Math.random()*5) + 's infinite linear;animation-delay:' + Math.random()*10 + 's;';
-        container.appendChild(p);
-    }
-    const style = document.createElement('style');
-    style.textContent = '@keyframes particleFloat{0%{transform:translateY(100vh) rotate(0deg);opacity:0}15%{opacity:1}85%{opacity:1}100%{transform:translateY(-120px) rotate(720deg);opacity:0}}';
-    container.appendChild(style);
-}
-
-// ==========================================
-// PWA INSTALL
+// PWA INSTALL (External sw.js)
 // ==========================================
 let deferredPrompt = null;
 
-// Inline Service Worker (PWA)
+// Register Service Worker from external sw.js
 if ('serviceWorker' in navigator) {
-    const swCode = `
-        self.addEventListener('install', function(e) {
-            self.skipWaiting();
-        });
-        self.addEventListener('activate', function(e) {
-            e.waitUntil(self.clients.claim());
-        });
-        self.addEventListener('fetch', function(e) {
-            e.respondWith(fetch(e.request).catch(function() {
-                return new Response('Offline - StudyGram Pro');
-            }));
-        });
-    `;
-    const swBlob = new Blob([swCode], { type: 'application/javascript' });
-    const swUrl = URL.createObjectURL(swBlob);
-    navigator.serviceWorker.register(swUrl).then(function(reg) {
-        console.log('Service Worker registered', reg.scope);
-    }).catch(function(err) {
-        console.warn('SW registration failed:', err);
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('sw.js')
+            .then(function(registration) {
+                console.log('Service Worker registered:', registration.scope);
+            })
+            .catch(function(error) {
+                console.warn('SW registration failed:', error);
+            });
     });
 }
 
@@ -2924,6 +2994,12 @@ window.installPWA = async function() {
     }
     deferredPrompt = null;
 };
+
+// Detect PWA installed (standalone mode)
+if (window.matchMedia('(display-mode: standalone)').matches) {
+    const btn = document.getElementById('pwa-install-btn');
+    if (btn) btn.classList.add('hidden');
+}
 
 // ==========================================
 // LOGIN
@@ -2949,7 +3025,7 @@ if (loginBtn) {
             else if (e.code === 'auth/network-request-failed') errorMsg = "Network error. Connection check karein.";
             if (errorEl) { errorEl.textContent = errorMsg; errorEl.classList.remove('hidden'); }
             window.showToast(errorMsg, "err");
-            btn.innerHTML = '<img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-7 h-7" alt="G"> Continue with Google';
+            btn.innerHTML = '<img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-6 h-6" alt="G"> Continue with Google';
             btn.disabled = false;
         } finally {
             isLoggingIn = false;
@@ -2959,19 +3035,19 @@ if (loginBtn) {
 
 window.logout = async function() {
     if (!auth) return;
-    try { 
-        await signOut(auth); 
+    try {
+        await signOut(auth);
         welcomeShown = false;
-        window.showToast("Successfully logged out!", "inf"); 
+        window.showToast("Successfully logged out!", "inf");
     }
     catch (e) { window.showToast("Logout failed", "err"); }
 };
 
 // ==========================================
-// AUTH STATE (Persistent Login)
+// AUTH STATE (CRITICAL FIX: Data Persistence)
 // ==========================================
 if (auth) {
-    onAuthStateChanged(auth, function(user) {
+    onAuthStateChanged(auth, async function(user) {
         const loginScreen = document.getElementById('login-screen');
         const mainNav = document.getElementById('main-nav');
         const mainContent = document.getElementById('main-content');
@@ -2985,9 +3061,14 @@ if (auth) {
             if (un) un.innerText = firstName;
             if (pn) pn.innerText = user.displayName || 'Student';
 
-            const data = getUserData();
+            // CRITICAL FIX: Sync user data from Firebase FIRST before rendering UI
+            // This ensures XP, Level, and Badges are never lost on app close/reopen
+            await syncUserDataFromFirebase(user.uid);
+
+            // Now get the merged data and render immediately
+            const userData = getUserData();
             const pr = document.getElementById('prof-roll');
-            if (pr) pr.innerText = data.rollNumber;
+            if (pr) pr.innerText = userData.rollNumber;
 
             const photoUrl = user.photoURL || 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
             const ui = document.getElementById('user-img');
@@ -3019,12 +3100,14 @@ if (auth) {
                 loadQuickNotes();
                 loadLeaderboard();
                 loadQuizLeaderboard();
+
+                // Render XP/Level/Badges AFTER Firebase sync is complete
                 updateLevelUI();
                 updateBadgesUI();
+
                 const totalFocus = parseInt(localStorage.getItem('totalFocus') || '0');
                 const pf = document.getElementById('prof-focus');
                 if (pf) pf.textContent = Math.floor(totalFocus / 60);
-                initParticles();
                 initVisualizer();
                 // Show welcome modal once
                 if (!welcomeShown) {
@@ -3039,7 +3122,7 @@ if (auth) {
             if (bottomNav) bottomNav.classList.add('hidden');
             const btn = document.getElementById('login-btn');
             if (btn) {
-                btn.innerHTML = '<img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-7 h-7" alt="G"> Continue with Google';
+                btn.innerHTML = '<img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-6 h-6" alt="G"> Continue with Google';
                 btn.disabled = false;
             }
         }
@@ -3050,11 +3133,9 @@ if (auth) {
 // KEYBOARD SHORTCUTS
 // ==========================================
 document.addEventListener('keydown', function(e) {
-    // Escape to close modals
     if (e.key === 'Escape') {
         document.querySelectorAll('.modal-overlay.active, .celebration-modal.active').forEach(function(m) { m.classList.remove('active'); });
     }
-    // Ctrl/Cmd + K for AI Chat
     if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
         if (currentUser) switchTab('ai');
@@ -3066,7 +3147,7 @@ document.addEventListener('touchmove', function(e) {
     if (e.target.closest('#ai') || e.target.closest('.modal-overlay')) return;
 }, { passive: true });
 
-console.log('StudyGram Pro v2.0 loaded - Mohammad Arshad (@dark_eio)');
+console.log('StudyGram Pro v3.0 (iOS Solid UI) loaded - Mohammad Arshad (@dark_eio)');
 </script>
 </body>
 </html>
