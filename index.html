@@ -2776,7 +2776,8 @@ function loadDatabaseData() {
                             '</div>' +
                             '<h4 class="note-topic">' + topic + '</h4>' +
                         '</div>' +
-                        '<button onclick="openPdfViewer(\'' + encodeURIComponent(d.link) + '\', \'' + encodeURIComponent(displayTitle) + '\')" class="note-open-btn">' +
+                        const safeUrl = (d.link || '').replace(/'/g, "\\'");
+'<button onclick="openPdfViewer(\'' + safeUrl + '\', \'' + displayTitle.replace(/'/g, "\\'") + '\')" class="note-open-btn">'
                             '<i class="fa-solid fa-eye"></i> Open File' +
                         '</button>' +
                     '</div>';
