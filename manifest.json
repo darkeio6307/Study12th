@@ -2,7 +2,7 @@
   "name": "StudyGram Pro",
   "short_name": "StudyGram",
   "description": "The Ultimate 12th Science Hub with AI Teacher, Quiz Battles, Music Player & Gamification",
-  "start_url": "/",
+  "start_url": "/Study12th/",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#1c1c1e",
