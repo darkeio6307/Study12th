@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#000000">
-<meta name="description" content="StudyGram Pro - The Ultimate 12th Science Hub with AI, Quiz, Music & Gamification">
+<meta name="description" content="StudyGram Pro - The Ultimate 12th Science Hub with AI, Music & Gamification">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="StudyGram Pro">
 
-<!-- PWA Manifest -->
+<!-- PWA Manifest with /Study12th/ path -->
 <link rel="manifest" href="/Study12th/manifest.json">
 
 <title>StudyGram Pro | 12th Science Hub</title>
@@ -73,6 +73,66 @@ body {
 }
 .ios-gcard:active {
   transform: scale(0.97);
+}
+
+/* === PREMIUM NOTE CARDS === */
+.note-card {
+  background: var(--ios-bg-secondary);
+  border: 1px solid var(--ios-border);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  transition: var(--transition-smooth);
+}
+.note-card:active {
+  transform: scale(0.98);
+}
+.note-card-header {
+  padding: 1.25rem 1.25rem 0.75rem;
+}
+.note-card-body {
+  padding: 0 1.25rem 1.25rem;
+}
+.note-subject-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+.note-topic {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  margin-top: 8px;
+  line-height: 1.4;
+}
+.note-date {
+  font-size: 11px;
+  color: var(--ios-text-secondary);
+  margin-top: 4px;
+  font-weight: 500;
+}
+.note-open-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: opacity 0.2s;
+}
+.note-open-btn:active {
+  opacity: 0.85;
 }
 
 /* === PAGE TRANSITIONS (No blur, GPU accelerated) === */
@@ -170,6 +230,45 @@ body {
 .modal-overlay.active { display: flex; animation: modalFadeIn .25s ease; }
 @keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+/* === PDF VIEWER MODAL === */
+#pdf-viewer-modal .pdf-modal-content {
+  background: var(--ios-bg-secondary);
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+#pdf-viewer-modal .pdf-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--ios-bg-secondary);
+  border-bottom: 1px solid var(--ios-border);
+  flex-shrink: 0;
+}
+#pdf-viewer-modal .pdf-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 12px;
+}
+#pdf-viewer-modal .pdf-frame {
+  flex: 1;
+  width: 100%;
+  border: none;
+  background: #fff;
+}
+
 /* === CELEBRATION MODAL (Solid, no blur) === */
 .celebration-modal {
   display: none;
@@ -243,30 +342,6 @@ body {
   border: 1px solid;
 }
 
-/* === QUIZ OPTIONS === */
-.qopt {
-  background: var(--ios-bg-tertiary);
-  border: 1px solid var(--ios-border);
-  border-radius: 14px;
-  padding: 14px 16px;
-  cursor: pointer;
-  transition: all .2s ease;
-  font-size: 14px;
-  line-height: 1.5;
-}
-.qopt:active { transform: scale(0.98); }
-.qopt.cr { background: rgba(52,199,89,0.15) !important; border-color: rgba(52,199,89,0.4) !important; color: #34c759 !important; }
-.qopt.wr { background: rgba(255,59,48,0.15) !important; border-color: rgba(255,59,48,0.4) !important; color: #ff3b30 !important; }
-
-/* === TEACHER CARD === */
-.tch {
-  background: var(--ios-bg-tertiary);
-  border: 1px solid var(--ios-border);
-  border-radius: 14px;
-  padding: 12px;
-  transition: all .2s ease;
-}
-
 /* === TIMER CIRCLE === */
 .tmr-c {
   width: 180px;
@@ -330,18 +405,7 @@ body {
 .spb { height: 5px; background: var(--ios-bg-tertiary); border-radius: 3px; flex: 1; margin: 0 8px; }
 .spf { height: 100%; border-radius: 3px; transition: width .8s cubic-bezier(.4,0,.2,1); }
 
-/* === MUSIC PLAYER (Compact 260px) === */
-.mpl {
-  position: fixed;
-  bottom: 90px;
-  right: 16px;
-  width: 260px;
-  z-index: 100;
-  transition: all .4s cubic-bezier(.4,0,.2,1);
-}
-.mpl.cl { width: 52px; height: 52px; border-radius: 50%; overflow: hidden; }
-.mpl.cl .pc { opacity: 0; pointer-events: none; transform: scale(0.8); }
-.pc { transition: opacity .25s ease, transform .25s ease; }
+/* === MUSIC VISUALIZER BARS === */
 .mviz { display: flex; align-items: flex-end; gap: 2px; height: 32px; justify-content: center; }
 .vzb {
   width: 3px;
@@ -382,15 +446,15 @@ body {
 }
 .seekbar-track:hover .seekbar-thumb { opacity: 1; }
 
-/* === ATTENDANCE CALENDAR === */
-.att-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+/* === ATTENDANCE CALENDAR (COMPACT - 30% smaller) === */
+.att-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
 .att-d {
   aspect-ratio: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  font-size: 11px;
+  border-radius: 6px;
+  font-size: 10px;
   font-weight: 600;
   transition: all .15s;
 }
@@ -462,6 +526,21 @@ body {
   transition: all .3s cubic-bezier(.4,0,.2,1);
 }
 
+/* === NOTIFICATION RED DOT === */
+.nav-red-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  background: #ff3b30;
+  border-radius: 50%;
+  border: 2px solid #1c1c1e;
+  z-index: 10;
+  pointer-events: none;
+}
+.nav-red-dot.hidden { display: none !important; }
+
 /* === INPUT FOCUS (Solid ring) === */
 input:focus, textarea:focus {
   outline: none;
@@ -518,13 +597,76 @@ input:focus, textarea:focus {
   animation: none;
 }
 
+/* === MUSIC HUB FULL SCREEN === */
+#music.active-section {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: var(--ios-bg);
+  display: flex;
+  flex-direction: column;
+  opacity: 1;
+  transform: none;
+  animation: none;
+}
+
+/* === MUSIC HUB STYLES === */
+.music-hub-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+.music-playlist-card {
+  background: var(--ios-bg-secondary);
+  border: 1px solid var(--ios-border);
+  border-radius: 1rem;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all .2s ease;
+  margin-bottom: 8px;
+}
+.music-playlist-card:active {
+  transform: scale(0.98);
+  background: var(--ios-bg-tertiary);
+}
+.music-playlist-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: #fff;
+  flex-shrink: 0;
+}
+.music-playlist-info {
+  flex: 1;
+  min-width: 0;
+}
+.music-playlist-title {
+  font-weight: 700;
+  font-size: 14px;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.music-playlist-count {
+  font-size: 11px;
+  color: var(--ios-text-secondary);
+  margin-top: 2px;
+}
+
 /* === HIDDEN === */
 .hidden { display: none !important; }
 
 /* === RESPONSIVE TWEAKS === */
 @media (max-width: 400px) {
-  .mpl { right: 8px; bottom: 80px; }
-  .mpl:not(.cl) { width: calc(100vw - 16px); }
   #toast-container { left: 10px; right: 10px; }
   .toast { max-width: 100%; }
 }
@@ -576,8 +718,9 @@ input:focus, textarea:focus {
     </div>
   </div>
   <div class="flex gap-2 items-center">
-    <button onclick="toggleMusicPlayer()" class="w-9 h-9 rounded-full bg-[#2c2c2e] flex items-center justify-center text-gray-400 hover:bg-[#3a3a3c] hover:text-white active:scale-90 transition-all btn-press border border-white/5" title="Music">
+    <button onclick="switchTab('music')" class="w-9 h-9 rounded-full bg-[#2c2c2e] flex items-center justify-center text-gray-400 hover:bg-[#3a3a3c] hover:text-white active:scale-90 transition-all btn-press border border-white/5 relative" title="Music Hub" id="nav-music-btn">
       <i class="fa-solid fa-music" id="music-icon"></i>
+      <span class="nav-red-dot hidden" id="music-red-dot"></span>
     </button>
     <button onclick="switchTab('admin')" class="w-9 h-9 rounded-full bg-[#2c2c2e] flex items-center justify-center text-gray-400 hover:bg-[#3a3a3c] hover:text-white active:scale-90 transition-all btn-press border border-white/5">
       <i class="fa-solid fa-shield-halved"></i>
@@ -590,7 +733,7 @@ input:focus, textarea:focus {
 <!-- ========================================== -->
 <main class="p-4 max-w-lg mx-auto hidden" id="main-content">
 
-<!-- ===== HOME SECTION ===== -->
+<!-- ===== HOME SECTION (DECLUTTERED) ===== -->
 <div id="home" class="section space-y-5">
   <!-- User Card -->
   <div class="ios-card p-5 flex items-center gap-4 relative overflow-hidden">
@@ -609,17 +752,6 @@ input:focus, textarea:focus {
     </div>
   </div>
 
-  <!-- Badges -->
-  <div class="ios-card p-4">
-    <div class="flex justify-between items-center mb-3">
-      <h4 class="font-bold text-white flex items-center gap-2 text-sm"><i class="fa-solid fa-medal text-yellow-500"></i> Badges</h4>
-      <span class="text-xs text-gray-500" id="badge-count">0 / 500</span>
-    </div>
-    <div id="badges-container" class="flex flex-wrap gap-2">
-      <span class="text-xs text-gray-600">No badges yet. Start studying!</span>
-    </div>
-  </div>
-
   <!-- Daily Quote -->
   <div class="ios-card p-4 border-l-4 border-purple-500 relative overflow-hidden">
     <div class="absolute -right-4 -bottom-4 text-purple-500/10 text-6xl"><i class="fa-solid fa-quote-right"></i></div>
@@ -632,10 +764,10 @@ input:focus, textarea:focus {
     </div>
   </div>
 
-  <!-- Exam Countdown -->
+  <!-- Exam Countdown (Dynamic) -->
   <div class="ios-card p-5 relative overflow-hidden" style="background: linear-gradient(135deg, #1c1c1e 0%, #2c1a4e 100%);">
     <div class="relative z-10">
-      <p class="text-indigo-400 text-xs font-semibold mb-3 uppercase tracking-wider"><i class="fa-solid fa-stopwatch mr-1"></i> Final Board Exams</p>
+      <p class="text-indigo-400 text-xs font-semibold mb-3 uppercase tracking-wider"><i class="fa-solid fa-stopwatch mr-1"></i> <span id="exam-countdown-label">Final Board Exams</span></p>
       <div class="flex gap-3 mt-2">
         <div class="bg-black/40 px-4 py-3 rounded-xl border border-white/10 text-center min-w-[65px]">
           <span id="count-days" class="text-3xl font-black block text-white">00</span><span class="text-[9px] text-indigo-400 uppercase tracking-widest">Days</span>
@@ -650,14 +782,14 @@ input:focus, textarea:focus {
     </div>
   </div>
 
-  <!-- Attendance -->
-  <div class="ios-card p-5">
-    <div class="flex justify-between items-center mb-3">
+  <!-- Attendance (Compact) -->
+  <div class="ios-card p-4">
+    <div class="flex justify-between items-center mb-2">
       <h4 class="font-bold text-white flex items-center gap-2 text-sm"><i class="fa-solid fa-calendar-check text-green-500"></i> Attendance</h4>
       <span id="attendance-rate" class="text-xs font-bold bg-green-500/10 text-green-400 px-2.5 py-1 rounded-lg border border-green-500/20">0%</span>
     </div>
     <div class="att-cal" id="attendance-calendar"></div>
-    <button onclick="markAttendance()" id="att-btn" class="w-full mt-4 bg-[#34c759] text-white py-3 rounded-xl font-bold shadow-lg active:scale-95 transition-all btn-press flex items-center justify-center gap-2 hover:brightness-110">
+    <button onclick="markAttendance()" id="att-btn" class="w-full mt-3 bg-[#34c759] text-white py-2.5 rounded-xl font-bold shadow-lg active:scale-95 transition-all btn-press flex items-center justify-center gap-2 hover:brightness-110 text-sm">
       <i class="fa-solid fa-check-circle"></i> Mark Today's Attendance
     </button>
   </div>
@@ -700,7 +832,7 @@ input:focus, textarea:focus {
   </div>
 </div>
 
-<!-- ===== NOTES SECTION ===== -->
+<!-- ===== NOTES SECTION (PREMIUM REDESIGN) ===== -->
 <div id="notes" class="section space-y-4">
   <h2 class="text-2xl font-black text-white mb-3 pl-1">Study Materials</h2>
   <div id="notes-list" class="space-y-3"></div>
@@ -751,10 +883,10 @@ input:focus, textarea:focus {
       <div class="xpbc"><div class="xpbf" id="prof-xp-bar" style="width:0%"></div></div>
     </div>
 
-    <!-- Badges -->
+    <!-- Badges (Clickable Popups) -->
     <div class="mb-5">
-      <h4 class="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Badges Earned</h4>
-      <div id="prof-badges" class="flex flex-wrap justify-center gap-2">
+      <h4 class="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Badges Earned (Click for details)</h4>
+      <div id="prof-badges" class="flex flex-wrap justify-center gap-2 cursor-pointer" onclick="showBadgePopup()">
         <span class="text-xs text-gray-600">No badges yet</span>
       </div>
     </div>
@@ -824,93 +956,109 @@ input:focus, textarea:focus {
     </button>
   </div>
 </div>
-<!-- ===== QUIZ SECTION (HINDI) ===== -->
-<div id="quiz" class="section space-y-4">
-  <div class="flex items-center justify-between mb-2">
-    <h2 class="text-2xl font-black text-white pl-1">AI Quiz Battle</h2>
-    <div class="flex items-center gap-2">
-      <span class="lvb" id="quiz-level">Lv.1</span>
+
+<!-- ===== MUSIC HUB (FULL SCREEN REPLACES QUIZ) ===== -->
+<div id="music" class="section">
+  <!-- Header -->
+  <div class="bg-[#1c1c1e] px-4 py-3 flex items-center justify-between shadow-lg z-10 border-b border-white/10 relative">
+    <div class="flex items-center gap-3">
+      <button onclick="switchTab('home')" class="w-9 h-9 bg-[#2c2c2e] rounded-full flex items-center justify-center text-gray-400 hover:bg-[#3a3a3c] hover:text-white active:scale-90 transition-all btn-press border border-white/10">
+        <i class="fa-solid fa-arrow-left"></i>
+      </button>
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white shadow-lg">
+          <i class="fa-solid fa-music"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-white leading-tight text-sm">Music Hub</h3>
+          <p class="text-[10px] text-indigo-400 font-bold uppercase tracking-wider">Focus & Study</p>
+        </div>
+      </div>
     </div>
+    <button onclick="clearPlaylist()" class="text-sm text-gray-500 hover:text-red-400 transition-colors bg-[#2c2c2e] px-3 py-2 rounded-lg btn-press border border-white/10" title="Clear all">
+      <i class="fa-solid fa-trash-can"></i>
+    </button>
   </div>
 
-  <div id="quiz-menu" class="space-y-4">
-    <div class="ios-card p-5 text-center">
-      <div class="w-16 h-16 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-3 shadow-lg">
-        <i class="fa-solid fa-brain"></i>
+  <!-- Music Hub Content -->
+  <div class="music-hub-container">
+    <!-- Now Playing Card -->
+    <div class="ios-card p-4 mb-4">
+      <div class="flex items-center gap-4 mb-4">
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-2xl shadow-lg flex-shrink-0">
+          <i class="fa-solid fa-compact-disc" id="hub-disc-icon"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-[10px] text-indigo-400 font-bold uppercase tracking-wider mb-0.5">Now Playing</p>
+          <h3 class="font-bold text-white truncate text-base" id="hub-song-title">No song playing</h3>
+          <p class="text-xs text-gray-500 truncate" id="hub-song-status">Paste a YouTube link to start</p>
+        </div>
       </div>
-      <h3 class="text-lg font-bold text-white mb-1">Apni Pariksha Lein!</h3>
-      <p class="text-gray-500 text-sm mb-4">AI dwara banaye gaye prashnon ke saath apni jaanch karein</p>
-      <div class="grid grid-cols-2 gap-3">
-        <button onclick="startQuiz('physics')" class="ios-gcard p-3 rounded-xl text-center btn-press">
-          <i class="fa-solid fa-atom text-indigo-400 text-xl mb-1 block"></i>
-          <span class="text-sm font-bold text-white">Physics</span>
-          <span class="text-[10px] text-gray-600 block">Bhautik Vigyan</span>
+
+      <!-- Visualizer -->
+      <div class="mviz mb-3" id="hub-visualizer"></div>
+
+      <!-- Seekbar -->
+      <div class="seekbar-container mb-3">
+        <span class="seekbar-time" id="hub-seek-current">0:00</span>
+        <div class="seekbar-track" id="hub-seekbar-track" onclick="seekTo(event)">
+          <div class="seekbar-fill" id="hub-seekbar-fill" style="width:0%"><div class="seekbar-thumb"></div></div>
+        </div>
+        <span class="seekbar-time" id="hub-seek-duration">0:00</span>
+      </div>
+
+      <!-- Controls -->
+      <div class="flex items-center justify-center gap-4">
+        <button onclick="skipBackward()" class="w-10 h-10 rounded-full bg-[#2c2c2e] flex items-center justify-center text-gray-400 hover:bg-[#3a3a3c] hover:text-white active:scale-90 btn-press transition-all border border-white/5" title="-10s">
+          <i class="fa-solid fa-backward text-sm"></i>
         </button>
-        <button onclick="startQuiz('chemistry')" class="ios-gcard p-3 rounded-xl text-center btn-press">
-          <i class="fa-solid fa-flask text-green-400 text-xl mb-1 block"></i>
-          <span class="text-sm font-bold text-white">Chemistry</span>
-          <span class="text-[10px] text-gray-600 block">Rasayan Vigyan</span>
+        <button onclick="prevTrack()" class="w-10 h-10 rounded-full bg-[#2c2c2e] flex items-center justify-center text-gray-300 hover:bg-[#3a3a3c] active:scale-90 btn-press transition-all border border-white/5">
+          <i class="fa-solid fa-backward-step"></i>
         </button>
-        <button onclick="startQuiz('math')" class="ios-gcard p-3 rounded-xl text-center btn-press">
-          <i class="fa-solid fa-calculator text-blue-400 text-xl mb-1 block"></i>
-          <span class="text-sm font-bold text-white">Maths</span>
-          <span class="text-[10px] text-gray-600 block">Ganit</span>
+        <button onclick="togglePlay()" id="hub-play-btn" class="w-14 h-14 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-xl active:scale-90 btn-press transition-all hover:brightness-110">
+          <i class="fa-solid fa-play text-xl" id="hub-play-icon"></i>
         </button>
-        <button onclick="startQuiz('mixed')" class="ios-gcard p-3 rounded-xl text-center btn-press">
-          <i class="fa-solid fa-shuffle text-purple-400 text-xl mb-1 block"></i>
-          <span class="text-sm font-bold text-white">Mixed</span>
-          <span class="text-[10px] text-gray-600 block">Sab milakar</span>
+        <button onclick="nextTrack()" class="w-10 h-10 rounded-full bg-[#2c2c2e] flex items-center justify-center text-gray-300 hover:bg-[#3a3a3c] active:scale-90 btn-press transition-all border border-white/5">
+          <i class="fa-solid fa-forward-step"></i>
+        </button>
+        <button onclick="skipForward()" class="w-10 h-10 rounded-full bg-[#2c2c2e] flex items-center justify-center text-gray-400 hover:bg-[#3a3a3c] hover:text-white active:scale-90 btn-press transition-all border border-white/5" title="+10s">
+          <i class="fa-solid fa-forward text-sm"></i>
+        </button>
+      </div>
+
+      <!-- Volume -->
+      <div class="flex items-center gap-3 mt-4 px-2">
+        <i class="fa-solid fa-volume-low text-gray-600 text-xs"></i>
+        <input type="range" min="0" max="100" value="50" id="hub-volume-slider" oninput="setVolume(this.value)" class="flex-1 h-1 bg-[#2c2c2e] rounded-full appearance-none cursor-pointer accent-indigo-500">
+        <i class="fa-solid fa-volume-high text-gray-600 text-xs"></i>
+      </div>
+    </div>
+
+    <!-- YouTube Input -->
+    <div class="ios-card p-4 mb-4">
+      <p class="text-xs text-gray-500 font-bold mb-2 uppercase tracking-wider">Add Song</p>
+      <div class="flex gap-2">
+        <input id="hub-yt-link" type="text" placeholder="Paste YouTube link..." class="flex-1 p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-sm text-white placeholder-gray-600 focus:border-indigo-500/50 transition-all">
+        <button onclick="loadYouTubeMusic()" class="bg-[#6366f1] text-white px-4 rounded-xl font-bold shadow-md active:scale-95 btn-press border border-indigo-500/30 hover:brightness-110 transition-all">
+          <i class="fa-solid fa-play"></i>
         </button>
       </div>
     </div>
 
-    <div class="ios-card p-4">
-      <h4 class="font-bold text-white mb-3 text-sm"><i class="fa-solid fa-crown text-yellow-500 mr-2"></i>Quiz Champions</h4>
-      <div id="quiz-leaderboard" class="space-y-2">
-        <div class="text-center text-gray-600 text-sm py-3"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Loading...</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Quiz Game -->
-  <div id="quiz-game" class="hidden space-y-4">
+    <!-- Playlist -->
     <div class="ios-card p-4">
       <div class="flex justify-between items-center mb-3">
-        <span class="text-xs text-gray-500 font-medium">Prashn <span id="q-current">1</span>/<span id="q-total">5</span></span>
-        <span class="text-xs text-indigo-400 font-bold" id="q-score">Score: 0</span>
+        <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">Your Playlist</p>
+        <button onclick="togglePlaylistMode()" id="hub-playlist-toggle" class="text-xs bg-[#2c2c2e] text-gray-400 px-3 py-1.5 rounded-lg border border-white/10 hover:bg-[#3a3a3c] transition-all btn-press">
+          <i class="fa-solid fa-repeat mr-1"></i> Loop: Off
+        </button>
       </div>
-      <div class="w-full bg-[#2c2c2e] rounded-full h-2 mb-4 border border-white/5">
-        <div class="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full transition-all" id="q-progress" style="width:0%"></div>
+      <div id="hub-playlist-items" class="space-y-2 max-h-64 overflow-y-auto">
+        <div class="text-center text-gray-600 text-sm py-6"><i class="fa-solid fa-music text-4xl mb-3 text-gray-700 block"></i>No songs yet. Add YouTube links!</div>
       </div>
-      <h3 class="text-base font-bold text-white mb-4 leading-relaxed" id="q-text">Loading prashn...</h3>
-      <div class="space-y-3" id="q-options"></div>
     </div>
-  </div>
 
-  <!-- Quiz Result -->
-  <div id="quiz-result" class="hidden space-y-4">
-    <div class="ios-card p-6 text-center">
-      <div class="w-20 h-20 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-3xl mx-auto mb-3 shadow-lg" id="result-icon">
-        <i class="fa-solid fa-trophy"></i>
-      </div>
-      <h3 class="text-xl font-black text-white mb-1" id="result-title">Quiz Purn!</h3>
-      <p class="text-gray-500 mb-4">Aapne kamaye <span class="text-indigo-400 font-bold" id="result-xp">+0 XP</span></p>
-      <div class="grid grid-cols-2 gap-3 mb-5">
-        <div class="ios-gcard p-3 rounded-xl">
-          <span class="text-2xl font-black text-white block" id="result-score">0/5</span>
-          <span class="text-[10px] text-gray-600 uppercase font-bold">Sahi Jawaab</span>
-        </div>
-        <div class="ios-gcard p-3 rounded-xl">
-          <span class="text-2xl font-black text-yellow-400 block" id="result-accuracy">0%</span>
-          <span class="text-[10px] text-gray-600 uppercase font-bold">Satakta</span>
-        </div>
-      </div>
-      <div id="result-badges" class="flex flex-wrap justify-center gap-2 mb-4"></div>
-      <div id="result-message" class="text-sm text-gray-500 mb-4"></div>
-      <button onclick="showQuizMenu()" class="w-full bg-[#6366f1] text-white py-3 rounded-xl font-bold shadow-lg active:scale-95 btn-press hover:brightness-110 transition-all">
-        <i class="fa-solid fa-rotate-right mr-2"></i> Dobara Khelein
-      </button>
-    </div>
+    <div id="yt-player" class="hidden"></div>
   </div>
 </div>
 
@@ -988,7 +1136,8 @@ input:focus, textarea:focus {
         <i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i>
       </summary>
       <div class="mt-3 space-y-2 cursor-default">
-        <input id="n-title" placeholder="Title (e.g. Physics Ch-1)" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600 transition-all focus:border-indigo-500/50">
+        <input id="n-subject" placeholder="Subject (e.g. Physics)" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600 transition-all focus:border-indigo-500/50">
+        <input id="n-topic" placeholder="Topic (e.g. Chapter 1 - Electric Charges)" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600 transition-all focus:border-indigo-500/50">
         <input id="n-link" placeholder="Drive Link" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600 transition-all focus:border-indigo-500/50">
         <button onclick="adminAction('note')" class="w-full bg-[#6366f1] text-white py-3 rounded-xl font-bold shadow-lg hover:brightness-110 active:scale-95 transition-transform btn-press border border-indigo-500/30">Upload Note</button>
       </div>
@@ -1042,7 +1191,7 @@ input:focus, textarea:focus {
       <div class="mt-3 space-y-2 cursor-default">
         <input id="nt-title" placeholder="Notice Title" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600 transition-all">
         <textarea id="nt-desc" placeholder="Details..." class="w-full p-3 border border-white/10 rounded-xl h-20 outline-none resize-none bg-[#2c2c2e] text-white placeholder-gray-600 transition-all"></textarea>
-        <button onclick="adminAction('notice')" class="w-full bg-[#ff9500] text-white py-3 rounded-xl font-bold shadow-lg hover:brightness-110 active:scale-95 transition-transform btn-ress border border-amber-500/30">Publish Notice</button>
+        <button onclick="adminAction('notice')" class="w-full bg-[#ff9500] text-white py-3 rounded-xl font-bold shadow-lg hover:brightness-110 active:scale-95 transition-transform btn-press border border-amber-500/30">Publish Notice</button>
       </div>
     </details>
 
@@ -1065,12 +1214,13 @@ input:focus, textarea:focus {
 
     <details class="ios-card p-4 group cursor-pointer">
       <summary class="font-bold text-lg text-green-400 flex justify-between items-center list-none outline-none">
-        <span class="flex items-center gap-2"><i class="fa-solid fa-stopwatch"></i> Set Exam Timer</span>
+        <span class="flex items-center gap-2"><i class="fa-solid fa-stopwatch"></i> Set Exam Countdown</span>
         <i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i>
       </summary>
       <div class="mt-3 space-y-2 cursor-default">
+        <input id="cd-exam-name" placeholder="Exam Name (e.g. JEE Mains)" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600 transition-all focus:border-indigo-500/50">
         <input id="cd-date" type="datetime-local" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white">
-        <button onclick="adminAction('countdown')" class="w-full bg-[#34c759] text-white py-3 rounded-xl font-bold shadow-lg hover:brightness-110 active:scale-95 transition-transform btn-press border border-green-500/30">Update Timer</button>
+        <button onclick="adminAction('countdown')" class="w-full bg-[#34c759] text-white py-3 rounded-xl font-bold shadow-lg hover:brightness-110 active:scale-95 transition-transform btn-press border border-green-500/30">Update Countdown</button>
       </div>
     </details>
   </div>
@@ -1127,99 +1277,18 @@ input:focus, textarea:focus {
   </div>
 </div>
 
-<!-- ===== MUSIC PLAYER (COMPACT 260px) ===== -->
-<div id="music-player" class="mpl cl">
-  <div class="ios-card rounded-2xl overflow-hidden shadow-2xl">
-    <div class="p-3 flex items-center justify-between bg-[#1c1c1e] cursor-pointer" onclick="toggleMusicPlayer()">
-      <div class="flex items-center gap-2 min-w-0">
-        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg flex-shrink-0">
-          <i class="fa-solid fa-music" id="player-icon"></i>
-        </div>
-        <div class="pc min-w-0">
-          <p class="text-xs font-bold text-white truncate max-w-[120px]" id="player-title">Music Player</p>
-          <p class="text-[10px] text-gray-500" id="player-status">Click to expand</p>
-        </div>
-      </div>
-      <i class="fa-solid fa-chevron-up text-gray-500 pc transition-transform text-xs" id="player-chevron"></i>
-    </div>
-    <div class="pc p-3 space-y-3">
-      <!-- Visualizer -->
-      <div class="mviz" id="visualizer"></div>
-
-      <!-- Seekbar -->
-      <div class="seekbar-container">
-        <span class="seekbar-time" id="seek-current">0:00</span>
-        <div class="seekbar-track" id="seekbar-track" onclick="seekTo(event)">
-          <div class="seekbar-fill" id="seekbar-fill" style="width:0%"><div class="seekbar-thumb"></div></div>
-        </div>
-        <span class="seekbar-time" id="seek-duration">0:00</span>
-      </div>
-
-      <!-- Controls Row 1: Prev, Play/Pause, Next, Skip -->
-      <div class="flex items-center justify-center gap-2">
-        <button onclick="skipBackward()" class="w-8 h-8 rounded-full bg-[#2c2c2e] flex items-center justify-center text-gray-500 hover:bg-[#3a3a3c] hover:text-white active:scale-90 btn-press transition-all border border-white/5" title="-10s">
-          <i class="fa-solid fa-backward text-xs"></i>
-        </button>
-        <button onclick="prevTrack()" class="w-8 h-8 rounded-full bg-[#2c2c2e] flex items-center justify-center text-gray-400 hover:bg-[#3a3a3c] active:scale-90 btn-press transition-all border border-white/5">
-          <i class="fa-solid fa-backward-step text-sm"></i>
-        </button>
-        <button onclick="togglePlay()" id="play-btn" class="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg active:scale-90 btn-press transition-all hover:brightness-110">
-          <i class="fa-solid fa-play" id="play-icon"></i>
-        </button>
-        <button onclick="nextTrack()" class="w-8 h-8 rounded-full bg-[#2c2c2e] flex items-center justify-center text-gray-400 hover:bg-[#3a3a3c] active:scale-90 btn-press transition-all border border-white/5">
-          <i class="fa-solid fa-forward-step text-sm"></i>
-        </button>
-        <button onclick="skipForward()" class="w-8 h-8 rounded-full bg-[#2c2c2e] flex items-center justify-center text-gray-500 hover:bg-[#3a3a3c] hover:text-white active:scale-90 btn-press transition-all border border-white/5" title="+10s">
-          <i class="fa-solid fa-forward text-xs"></i>
-        </button>
-      </div>
-
-      <!-- YouTube Link Input -->
-      <div class="flex gap-2">
-        <input id="yt-link" type="text" placeholder="Paste YouTube Link..." class="flex-1 p-2 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-xs text-white placeholder-gray-600 focus:border-indigo-500/50 transition-all">
-        <button onclick="loadYouTubeMusic()" class="bg-[#6366f1] text-white px-3 rounded-xl font-bold shadow-md active:scale-95 btn-press border border-indigo-500/30 hover:brightness-110 transition-all">
-          <i class="fa-solid fa-play"></i>
-        </button>
-      </div>
-
-      <!-- Playlist Controls -->
-      <div class="flex gap-2">
-        <button onclick="togglePlaylistMode()" id="playlist-btn" class="flex-1 bg-[#2c2c2e] text-gray-400 py-2 rounded-xl text-xs font-bold border border-white/10 hover:bg-[#3a3a3c] transition-all btn-press">
-          <i class="fa-solid fa-list mr-1"></i> Playlist: Off
-        </button>
-        <button onclick="saveToPlaylist()" id="save-pl-btn" class="flex-1 bg-[#2c2c2e] text-gray-400 py-2 rounded-xl text-xs font-bold border border-white/10 hover:bg-[#3a3a3c] transition-all btn-press hidden">
-          <i class="fa-solid fa-plus mr-1"></i> Save
-        </button>
-      </div>
-
-      <!-- Playlist Items -->
-      <div id="playlist-container" class="hidden space-y-2 max-h-24 overflow-y-auto">
-        <p class="text-xs text-gray-500 font-bold mb-1">Your Playlist</p>
-        <div id="playlist-items"></div>
-      </div>
-
-      <!-- Volume -->
-      <div class="flex items-center gap-2">
-        <i class="fa-solid fa-volume-low text-gray-600 text-[10px]"></i>
-        <input type="range" min="0" max="100" value="50" id="volume-slider" oninput="setVolume(this.value)" class="flex-1 h-1 bg-[#2c2c2e] rounded-full appearance-none cursor-pointer accent-indigo-500">
-        <i class="fa-solid fa-volume-high text-gray-600 text-[10px]"></i>
-      </div>
-
-      <div id="yt-player" class="hidden"></div>
-    </div>
-  </div>
-</div>
-
 <!-- ===== BOTTOM NAVIGATION (Solid iOS Tab Bar) ===== -->
 <div id="bottom-nav" class="fixed bottom-3 left-3 right-3 bg-[#1c1c1e]/95 rounded-2xl flex justify-around items-center px-2 z-50 shadow-2xl border border-white/10 h-[68px] hidden">
-  <button onclick="switchTab('home')" class="nav-btn w-11 h-11 flex items-center justify-center text-lg text-gray-500 hover:text-white transition-all btn-press rounded-xl" data-target="home">
+  <button onclick="switchTab('home')" class="nav-btn relative w-11 h-11 flex items-center justify-center text-lg text-gray-500 hover:text-white transition-all btn-press rounded-xl" data-target="home">
     <i class="fa-solid fa-house"></i>
   </button>
-  <button onclick="switchTab('notes')" class="nav-btn w-11 h-11 flex items-center justify-center text-lg text-gray-500 hover:text-white transition-all btn-press rounded-xl" data-target="notes">
+  <button onclick="switchTab('notes')" class="nav-btn relative w-11 h-11 flex items-center justify-center text-lg text-gray-500 hover:text-white transition-all btn-press rounded-xl" data-target="notes">
     <i class="fa-solid fa-book-open"></i>
+    <span class="nav-red-dot hidden" id="notes-red-dot"></span>
   </button>
-  <button onclick="switchTab('quiz')" class="nav-btn w-11 h-11 flex items-center justify-center text-lg text-gray-500 hover:text-white transition-all btn-press rounded-xl" data-target="quiz">
-    <i class="fa-solid fa-brain"></i>
+  <button onclick="switchTab('music')" class="nav-btn relative w-11 h-11 flex items-center justify-center text-lg text-gray-500 hover:text-white transition-all btn-press rounded-xl" data-target="music">
+    <i class="fa-solid fa-music"></i>
+    <span class="nav-red-dot hidden" id="music-tab-red-dot"></span>
   </button>
 
   <div class="relative -top-4">
@@ -1228,10 +1297,11 @@ input:focus, textarea:focus {
     </button>
   </div>
 
-  <button onclick="switchTab('notice')" class="nav-btn w-11 h-11 flex items-center justify-center text-lg text-gray-500 hover:text-white transition-all btn-press rounded-xl" data-target="notice">
+  <button onclick="switchTab('notice')" class="nav-btn relative w-11 h-11 flex items-center justify-center text-lg text-gray-500 hover:text-white transition-all btn-press rounded-xl" data-target="notice">
     <i class="fa-solid fa-bell"></i>
+    <span class="nav-red-dot hidden" id="notice-red-dot"></span>
   </button>
-  <button onclick="switchTab('profile')" class="nav-btn w-11 h-11 flex items-center justify-center text-lg text-gray-500 hover:text-white transition-all btn-press rounded-xl" data-target="profile">
+  <button onclick="switchTab('profile')" class="nav-btn relative w-11 h-11 flex items-center justify-center text-lg text-gray-500 hover:text-white transition-all btn-press rounded-xl" data-target="profile">
     <i class="fa-solid fa-user-astronaut"></i>
   </button>
 </div>
@@ -1301,6 +1371,34 @@ input:focus, textarea:focus {
   </div>
 </div>
 
+<!-- ===== PDF VIEWER MODAL ===== -->
+<div id="pdf-viewer-modal" class="modal-overlay" style="padding: 0; z-index: 11000;">
+  <div class="pdf-modal-content">
+    <div class="pdf-header">
+      <button onclick="closePdfViewer()" class="w-8 h-8 bg-[#2c2c2e] rounded-full flex items-center justify-center text-gray-400 hover:bg-red-500/20 hover:text-red-400 transition-all btn-press border border-white/10 flex-shrink-0 mr-3">
+        <i class="fa-solid fa-arrow-left"></i>
+      </button>
+      <span class="pdf-title" id="pdf-viewer-title">Document</span>
+      <button onclick="closePdfViewer()" class="text-xs text-gray-500 hover:text-white bg-[#2c2c2e] px-3 py-1.5 rounded-lg border border-white/10 btn-press flex-shrink-0">
+        Close
+      </button>
+    </div>
+    <iframe id="pdf-viewer-frame" class="pdf-frame" src=""></iframe>
+  </div>
+</div>
+
+<!-- ===== BADGE POPUP MODAL ===== -->
+<div id="badge-popup-modal" class="modal-overlay">
+  <div class="bg-[#1c1c1e] w-full max-w-sm rounded-[2rem] p-6 shadow-2xl relative border border-white/10 max-h-[80vh] overflow-y-auto">
+    <button onclick="closeBadgePopup()" class="absolute top-4 right-4 w-8 h-8 bg-[#2c2c2e] rounded-full flex items-center justify-center text-gray-400 hover:bg-red-500/20 hover:text-red-400 transition-all btn-press border border-white/10">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+    <h2 class="text-xl font-black text-white mb-1"><i class="fa-solid fa-medal text-yellow-500 mr-2"></i>Your Badges</h2>
+    <p class="text-sm text-gray-500 mb-4">All badges you've earned</p>
+    <div id="badge-popup-list" class="space-y-2"></div>
+  </div>
+</div>
+
 <!-- ===== PWA INSTALL BUTTON ===== -->
 <button id="pwa-install-btn" class="pwa-btn hidden" onclick="installPWA()">
   <i class="fa-solid fa-download mr-2"></i> Install App
@@ -1346,6 +1444,7 @@ try {
 // GLOBAL STATE
 // ==========================================
 let globalTargetDate = new Date("2026-02-15T00:00:00");
+let globalExamName = "Final Board Exams";
 let currentUser = null;
 let isLoggingIn = false;
 let timerInterval = null;
@@ -1353,6 +1452,13 @@ let timerSeconds = 25 * 60;
 let timerRunning = false;
 let lastAIResponse = "";
 let welcomeShown = false;
+
+// Notification red dot state
+let notificationState = {
+    music: true,
+    notes: true,
+    notice: true
+};
 
 // ==========================================
 // LEVEL SYSTEM (EXPONENTIAL - Preserved)
@@ -1399,6 +1505,87 @@ function calculateLevel(totalXP) {
 }
 
 // ==========================================
+// NOTIFICATION RED DOT SYSTEM
+// ==========================================
+function loadNotificationState() {
+    const saved = localStorage.getItem('sg_notifications');
+    if (saved) {
+        try { notificationState = JSON.parse(saved); } catch(e) {}
+    }
+    updateRedDots();
+}
+
+function saveNotificationState() {
+    localStorage.setItem('sg_notifications', JSON.stringify(notificationState));
+}
+
+function updateRedDots() {
+    const musicDot = document.getElementById('music-red-dot');
+    const musicTabDot = document.getElementById('music-tab-red-dot');
+    const notesDot = document.getElementById('notes-red-dot');
+    const noticeDot = document.getElementById('notice-red-dot');
+    if (musicDot) musicDot.classList.toggle('hidden', !notificationState.music);
+    if (musicTabDot) musicTabDot.classList.toggle('hidden', !notificationState.music);
+    if (notesDot) notesDot.classList.toggle('hidden', !notificationState.notes);
+    if (noticeDot) noticeDot.classList.toggle('hidden', !notificationState.notice);
+}
+
+function markNotificationRead(key) {
+    if (notificationState[key]) {
+        notificationState[key] = false;
+        saveNotificationState();
+        updateRedDots();
+    }
+}
+
+// ==========================================
+// MIDNIGHT REFRESH LOGIC
+// ==========================================
+function checkMidnightRefresh() {
+    const lastRefresh = localStorage.getItem('sg_lastRefreshDate');
+    const today = new Date().toISOString().split('T')[0];
+    const now = new Date();
+    
+    // If we've passed midnight and haven't refreshed today
+    if (lastRefresh !== today && now.getHours() >= 0) {
+        // Perform daily refresh
+        performDailyRefresh();
+        localStorage.setItem('sg_lastRefreshDate', today);
+    }
+}
+
+function performDailyRefresh() {
+    // Reset daily XP counters but keep total XP
+    const uid = currentUser?.uid;
+    if (uid) {
+        const data = getUserData();
+        // Keep totalXp, level, badges - only reset daily tracking
+        // The level system is based on totalXp which never decreases
+        saveUserData(data);
+        
+        // Update Firebase to ensure persistence
+        if (db && currentUser) {
+            set(ref(db, 'users/' + uid + '/stats'), {
+                level: data.level,
+                xp: data.xp,
+                totalXp: data.totalXp,
+                badges: data.badges
+            });
+            set(ref(db, 'users/' + uid + '/lastDailyRefresh'), new Date().toISOString());
+        }
+    }
+    
+    // Refresh leaderboard display
+    loadLeaderboard();
+    
+    // Show toast
+    window.showToast("Daily refresh complete! Good luck today!", "suc");
+}
+
+// Check for midnight refresh every minute
+setInterval(checkMidnightRefresh, 60000);
+
+// ==========================================
 // USER DATA (WITH FIREBASE SYNC - FIXED)
 // ==========================================
 function getUserData() {
@@ -1421,19 +1608,19 @@ function saveUserData(data) {
     localStorage.setItem('sg_user_' + uid, JSON.stringify(data));
 }
 
-// NEW: Sync user data from Firebase to localStorage and UI
+// CRITICAL FIX: Sync user data from Firebase with persistence guarantee
 async function syncUserDataFromFirebase(uid) {
     if (!db || !uid) return;
     try {
         const statsSnap = await get(ref(db, 'users/' + uid + '/stats'));
         if (statsSnap.exists()) {
             const stats = statsSnap.val();
-            // Merge Firebase data with local data (Firebase wins)
+            // Merge Firebase data with local data (Firebase wins for XP/level)
             const localData = JSON.parse(localStorage.getItem('sg_user_' + uid) || '{}');
             const mergedData = {
                 level: stats.level || localData.level || 1,
-                xp: stats.xp || localData.xp || 0,
-                totalXp: stats.totalXp || localData.totalXp || 0,
+                xp: stats.xp !== undefined ? stats.xp : (localData.xp || 0),
+                totalXp: stats.totalXp !== undefined ? stats.totalXp : (localData.totalXp || 0),
                 badges: stats.badges || localData.badges || [],
                 rollNumber: localData.rollNumber || 'UP' + Math.floor(100000 + Math.random() * 900000),
                 displayName: localData.displayName || currentUser?.displayName || 'Student'
@@ -1500,34 +1687,87 @@ function updateBadgesUI() {
         purple: 'border-purple-400 text-purple-300 bg-purple-500/10',
         blue: 'border-blue-400 text-blue-300 bg-blue-500/10'
     };
-    let html = '';
-    if (data.badges.length === 0) {
-        html = '<span class="text-xs text-gray-600">No badges yet. Start studying!</span>';
-    } else {
-        data.badges.slice(0, 8).forEach(b => {
-            const cc = badgeColors[b.color] || badgeColors.indigo;
-            html += '<span class="bdg ' + cc + '"><i class="fa-solid fa-medal"></i> ' + b.name + '</span>';
-        });
-        if (data.badges.length > 8) {
-            html += '<span class="bdg border-gray-600 text-gray-500 bg-gray-500/10">+' + (data.badges.length - 8) + ' more</span>';
-        }
-    }
-    const bc = document.getElementById('badges-container');
-    if (bc) bc.innerHTML = html;
-    const bcount = document.getElementById('badge-count');
-    if (bcount) bcount.textContent = data.badges.length + '/500';
+    
+    // Profile badges (clickable popup)
     const profBadges = document.getElementById('prof-badges');
     if (profBadges) {
         if (data.badges.length === 0) {
-            profBadges.innerHTML = '<span class="text-xs text-gray-600">No badges yet</span>';
+            profBadges.innerHTML = '<span class="text-xs text-gray-600">No badges yet - tap to see all</span>';
         } else {
-            profBadges.innerHTML = data.badges.map(b => {
+            let html = '';
+            data.badges.slice(0, 6).forEach(b => {
                 const cc = badgeColors[b.color] || badgeColors.indigo;
-                return '<span class="bdg ' + cc + '"><i class="fa-solid fa-medal"></i> ' + b.name + '</span>';
-            }).join('');
+                html += '<span class="bdg ' + cc + '"><i class="fa-solid fa-medal"></i> ' + b.name + '</span>';
+            });
+            if (data.badges.length > 6) {
+                html += '<span class="bdg border-gray-600 text-gray-500 bg-gray-500/10">+' + (data.badges.length - 6) + ' more</span>';
+            }
+            profBadges.innerHTML = html;
         }
     }
 }
+
+// ==========================================
+// BADGE POPUP
+// ==========================================
+window.showBadgePopup = function() {
+    const data = getUserData();
+    const list = document.getElementById('badge-popup-list');
+    const modal = document.getElementById('badge-popup-modal');
+    if (!list || !modal) return;
+    
+    const badgeColors = {
+        indigo: 'border-indigo-400 text-indigo-300 bg-indigo-500/10',
+        green: 'border-green-400 text-green-300 bg-green-500/10',
+        amber: 'border-amber-400 text-amber-300 bg-amber-500/10',
+        red: 'border-red-400 text-red-300 bg-red-500/10',
+        purple: 'border-purple-400 text-purple-300 bg-purple-500/10',
+        blue: 'border-blue-400 text-blue-300 bg-blue-500/10'
+    };
+    
+    if (data.badges.length === 0) {
+        list.innerHTML = '<div class="text-center text-gray-600 text-sm py-4">No badges earned yet. Keep studying!</div>';
+    } else {
+        list.innerHTML = data.badges.map(b => {
+            const cc = badgeColors[b.color] || badgeColors.indigo;
+            const date = b.earned ? new Date(b.earned).toLocaleDateString() : 'Recently';
+            return '<div class="flex items-center gap-3 p-3 rounded-xl bg-[#2c2c2e] border border-white/10"><span class="bdg ' + cc + ' flex-shrink-0"><i class="fa-solid fa-medal"></i> ' + b.name + '</span><span class="text-xs text-gray-600 ml-auto">' + date + '</span></div>';
+        }).join('');
+    }
+    modal.classList.add('active');
+};
+
+window.closeBadgePopup = function() {
+    const modal = document.getElementById('badge-popup-modal');
+    if (modal) modal.classList.remove('active');
+};
+
+// ==========================================
+// PDF VIEWER
+// ==========================================
+window.openPdfViewer = function(url, title) {
+    const modal = document.getElementById('pdf-viewer-modal');
+    const frame = document.getElementById('pdf-viewer-frame');
+    const titleEl = document.getElementById('pdf-viewer-title');
+    if (!modal || !frame) return;
+    
+    // Convert Google Drive /view to /preview
+    let embedUrl = url;
+    if (url.includes('drive.google.com') && url.includes('/view')) {
+        embedUrl = url.replace('/view', '/preview');
+    }
+    
+    titleEl.textContent = title || 'Document';
+    frame.src = embedUrl;
+    modal.classList.add('active');
+};
+
+window.closePdfViewer = function() {
+    const modal = document.getElementById('pdf-viewer-modal');
+    const frame = document.getElementById('pdf-viewer-frame');
+    if (modal) modal.classList.remove('active');
+    if (frame) frame.src = '';
+};
 
 // ==========================================
 // HINDI MOTIVATIONAL QUOTES
@@ -1742,52 +1982,35 @@ setTimeout(() => {
 window.parseMarkdown = function(text) {
     if (!text) return '';
     let html = text;
-    // Escape HTML entities first
     html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    // ### -> <h3>
     html = html.replace(/^###\s+(.+)$/gm, '<h3>$1</h3>');
-    // ## -> <h4>
     html = html.replace(/^##\s+(.+)$/gm, '<h4>$1</h4>');
-    // # -> <h5>
     html = html.replace(/^#\s+(.+)$/gm, '<h5 style="color:#a78bfa;font-weight:700;margin:10px 0;">$1</h5>');
-    // **bold** -> <strong>
     html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-    // *italic* -> <em>
     html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
-    // `code`
     html = html.replace(/`([^`]+)`/g, '<code class="hl">$1</code>');
-    // ```code blocks```
     html = html.replace(/```[\s\S]*?```/g, function(match) {
         const code = match.slice(3, -3).trim();
         return '<pre><code>' + code.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</code></pre>';
     });
-    // > blockquote
     html = html.replace(/^>\s+(.+)$/gm, '<blockquote>$1</blockquote>');
-    // - bullet points
     html = html.replace(/^-\s+(.+)$/gm, '<div style="display:flex;gap:8px;margin:3px 0;"><span style="color:#6366f1;font-weight:bold;">&#8226;</span><span>$1</span></div>');
-    // Numbered lists
     let listCounter = 0;
     html = html.replace(/^\d+\.\s+(.+)$/gm, function(_, item) {
         listCounter++;
         return '<div style="display:flex;gap:8px;margin:3px 0;"><span style="color:#34c759;font-weight:bold;min-width:20px;">' + listCounter + '.</span><span>' + item + '</span></div>';
     });
-    // [1 2 3] matrices
     html = html.replace(/\[(\d+(?:\s+\d+)*)\]/g, function(match, nums) {
         const cells = nums.trim().split(/\s+/);
         return '<span class="mx"><span class="mxr">' + cells.map(function(c) { return '<span class="mxc">' + c + '</span>'; }).join('') + '</span></span>';
     });
-    // Formulas with = sign
     html = html.replace(/^(.*?=.*?\d.*)$/gm, function(match) {
         if (match.includes('<div') || match.includes('<span') || match.includes('<h') || match.includes('<pre')) return match;
         return '<div class="fb">' + match + '</div>';
     });
-    // Links [text](url)
     html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
-    // URLs
     html = html.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
-    // \n -> <br>
     html = html.replace(/\n/g, '<br>');
-    // Clean up double brs near block elements
     html = html.replace(/<br>\s*<br>\s*<br>/g, '<br><br>');
     html = html.replace(/<br>(<\/div>)/g, '$1');
     html = html.replace(/<br>(<h[3-5])/g, '$1');
@@ -1815,7 +2038,6 @@ window.askGroq = async function() {
     const q = input.value.trim();
     if (!q) return;
 
-    // User message
     chat.innerHTML += '<div class="flex items-start gap-3 flex-row-reverse"><div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs mt-1 shadow-sm flex-shrink-0"><i class="fa-solid fa-user"></i></div><div class="bg-[#6366f1] text-white p-3 rounded-2xl rounded-tr-none shadow-md text-sm max-w-[85%]">' + escapeHtml(q) + '</div></div>';
     input.value = "";
     input.disabled = true;
@@ -1897,7 +2119,7 @@ window.speakLastMessage = function() {
 };
 
 // ==========================================
-// TOAST NOTIFICATIONS - SYNTAX FIXED (No triple quotes)
+// TOAST NOTIFICATIONS
 // ==========================================
 window.showToast = function(msg, type) {
     const container = document.getElementById('toast-container');
@@ -1912,7 +2134,7 @@ window.showToast = function(msg, type) {
 };
 
 // ==========================================
-// TAB SWITCHING
+// TAB SWITCHING (with red dot handling)
 // ==========================================
 window.switchTab = function(id) {
     document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active-section'); });
@@ -1920,19 +2142,27 @@ window.switchTab = function(id) {
     if (target) target.classList.add('active-section');
     const navTop = document.getElementById('main-nav');
     const navBot = document.getElementById('bottom-nav');
-    if (id === 'ai') {
+    
+    if (id === 'ai' || id === 'music') {
         if (navTop) navTop.style.display = 'none';
         if (navBot) navBot.style.display = 'none';
     } else {
         if (navTop) navTop.style.display = 'flex';
         if (navBot) navBot.style.display = 'flex';
     }
+    
     document.querySelectorAll('.nav-btn').forEach(function(btn) {
         const isActive = btn.dataset.target === id;
         btn.style.color = isActive ? '#fff' : '#8e8e93';
         if (isActive) btn.classList.add('bg-[#2c2c2e]');
         else btn.classList.remove('bg-[#2c2c2e]');
     });
+    
+    // Mark notification as read when tab is visited
+    if (id === 'music') markNotificationRead('music');
+    if (id === 'notes') markNotificationRead('notes');
+    if (id === 'notice') markNotificationRead('notice');
+    
     window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
@@ -1970,227 +2200,8 @@ document.addEventListener('click', function(e) {
     }
 });
 
-
 // ==========================================
-// QUIZ SYSTEM (ALL IN HINDI)
-// ==========================================
-const quizQuestions = {
-    physics: [
-        { q: "Vaidyut aavesh ka SI maatrak kya hai?", options: ["Coulomb", "Ampere", "Volt", "Ohm"], correct: 0 },
-        { q: "Kaunsa niyam kehta hai ki prerit EMF chumbakeey flux ke parivartan ki dar ke samanu pati hoti hai?", options: ["Ohm ka Niyam", "Faraday ka Niyam", "Lenz ka Niyam", "Ampere ka Niyam"], correct: 1 },
-        { q: "Drishya prakash ki tarang lambdai kya hai?", options: ["400-700 nm", "700-1000 nm", "100-400 nm", "1000-2000 nm"], correct: 0 },
-        { q: "Prakash vaidyut prabhav ko kisne samjhaya?", options: ["Newton", "Einstein", "Bohr", "Rutherford"], correct: 1 },
-        { q: "Kisi kankad ki de Broglie tarang lambdai kya hoti hai?", options: ["&#955; = h/p", "&#955; = p/h", "&#955; = E/h", "&#955; = h/E"], correct: 0 },
-        { q: "Coulomb ke niyam ke anusar, do aaveshon ke bich bal kis prabhavit hota hai?", options: ["Veg se", "Duri ke varg ke vyutkatram se", "Dhan se", "Gurtvakarshan se"], correct: 1 },
-        { q: "Volt ka maatrak kya hai?", options: ["Joule/Coulomb", "Coulomb/Joule", "Ampere/Ohm", "Watt/Ampere"], correct: 0 },
-        { q: "Paramanu ke kendrak ko kisne khoja?", options: ["Dalton", "Rutherford", "Thomson", "Bohr"], correct: 1 },
-        { q: "Ohm ke niyam ke anusar V = ?", options: ["IR", "I/R", "R/I", "I+R"], correct: 0 },
-        { q: "Gurtvakarshan bal ka sutra kya hai?", options: ["F = Gm&#8321;m&#8322;/r&#178;", "F = ma", "F = qE", "F = BIL"], correct: 0 }
-    ],
-    chemistry: [
-        { q: "K&#8322;Cr&#8322;O&#8327; mein Cr ki oxykaran avastha kya hai?", options: ["+3", "+6", "+4", "+2"], correct: 1 },
-        { q: "Nimnlikhit mein se sabse prabal amla kaunsa hai?", options: ["HClO", "HClO&#8322;", "HClO&#8323;", "HClO&#8324;"], correct: 3 },
-        { q: "CH&#8323;-CH=CH-CHO ka IUPAC naam kya hai?", options: ["Butanal", "But-2-enal", "But-3-enal", "Butanone"], correct: 1 },
-        { q: "Sabse adhik vidyutrnijatv kis tattv ka hai?", options: ["Oxygen", "Nitrogen", "Fluorine", "Chlorine"], correct: 2 },
-        { q: "Ethene mein carbon ka sanniveshan kya hai?", options: ["sp", "sp&#178;", "sp&#179;", "dsp&#178;"], correct: 1 },
-        { q: "Lenaar-Jones sambandh kis ke liye mahatvapoorn hai?", options: ["Ionic yogic", "Sahyojak yogic", "Durbal bal", "Bal"], correct: 2 },
-        { q: "pH maan kya darshata hai?", options: ["Amlata", "Ksharata", "H&#8322; ions ki saandrata", "OH ions ki saandrata"], correct: 2 },
-        { q: "Sovt ka maatrak kya hai?", options: ["mol/L", "g/L", "kg/m&#179;", "L/mol"], correct: 0 },
-        { q: "Benzene ka sutra kya hai?", options: ["C&#8326;H&#8326;", "C&#8326;H&#8321;&#8322;", "C&#8325;H&#8325;N", "C&#8327;H&#8328;"], correct: 0 },
-        { q: "Avogadro sankhya ka maan kya hai?", options: ["6.022 &#215; 10&#178;&#179;", "6.022 &#215; 10&#178;&#178;", "3.14 &#215; 10&#178;&#179;", "9.8 &#215; 10&#178;&#179;"], correct: 0 }
-    ],
-    math: [
-        { q: "Yadi A ek 3&#215;3 aavyooh hai jiska det(A) = 5, toh det(2A) = ?", options: ["10", "20", "40", "125"], correct: 2 },
-        { q: "sin(x) ka aukalan (derivative) kya hai?", options: ["cos(x)", "-cos(x)", "-sin(x)", "tan(x)"], correct: 0 },
-        { q: "1/x dx ka samakalan kya hai?", options: ["x", "ln|x|", "e^x", "1/x&#178;"], correct: 1 },
-        { q: "Pratham n prakritik sankhyao ka yog kya hai?", options: ["n(n+1)/2", "n&#178;", "n(n-1)/2", "n(n+1)"], correct: 0 },
-        { q: "Yadi z = 1 + i, toh |z| = ?", options: ["1", "2", "&#8730;2", "&#8730;3"], correct: 2 },
-        { q: "x&#178; + y&#178; = r&#178; kya darashata hai?", options: ["Paravalaay", "Vratt", "Direkha", "Ellips"], correct: 1 },
-        { q: "e&#8311; ka maan kya hai?", options: ["0", "1", "e", "&#8734;"], correct: 1 },
-        { q: "Tan(45&#176;) ka maan kya hai?", options: ["0", "1", "&#8730;3", "1/&#8730;3"], correct: 1 },
-        { q: "Kendritiya tivrata ka sutra kya hai?", options: ["v&#178;/r", "v/r", "r/v", "r&#178;/v"], correct: 0 },
-        { q: "log(ab) = ?", options: ["log(a) + log(b)", "log(a) &#215; log(b)", "log(a) - log(b)", "log(a)/log(b)"], correct: 0 }
-    ],
-    mixed: [
-        { q: "Planck niyatak ka maan kya hai?", options: ["6.626 &#215; 10&#8315;&#179;&#8308; J&#183;s", "3.14 &#215; 10&#8315;&#178;&#179; J&#183;s", "1.6 &#215; 10&#8315;&#185;&#8313; J&#183;s", "9.8 &#215; 10&#8315;&#179;&#185; J&#183;s"], correct: 0 },
-        { q: "Shuddh jal ka pH maan 25&#176;C par kya hota hai?", options: ["0", "7", "14", "1"], correct: 1 },
-        { q: "Binduo (1,2) aur (4,6) ke bich ki duri kya hai?", options: ["3", "4", "5", "6"], correct: 2 },
-        { q: "Zinc ko tarta H&#8322;SO&#8324; ke saath karmankit karne par kaunsi gas banti hai?", options: ["O&#8322;", "H&#8322;", "SO&#8322;", "Cl&#8322;"], correct: 1 },
-        { q: "Aakaar darpan (concave mirror) ki nabh duri kya hoti hai?", options: ["Dhanaatmak", "Rinaatmak", "Shunya", "Anant"], correct: 1 },
-        { q: "Newton ka teesra niyam kya kehta hai?", options: ["F = ma", "Har kriya ke barabar pratikriya", "Gati ke niyam", "Gurtvakarshan"], correct: 1 },
-        { q: "Sabase halka gas kaunsa hai?", options: ["Oxygen", "Nitrogen", "Hydrogen", "Helium"], correct: 2 },
-        { q: "&#960; (pi) ka maan kya hai?", options: ["3.14159", "3.14285", "3.14142", "3.14321"], correct: 0 },
-        { q: "Surya ka prakaash prithvi tak pahunchne mein kitna samay leta hai?", options: ["8 min", "8 second", "8 ghante", "8 din"], correct: 0 },
-        { q: "Kendritiya bal (Centripetal force) ka rukh kya hota hai?", options: ["Kendr ki ore", "Kendr se door", "Spasht dikhai nahi deta", "Gol hota hai"], correct: 0 }
-    ]
-};
-
-let currentQuiz = [];
-let currentQIndex = 0;
-let quizScore = 0;
-
-window.startQuiz = function(subject) {
-    currentQuiz = [...quizQuestions[subject]].sort(function() { return Math.random() - 0.5; });
-    currentQIndex = 0;
-    quizScore = 0;
-    document.getElementById('quiz-menu').classList.add('hidden');
-    document.getElementById('quiz-game').classList.remove('hidden');
-    document.getElementById('quiz-result').classList.add('hidden');
-    showQuestion();
-};
-
-function showQuestion() {
-    const q = currentQuiz[currentQIndex];
-    document.getElementById('q-current').textContent = currentQIndex + 1;
-    document.getElementById('q-total').textContent = currentQuiz.length;
-    document.getElementById('q-score').textContent = 'Score: ' + quizScore;
-    document.getElementById('q-progress').style.width = (((currentQIndex + 1) / currentQuiz.length) * 100) + '%';
-    document.getElementById('q-text').textContent = q.q;
-    const opts = document.getElementById('q-options');
-    opts.innerHTML = q.options.map(function(opt, i) {
-        return '<div class="qopt" onclick="selectAnswer(' + i + ')" id="opt-' + i + '">' + opt + '</div>';
-    }).join('');
-}
-
-window.selectAnswer = function(index) {
-    const q = currentQuiz[currentQIndex];
-    const correct = q.correct;
-    for (let i = 0; i < q.options.length; i++) {
-        const el = document.getElementById('opt-' + i);
-        if (i === correct) el.classList.add('cr');
-        else if (i === index && i !== correct) el.classList.add('wr');
-        el.style.pointerEvents = 'none';
-    }
-    if (index === correct) {
-        quizScore++;
-        window.showToast("Sahi jawab!", "suc");
-    } else {
-        window.showToast("Galat! Sahi jawab: " + q.options[correct], "err");
-    }
-    setTimeout(function() {
-        currentQIndex++;
-        if (currentQIndex < currentQuiz.length) {
-            showQuestion();
-        } else {
-            showQuizResult();
-        }
-    }, 1800);
-};
-
-function showQuizResult() {
-    document.getElementById('quiz-game').classList.add('hidden');
-    document.getElementById('quiz-result').classList.remove('hidden');
-    const total = currentQuiz.length;
-    const accuracy = Math.round((quizScore / total) * 100);
-    const xpEarned = quizScore * 20;
-
-    document.getElementById('result-score').textContent = quizScore + '/' + total;
-    document.getElementById('result-accuracy').textContent = accuracy + '%';
-    document.getElementById('result-xp').textContent = '+' + xpEarned + ' XP';
-
-    const msgEl = document.getElementById('result-message');
-    const titleEl = document.getElementById('result-title');
-    const iconEl = document.getElementById('result-icon');
-
-    if (accuracy === 100) {
-        titleEl.textContent = 'Shanadar!';
-        msgEl.textContent = 'Aapne sabhi prashno ka sahi jawab diya! Ye bahut badi uplabdhi hai!';
-        iconEl.innerHTML = '<i class="fa-solid fa-crown"></i>';
-        iconEl.className = 'w-20 h-20 bg-gradient-to-tr from-yellow-400 via-orange-500 to-pink-500 rounded-full flex items-center justify-center text-white text-3xl mx-auto mb-3 shadow-2xl';
-    } else if (accuracy >= 70) {
-        titleEl.textContent = 'Bahut Achha!';
-        msgEl.textContent = 'Aapne bahut achha pradarshan kiya! Thodi aur mehnat se aap top par pahunch sakte hain!';
-        iconEl.innerHTML = '<i class="fa-solid fa-star"></i>';
-        iconEl.className = 'w-20 h-20 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-3xl mx-auto mb-3 shadow-lg';
-    } else if (accuracy >= 40) {
-        titleEl.textContent = 'Acche Prayas!';
-        msgEl.textContent = 'Aap sahi disha mein hain! Aur adhyayan se aap aur behtar kar sakte hain!';
-        iconEl.innerHTML = '<i class="fa-solid fa-thumbs-up"></i>';
-        iconEl.className = 'w-20 h-20 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-3xl mx-auto mb-3 shadow-lg';
-    } else {
-        titleEl.textContent = 'Koi Baat Nahi!';
-        msgEl.textContent = 'Hamesha seekhne ka avasar hota hai! Notes padhein aur dubara prayas karein!';
-        iconEl.innerHTML = '<i class="fa-solid fa-book-open"></i>';
-        iconEl.className = 'w-20 h-20 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-3xl mx-auto mb-3 shadow-lg';
-    }
-
-    addXP(xpEarned, 'quiz');
-    if (accuracy === 100) addBadge('perfect_quiz', 'Perfect Score', 'amber');
-    if (quizScore >= Math.ceil(total * 0.7)) addBadge('quiz_master', 'Quiz Master', 'purple');
-    if (quizScore >= 1) addBadge('quiz_first', 'First Quiz', 'green');
-
-    const badges = document.getElementById('result-badges');
-    if (badges) {
-        if (accuracy === 100) badges.innerHTML = '<span class="bdg border-amber-400 text-amber-300 bg-amber-500/10"><i class="fa-solid fa-star"></i> Perfect Score!</span>';
-        else if (quizScore >= Math.ceil(total * 0.5)) badges.innerHTML = '<span class="bdg border-purple-400 text-purple-300 bg-purple-500/10"><i class="fa-solid fa-brain"></i> Acche Prayas!</span>';
-        else badges.innerHTML = '<span class="bdg border-blue-400 text-blue-300 bg-blue-500/10"><i class="fa-solid fa-rotate"></i> Dobara Koshish!</span>';
-    }
-
-    if (db && currentUser) {
-        push(ref(db, 'quiz_scores/' + currentUser.uid), {
-            score: quizScore,
-            total: total,
-            accuracy: accuracy,
-            xp: xpEarned,
-            date: new Date().toISOString()
-        });
-    }
-}
-
-window.showQuizMenu = function() {
-    document.getElementById('quiz-menu').classList.remove('hidden');
-    document.getElementById('quiz-game').classList.add('hidden');
-    document.getElementById('quiz-result').classList.add('hidden');
-};
-
-function loadQuizLeaderboard() {
-    if (!db) return;
-    get(ref(db, 'quiz_scores')).then(function(snap) {
-        const list = document.getElementById('quiz-leaderboard');
-        if (!list) return;
-        if (!snap.exists()) { list.innerHTML = '<div class="text-center text-gray-600 text-sm py-3">Abhi tak koi quiz data nahi!</div>'; return; }
-
-        get(ref(db, 'users')).then(function(userSnap) {
-            const userNames = {};
-            if (userSnap.exists()) {
-                userSnap.forEach(function(child) {
-                    userNames[child.key] = child.val().name || 'Student';
-                });
-            }
-
-            const users = {};
-            snap.forEach(function(child) {
-                const uid = child.key;
-                let bestAccuracy = 0;
-                let bestScore = 0;
-                child.forEach(function(scoreChild) {
-                    const s = scoreChild.val();
-                    if (s.accuracy > bestAccuracy) { bestAccuracy = s.accuracy; bestScore = s.score; }
-                });
-                if (bestScore > 0) {
-                    users[uid] = { score: bestScore, total: 5, accuracy: bestAccuracy, name: userNames[uid] || 'Student' };
-                }
-            });
-
-            const sorted = Object.entries(users).sort(function(a, b) { return b[1].accuracy - a[1].accuracy; });
-            let html = '';
-            sorted.slice(0, 5).forEach(function(entry, i) {
-                const uid = entry[0];
-                const data = entry[1];
-                const rankClass = i === 0 ? 'rk1' : i === 1 ? 'rk2' : i === 2 ? 'rk3' : 'bg-[#2c2c2e]';
-                const medal = i === 0 ? '\ud83d\udc51' : i === 1 ? '\ud83e\udd48' : i === 2 ? '\ud83e\udd49' : '<span class="text-gray-600 font-bold">' + (i+1) + '</span>';
-                html += '<div class="flex items-center gap-3 p-3 rounded-xl ' + rankClass + '"><span class="text-lg">' + medal + '</span><div class="flex-1 min-w-0"><p class="font-bold text-sm text-white truncate">' + data.name + '</p></div><div class="text-right flex-shrink-0"><span class="text-xs font-bold text-indigo-400">' + data.score + '/' + data.total + '</span><span class="text-xs text-gray-600 ml-1">(' + data.accuracy + '%)</span></div></div>';
-            });
-            list.innerHTML = html || '<div class="text-center text-gray-600 text-sm py-3">Abhi tak koi scores nahi!</div>';
-        });
-    }).catch(function() {
-        const list = document.getElementById('quiz-leaderboard');
-        if (list) list.innerHTML = '<div class="text-center text-gray-600 text-sm py-3">Leaderboard load nahi ho raha</div>';
-    });
-}
-
-// ==========================================
-// MUSIC PLAYER (YouTube Iframe API with Seekbar)
+// MUSIC HUB (REPLACES QUIZ)
 // ==========================================
 let isPlaying = false;
 let playlistMode = false;
@@ -2215,21 +2226,10 @@ function loadYouTubeAPI() {
 }
 loadYouTubeAPI();
 
-window.toggleMusicPlayer = function() {
-    const player = document.getElementById('music-player');
-    const icon = document.getElementById('music-icon');
-    if (!player) return;
-    player.classList.toggle('cl');
-    if (player.classList.contains('cl') && icon) {
-        icon.classList.remove('fa-pause');
-        icon.classList.add('fa-music');
-    }
-};
-
-function initVisualizer() {
-    const viz = document.getElementById('visualizer');
+function initHubVisualizer() {
+    const viz = document.getElementById('hub-visualizer');
     if (!viz || viz.children.length > 0) return;
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 16; i++) {
         const bar = document.createElement('div');
         bar.className = 'vzb';
         bar.style.height = '3px';
@@ -2275,9 +2275,9 @@ function updateSeekbar() {
         currentVideoTime = youtubePlayer.getCurrentTime() || 0;
         currentVideoDuration = youtubePlayer.getDuration() || 0;
         const pct = currentVideoDuration > 0 ? (currentVideoTime / currentVideoDuration) * 100 : 0;
-        const fill = document.getElementById('seekbar-fill');
-        const curEl = document.getElementById('seek-current');
-        const durEl = document.getElementById('seek-duration');
+        const fill = document.getElementById('hub-seekbar-fill');
+        const curEl = document.getElementById('hub-seek-current');
+        const durEl = document.getElementById('hub-seek-duration');
         if (fill) fill.style.width = pct + '%';
         if (curEl) curEl.textContent = formatTime(currentVideoTime);
         if (durEl) durEl.textContent = formatTime(currentVideoDuration);
@@ -2285,7 +2285,7 @@ function updateSeekbar() {
 }
 
 window.seekTo = function(event) {
-    const track = document.getElementById('seekbar-track');
+    const track = document.getElementById('hub-seekbar-track');
     if (!track || !youtubePlayer || typeof youtubePlayer.seekTo !== 'function') return;
     const rect = track.getBoundingClientRect();
     const pct = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
@@ -2307,9 +2307,10 @@ window.skipBackward = function() {
 };
 
 window.loadYouTubeMusic = async function() {
-    const link = document.getElementById('yt-link');
-    if (!link) return;
-    const url = link.value.trim();
+    // Support both hub input and legacy input
+    const linkInput = document.getElementById('hub-yt-link') || document.getElementById('yt-link');
+    if (!linkInput) return;
+    const url = linkInput.value.trim();
     if (!url) return;
     const videoId = extractVideoId(url);
     if (!videoId) { window.showToast("Invalid YouTube link", "err"); return; }
@@ -2318,13 +2319,25 @@ window.loadYouTubeMusic = async function() {
     window.showToast("Loading song...", "inf");
     currentVideoTitle = await fetchVideoTitle(videoId);
 
-    const pt = document.getElementById('player-title');
-    const ps = document.getElementById('player-status');
-    const sp = document.getElementById('save-pl-btn');
-    if (pt) pt.textContent = currentVideoTitle;
-    if (ps) ps.textContent = 'Now Playing';
-    if (sp) sp.classList.remove('hidden');
+    const ht = document.getElementById('hub-song-title');
+    const hs = document.getElementById('hub-song-status');
+    if (ht) ht.textContent = currentVideoTitle;
+    if (hs) hs.textContent = 'Now Playing';
 
+    // Auto-save to playlist
+    const playlist = JSON.parse(localStorage.getItem('sg_playlist') || '[]');
+    if (!playlist.find(function(p) { return p.id === currentVideoId; })) {
+        playlist.push({ id: currentVideoId, title: currentVideoTitle });
+        localStorage.setItem('sg_playlist', JSON.stringify(playlist));
+        loadHubPlaylist();
+    }
+
+    loadYouTubePlayer(videoId, currentVideoTitle);
+    linkInput.value = '';
+    window.showToast(currentVideoTitle + " loaded!", "suc");
+};
+
+function loadYouTubePlayer(videoId, title) {
     const ytp = document.getElementById('yt-player');
     if (ytp) {
         ytp.innerHTML = '<div id="yt-iframe-container"></div>';
@@ -2339,30 +2352,31 @@ window.loadYouTubeMusic = async function() {
                         event.target.playVideo();
                         setTimeout(() => {
                             currentVideoDuration = youtubePlayer.getDuration() || 0;
-                            document.getElementById('seek-duration').textContent = formatTime(currentVideoDuration);
+                            const durEl = document.getElementById('hub-seek-duration');
+                            if (durEl) durEl.textContent = formatTime(currentVideoDuration);
                         }, 1000);
                     },
                     onStateChange: function(event) {
                         if (event.data === YT.PlayerState.PLAYING) {
                             isPlaying = true;
-                            const pi = document.getElementById('play-icon');
-                            const picon = document.getElementById('player-icon');
+                            const pi = document.getElementById('hub-play-icon');
+                            const di = document.getElementById('hub-disc-icon');
                             if (pi) { pi.classList.remove('fa-play'); pi.classList.add('fa-pause'); }
-                            if (picon) { picon.classList.remove('fa-music'); picon.classList.add('fa-headphones'); }
+                            if (di) { di.className = 'fa-solid fa-compact-disc fa-spin'; }
                             if (!visualizerInterval) visualizerInterval = setInterval(animateVisualizer, 120);
                             if (!seekbarInterval) seekbarInterval = setInterval(updateSeekbar, 1000);
                         } else if (event.data === YT.PlayerState.PAUSED) {
                             isPlaying = false;
-                            const pi = document.getElementById('play-icon');
-                            const picon = document.getElementById('player-icon');
+                            const pi = document.getElementById('hub-play-icon');
+                            const di = document.getElementById('hub-disc-icon');
                             if (pi) { pi.classList.remove('fa-pause'); pi.classList.add('fa-play'); }
-                            if (picon) { picon.classList.remove('fa-headphones'); picon.classList.add('fa-music'); }
+                            if (di) { di.className = 'fa-solid fa-compact-disc'; }
                             if (visualizerInterval) { clearInterval(visualizerInterval); visualizerInterval = null; }
                             if (seekbarInterval) { clearInterval(seekbarInterval); seekbarInterval = null; }
                             document.querySelectorAll('.vzb').forEach(function(bar) { bar.style.height = '3px'; });
                         } else if (event.data === YT.PlayerState.ENDED) {
                             isPlaying = false;
-                            const pi = document.getElementById('play-icon');
+                            const pi = document.getElementById('hub-play-icon');
                             if (pi) { pi.classList.remove('fa-pause'); pi.classList.add('fa-play'); }
                             if (playlistMode) nextTrack();
                         }
@@ -2374,10 +2388,6 @@ window.loadYouTubeMusic = async function() {
         }
         ytp.classList.remove('hidden');
     }
-
-    link.value = '';
-    // Toast syntax fix - no triple quotes
-    window.showToast(currentVideoTitle + " loaded!", "suc");
 }
 
 window.togglePlay = function() {
@@ -2402,40 +2412,29 @@ window.setVolume = function(val) {
 
 window.togglePlaylistMode = function() {
     playlistMode = !playlistMode;
-    const btn = document.getElementById('playlist-btn');
-    const container = document.getElementById('playlist-container');
-    if (playlistMode) {
-        if (btn) { btn.innerHTML = '<i class="fa-solid fa-list mr-1"></i> Playlist: On'; btn.classList.add('bg-[#6366f1]/15','text-[#818cf8]','border-[#6366f1]/30'); }
-        if (container) { container.classList.remove('hidden'); loadPlaylist(); }
-    } else {
-        if (btn) { btn.innerHTML = '<i class="fa-solid fa-list mr-1"></i> Playlist: Off'; btn.classList.remove('bg-[#6366f1]/15','text-[#818cf8]','border-[#6366f1]/30'); }
-        if (container) container.classList.add('hidden');
+    const btn = document.getElementById('hub-playlist-toggle');
+    if (btn) {
+        if (playlistMode) {
+            btn.innerHTML = '<i class="fa-solid fa-repeat mr-1"></i> Loop: On';
+            btn.classList.add('bg-[#6366f1]/15','text-[#818cf8]','border-[#6366f1]/30');
+        } else {
+            btn.innerHTML = '<i class="fa-solid fa-repeat mr-1"></i> Loop: Off';
+            btn.classList.remove('bg-[#6366f1]/15','text-[#818cf8]','border-[#6366f1]/30');
+        }
     }
 };
 
-window.saveToPlaylist = async function() {
-    const pt = document.getElementById('player-title');
-    if (!pt || pt.textContent === 'Music Player' || pt.textContent === 'Loading...') return;
+function loadHubPlaylist() {
     const playlist = JSON.parse(localStorage.getItem('sg_playlist') || '[]');
-    if (currentVideoId && !playlist.find(function(p) { return p.id === currentVideoId; })) {
-        playlist.push({ id: currentVideoId, title: pt.textContent });
-        localStorage.setItem('sg_playlist', JSON.stringify(playlist));
-        loadPlaylist();
-        // Toast syntax fix - no triple quotes
-        window.showToast(pt.textContent + " added to playlist!", "suc");
-    }
-};
-
-function loadPlaylist() {
-    const playlist = JSON.parse(localStorage.getItem('sg_playlist') || '[]');
-    const container = document.getElementById('playlist-items');
+    const container = document.getElementById('hub-playlist-items');
     if (!container) return;
     if (playlist.length === 0) {
-        container.innerHTML = '<span class="text-xs text-gray-600">No songs in playlist</span>';
+        container.innerHTML = '<div class="text-center text-gray-600 text-sm py-6"><i class="fa-solid fa-music text-4xl mb-3 text-gray-700 block"></i>No songs yet. Add YouTube links!</div>';
         return;
     }
     container.innerHTML = playlist.map(function(item, i) {
-        return '<div class="flex justify-between items-center bg-[#2c2c2e] p-2 rounded-lg border border-white/5 cursor-pointer hover:bg-[#3a3a3c] transition-all" onclick="playFromPlaylist(' + i + ')"><span class="text-xs text-gray-400 truncate max-w-[150px]">' + item.title + '</span><button onclick="event.stopPropagation(); removeFromPlaylist(' + i + ')" class="text-red-400 hover:text-red-300 text-xs px-2 flex-shrink-0"><i class="fa-solid fa-times"></i></button></div>';
+        const isActive = item.id === currentVideoId;
+        return '<div class="flex items-center gap-3 p-3 rounded-xl ' + (isActive ? 'bg-[#6366f1]/15 border border-[#6366f1]/30' : 'bg-[#2c2c2e] border border-white/5') + ' cursor-pointer hover:bg-[#3a3a3c] transition-all" onclick="playFromPlaylist(' + i + ')"><div class="w-10 h-10 rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-sm flex-shrink-0"><i class="fa-solid fa-music"></i></div><div class="flex-1 min-w-0"><p class="font-bold text-sm text-white truncate">' + item.title + '</p></div><button onclick="event.stopPropagation(); removeFromPlaylist(' + i + ')" class="text-red-400 hover:text-red-300 text-xs px-2 flex-shrink-0 w-7 h-7 rounded-full bg-[#1c1c1e] flex items-center justify-center"><i class="fa-solid fa-times"></i></button></div>';
     }).join('');
 }
 
@@ -2446,54 +2445,28 @@ window.playFromPlaylist = async function(index) {
     currentVideoId = item.id;
     currentVideoTitle = item.title;
 
-    const pt = document.getElementById('player-title');
-    const ps = document.getElementById('player-status');
-    const sp = document.getElementById('save-pl-btn');
-    if (pt) pt.textContent = item.title;
-    if (ps) ps.textContent = 'Now Playing';
-    if (sp) sp.classList.remove('hidden');
+    const ht = document.getElementById('hub-song-title');
+    const hs = document.getElementById('hub-song-status');
+    if (ht) ht.textContent = item.title;
+    if (hs) hs.textContent = 'Now Playing';
 
-    const ytp = document.getElementById('yt-player');
-    if (ytp) {
-        ytp.innerHTML = '<div id="yt-iframe-container"></div>';
-        try {
-            youtubePlayer = new YT.Player('yt-iframe-container', {
-                width: 1, height: 1, videoId: item.id,
-                playerVars: { autoplay: 1, controls: 0, disablekb: 1 },
-                events: {
-                    onReady: function(e) { e.target.playVideo(); },
-                    onStateChange: function(event) {
-                        if (event.data === YT.PlayerState.PLAYING) {
-                            isPlaying = true;
-                            const pi = document.getElementById('play-icon');
-                            if (pi) { pi.classList.remove('fa-play'); pi.classList.add('fa-pause'); }
-                            if (!visualizerInterval) visualizerInterval = setInterval(animateVisualizer, 120);
-                            if (!seekbarInterval) seekbarInterval = setInterval(updateSeekbar, 1000);
-                        } else if (event.data === YT.PlayerState.PAUSED) {
-                            isPlaying = false;
-                            const pi = document.getElementById('play-icon');
-                            if (pi) { pi.classList.remove('fa-pause'); pi.classList.add('fa-play'); }
-                            if (visualizerInterval) { clearInterval(visualizerInterval); visualizerInterval = null; }
-                            if (seekbarInterval) { clearInterval(seekbarInterval); seekbarInterval = null; }
-                        } else if (event.data === YT.PlayerState.ENDED) {
-                            isPlaying = false;
-                            if (playlistMode) nextTrack();
-                        }
-                    }
-                }
-            });
-        } catch (e) {
-            ytp.innerHTML = '<iframe id="yt-iframe" width="1" height="1" src="https://www.youtube.com/embed/' + item.id + '?enablejsapi=1&autoplay=1&controls=0" frameborder="0" allow="autoplay"></iframe>';
-        }
-        ytp.classList.remove('hidden');
-    }
+    loadHubPlaylist();
+    loadYouTubePlayer(item.id, item.title);
 };
 
 window.removeFromPlaylist = function(index) {
     const playlist = JSON.parse(localStorage.getItem('sg_playlist') || '[]');
     playlist.splice(index, 1);
     localStorage.setItem('sg_playlist', JSON.stringify(playlist));
-    loadPlaylist();
+    loadHubPlaylist();
+};
+
+window.clearPlaylist = function() {
+    if (confirm("Clear all songs from playlist?")) {
+        localStorage.removeItem('sg_playlist');
+        loadHubPlaylist();
+        window.showToast("Playlist cleared!", "inf");
+    }
 };
 
 window.prevTrack = function() {
@@ -2512,9 +2485,8 @@ window.nextTrack = function() {
     playFromPlaylist(idx + 1);
 };
 
-
 // ==========================================
-// ATTENDANCE
+// ATTENDANCE (COMPACT)
 // ==========================================
 function loadAttendance() {
     const today = new Date().toISOString().split('T')[0];
@@ -2526,7 +2498,7 @@ function loadAttendance() {
     if (ps) ps.textContent = streak;
     const btn = document.getElementById('att-btn');
     if (saved[today] && btn) {
-        btn.innerHTML = '<i class="fa-solid fa-check-double mr-2"></i> Attendance Marked!';
+        btn.innerHTML = '<i class="fa-solid fa-check-double mr-2"></i> Marked!';
         btn.disabled = true;
         btn.classList.add('opacity-50');
     }
@@ -2550,7 +2522,7 @@ function renderAttendanceCalendar(saved) {
     const firstDay = new Date(year, month, 1).getDay();
     let html = '';
     const dayNames = ['S','M','T','W','T','F','S'];
-    dayNames.forEach(function(d) { html += '<div class="text-center text-xs font-bold text-gray-700 mb-1">' + d + '</div>'; });
+    dayNames.forEach(function(d) { html += '<div class="text-center text-[9px] font-bold text-gray-700 mb-0.5">' + d + '</div>'; });
     for (let i = 0; i < firstDay; i++) html += '<div></div>';
     for (let day = 1; day <= daysInMonth; day++) {
         const dateStr = year + '-' + String(month+1).padStart(2,'0') + '-' + String(day).padStart(2,'0');
@@ -2589,7 +2561,7 @@ window.markAttendance = function() {
     if (sc) sc.textContent = streak;
     if (ps) ps.textContent = streak;
     const btn = document.getElementById('att-btn');
-    if (btn) { btn.innerHTML = '<i class="fa-solid fa-check-double mr-2"></i> Attendance Marked!'; btn.disabled = true; btn.classList.add('opacity-50'); }
+    if (btn) { btn.innerHTML = '<i class="fa-solid fa-check-double mr-2"></i> Marked!'; btn.disabled = true; btn.classList.add('opacity-50'); }
     renderAttendanceCalendar(saved);
     window.showToast("Streak: " + streak + " din! Aise hi jari rakho!", "suc");
     addXP(10, 'attendance');
@@ -2690,7 +2662,7 @@ window.deleteQuickNote = function(index) {
 };
 
 // ==========================================
-// LEADERBOARD
+// LEADERBOARD (PERSISTENCE FIXED)
 // ==========================================
 function loadLeaderboard() {
     if (!db) return;
@@ -2702,16 +2674,15 @@ function loadLeaderboard() {
         snap.forEach(function(child) {
             const data = child.val();
             const stats = data.stats || {};
-            if ((stats.totalXp || 0) > 0) {
-                users.push({
-                    name: data.name || 'Student',
-                    xp: stats.totalXp || 0,
-                    level: stats.level || 1,
-                    photo: data.photo || '',
-                    streak: data.attendance?.streak || 0,
-                    uid: child.key
-                });
-            }
+            // CRITICAL: Always include user even if XP is 0, but show meaningful data
+            users.push({
+                name: data.name || 'Student',
+                xp: stats.totalXp || 0,
+                level: stats.level || 1,
+                photo: data.photo || '',
+                streak: data.attendance?.streak || 0,
+                uid: child.key
+            });
         });
         users.sort(function(a, b) { return b.xp - a.xp; });
         let html = '';
@@ -2725,7 +2696,7 @@ function loadLeaderboard() {
 }
 
 // ==========================================
-// DATABASE LOADING
+// DATABASE LOADING (WITH PREMIUM NOTES)
 // ==========================================
 function loadDatabaseData() {
     if (!db) return;
@@ -2757,7 +2728,7 @@ function loadDatabaseData() {
         } else if (usersList) { usersList.innerHTML = '<div class="text-center text-gray-600 text-sm py-4">Koi users nahi mile</div>'; }
     });
 
-    // Notes
+    // Notes (Premium Cards with Subject, Topic, Date, PDF Viewer)
     onValue(ref(db, 'public_data/notes'), function(snap) {
         const list = document.getElementById('notes-list');
         const adminList = document.getElementById('manage-notes-list');
@@ -2765,14 +2736,50 @@ function loadDatabaseData() {
         if (adminList) adminList.innerHTML = "";
         const stn = document.getElementById('stat-total-notes');
         if (stn) stn.textContent = snap.exists() ? Object.keys(snap.val()).length : 0;
+        
+        // Subject color mapping
+        const subjectColors = {
+            physics: { bg: 'rgba(99,102,241,0.15)', border: 'rgba(99,102,241,0.3)', text: '#818cf8', icon: 'fa-atom' },
+            chemistry: { bg: 'rgba(52,199,89,0.15)', border: 'rgba(52,199,89,0.3)', text: '#34c759', icon: 'fa-flask' },
+            maths: { bg: 'rgba(168,85,247,0.15)', border: 'rgba(168,85,247,0.3)', text: '#a855f7', icon: 'fa-calculator' },
+            math: { bg: 'rgba(168,85,247,0.15)', border: 'rgba(168,85,247,0.3)', text: '#a855f7', icon: 'fa-calculator' },
+            english: { bg: 'rgba(59,130,246,0.15)', border: 'rgba(59,130,246,0.3)', text: '#3b82f6', icon: 'fa-book' },
+            hindi: { bg: 'rgba(249,115,22,0.15)', border: 'rgba(249,115,22,0.3)', text: '#f97316', icon: 'fa-om' },
+            default: { bg: 'rgba(99,102,241,0.15)', border: 'rgba(99,102,241,0.3)', text: '#818cf8', icon: 'fa-file-pdf' }
+        };
+        
         if (snap.exists()) {
             snap.forEach(function(c) {
                 let d = c.val(); let k = c.key;
-                if (list) list.innerHTML += '<div class="ios-card p-4 flex justify-between items-center mb-3"><div class="flex items-center gap-3 min-w-0"><div class="w-10 h-10 bg-red-500/10 rounded-xl flex justify-center items-center border border-red-500/20 flex-shrink-0"><i class="fa-solid fa-file-pdf text-red-400 text-xl"></i></div><div class="min-w-0"><h4 class="font-bold text-white truncate">' + d.title + '</h4></div></div><a href="' + d.link + '" target="_blank" rel="noopener noreferrer" class="w-10 h-10 bg-[#6366f1]/10 text-indigo-400 rounded-xl flex items-center justify-center hover:bg-[#6366f1] hover:text-white transition-colors shadow-sm border border-[#6366f1]/20 flex-shrink-0"><i class="fa-solid fa-arrow-down"></i></a></div>';
-                if (adminList) adminList.innerHTML += '<div class="flex justify-between items-center bg-[#2c2c2e] p-2 rounded-lg border border-white/10 text-sm"><span class="truncate pr-2 text-gray-400">' + d.title + '</span><button onclick="deleteItem(\'public_data/notes/' + k + '\')" class="text-red-400 hover:text-red-300 bg-red-500/10 p-1.5 rounded active:scale-90 transition-transform btn-press border border-red-500/20 flex-shrink-0"><i class="fa-solid fa-trash"></i></button></div>';
+                const subject = (d.subject || 'PDF').toLowerCase().trim();
+                const colors = subjectColors[subject] || subjectColors.default;
+                const topic = d.topic || d.title || 'Study Material';
+                const displayTitle = d.title || topic;
+                const dateStr = d.date || new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+                
+                // Premium note card
+                if (list) {
+                    list.innerHTML += 
+                    '<div class="note-card">' +
+                        '<div class="note-card-header">' +
+                            '<div class="flex items-center justify-between">' +
+                                '<span class="note-subject-badge" style="background:' + colors.bg + ';border:1px solid ' + colors.border + ';color:' + colors.text + '">' +
+                                    '<i class="fa-solid ' + colors.icon + '"></i> ' + (d.subject || 'PDF') +
+                                '</span>' +
+                                '<span class="text-[10px] text-gray-600 font-medium">' + dateStr + '</span>' +
+                            '</div>' +
+                            '<h4 class="note-topic">' + topic + '</h4>' +
+                        '</div>' +
+                        '<button onclick="openPdfViewer(\'' + encodeURIComponent(d.link) + '\', \'' + encodeURIComponent(displayTitle) + '\')" class="note-open-btn">' +
+                            '<i class="fa-solid fa-eye"></i> Open File' +
+                        '</button>' +
+                    '</div>';
+                }
+                
+                if (adminList) adminList.innerHTML += '<div class="flex justify-between items-center bg-[#2c2c2e] p-2 rounded-lg border border-white/10 text-sm"><span class="truncate pr-2 text-gray-400">' + (d.subject || 'PDF') + ' - ' + topic + '</span><button onclick="deleteItem(\'public_data/notes/' + k + '\')" class="text-red-400 hover:text-red-300 bg-red-500/10 p-1.5 rounded active:scale-90 transition-transform btn-press border border-red-500/20 flex-shrink-0"><i class="fa-solid fa-trash"></i></button></div>';
             });
         } else {
-            if (list) list.innerHTML = "<div class='text-center text-gray-600 py-6'>Koi notes uplabdh nahi hain.</div>";
+            if (list) list.innerHTML = "<div class='text-center text-gray-600 py-6'><i class='fa-solid fa-book-open text-4xl mb-3 text-gray-700'></i><p>Koi notes uplabdh nahi hain.</p></div>";
             if (adminList) adminList.innerHTML = "<span class='text-xs text-gray-600'>Koi notes nahi</span>";
         }
     });
@@ -2782,7 +2789,6 @@ function loadDatabaseData() {
         const box = document.getElementById('course-status');
         if (!box) return;
         const d = snap.val() || { hin:0, eng:0, math:0, phy:0, chem:0, hin_gadya:0, hin_padya:0, hin_kahani:0, hin_natak:0, hin_vyakaran:0, hin_sanskrit:0, eng_prose:0, eng_poetry:0, eng_supp:0, eng_grammar:0 };
-        const colors = { hin:'orange', eng:'blue', math:'emerald', phy:'indigo', chem:'purple' };
         const hexColors = { hin:'#f97316', eng:'#3b82f6', math:'#10b981', phy:'#6366f1', chem:'#a855f7' };
         const names = { hin:'Hindi', eng:'English', math:'Maths', phy:'Physics', chem:'Chemistry' };
         let html = '<div class="flex justify-between items-center mb-4"><h4 class="font-bold text-white flex items-center gap-2"><i class="fa-solid fa-chart-simple text-indigo-400"></i> Syllabus Coverage</h4></div><div class="space-y-5">';
@@ -2837,12 +2843,25 @@ function loadDatabaseData() {
         }
     });
 
-    // Countdown
+    // Countdown (Dynamic Exam Name)
     onValue(ref(db, 'public_data/countdown'), function(snap) {
         if (snap.exists()) {
-            const dateVal = snap.val();
-            globalTargetDate = new Date(dateVal);
-            if (isNaN(globalTargetDate.getTime())) globalTargetDate = new Date("2026-02-15T00:00:00");
+            const val = snap.val();
+            if (typeof val === 'object' && val !== null) {
+                if (val.date) {
+                    globalTargetDate = new Date(val.date);
+                    if (isNaN(globalTargetDate.getTime())) globalTargetDate = new Date("2026-02-15T00:00:00");
+                }
+                if (val.examName) {
+                    globalExamName = val.examName;
+                }
+            } else if (typeof val === 'string') {
+                globalTargetDate = new Date(val);
+                if (isNaN(globalTargetDate.getTime())) globalTargetDate = new Date("2026-02-15T00:00:00");
+            }
+            // Update label
+            const labelEl = document.getElementById('exam-countdown-label');
+            if (labelEl) labelEl.textContent = globalExamName;
         }
     });
 }
@@ -2886,10 +2905,12 @@ window.adminAction = async function(type) {
     if (!db) { window.showToast("Database not connected", "err"); return; }
     try {
         if (type === 'note') {
-            const t = document.getElementById('n-title').value.trim();
+            const subject = document.getElementById('n-subject').value.trim();
+            const topic = document.getElementById('n-topic').value.trim();
             const l = document.getElementById('n-link').value.trim();
-            if (!t || !l) return window.showToast("Sabh fields bharein", "err");
-            await push(ref(db, 'public_data/notes'), { title: t, link: l });
+            if (!subject || !topic || !l) return window.showToast("All fields required", "err");
+            const dateStr = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+            await push(ref(db, 'public_data/notes'), { subject: subject, topic: topic, title: topic, link: l, date: dateStr });
         } else if (type === 'progress') {
             const data = {
                 hin: Math.min(100, Math.max(0, parseInt(document.getElementById('p-hin').value) || 0)),
@@ -2924,9 +2945,13 @@ window.adminAction = async function(type) {
             if (!nm || !sb || !dt) return window.showToast("Required fields bharein", "err");
             await push(ref(db, 'public_data/exam_schedule'), { examName: nm, subject: sb, date: dt, time: tm || 'TBA', meeting: mt || 'TBA' });
         } else if (type === 'countdown') {
+            const examName = document.getElementById('cd-exam-name').value.trim();
             const d = document.getElementById('cd-date').value;
             if (!d) return;
-            await set(ref(db, 'public_data/countdown'), d);
+            await set(ref(db, 'public_data/countdown'), {
+                examName: examName || 'Final Board Exams',
+                date: d
+            });
         }
         window.showToast("Safalta se update ho gaya!", "suc");
         document.querySelectorAll('details[open] input, details[open] textarea').forEach(function(el) { if (el.type !== 'datetime-local' && el.type !== 'date') el.value = ''; });
@@ -2957,11 +2982,11 @@ setInterval(function() {
 }, 1000);
 
 // ==========================================
-// PWA INSTALL (External sw.js)
+// PWA INSTALL (with /Study12th/ path)
 // ==========================================
 let deferredPrompt = null;
 
-// Register Service Worker from external sw.js
+// Register Service Worker with /Study12th/ path
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
         navigator.serviceWorker.register('/Study12th/sw.js')
@@ -3062,7 +3087,6 @@ if (auth) {
             if (pn) pn.innerText = user.displayName || 'Student';
 
             // CRITICAL FIX: Sync user data from Firebase FIRST before rendering UI
-            // This ensures XP, Level, and Badges are never lost on app close/reopen
             await syncUserDataFromFirebase(user.uid);
 
             // Now get the merged data and render immediately
@@ -3099,7 +3123,10 @@ if (auth) {
                 loadAttendance();
                 loadQuickNotes();
                 loadLeaderboard();
-                loadQuizLeaderboard();
+                loadHubPlaylist();
+                initHubVisualizer();
+                loadNotificationState();
+                checkMidnightRefresh();
 
                 // Render XP/Level/Badges AFTER Firebase sync is complete
                 updateLevelUI();
@@ -3108,7 +3135,6 @@ if (auth) {
                 const totalFocus = parseInt(localStorage.getItem('totalFocus') || '0');
                 const pf = document.getElementById('prof-focus');
                 if (pf) pf.textContent = Math.floor(totalFocus / 60);
-                initVisualizer();
                 // Show welcome modal once
                 if (!welcomeShown) {
                     setTimeout(showWelcomeModal, 800);
@@ -3144,10 +3170,10 @@ document.addEventListener('keydown', function(e) {
 
 // Prevent pull-to-refresh on mobile for native feel
 document.addEventListener('touchmove', function(e) {
-    if (e.target.closest('#ai') || e.target.closest('.modal-overlay')) return;
+    if (e.target.closest('#ai') || e.target.closest('#music') || e.target.closest('.modal-overlay')) return;
 }, { passive: true });
 
-console.log('StudyGram Pro v3.0 (iOS Solid UI) loaded - Mohammad Arshad (@dark_eio)');
+console.log('StudyGram Pro v4.0 (Music Hub Update) loaded - Mohammad Arshad (@dark_eio)');
 </script>
 </body>
 </html>
