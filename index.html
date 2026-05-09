@@ -1753,21 +1753,14 @@ window.openPdfViewer = function(url, title) {
     
     let embedUrl = url.trim();
     
-    // Google Drive link ko sahi format mein convert karo
+    // Agar http nahi hai toh add karo
+    if (!embedUrl.startsWith('http')) {
+        embedUrl = 'https://' + embedUrl;
+    }
+
+    // Drive /view ko /preview karo
     if (embedUrl.includes('drive.google.com')) {
-        // File ID nikaalo
-        let fileId = '';
-        if (embedUrl.includes('/file/d/')) {
-            fileId = embedUrl.split('/file/d/')[1]?.split('/')[0]?.split('?')[0];
-        } else if (embedUrl.includes('open?id=')) {
-            fileId = embedUrl.split('open?id=')[1]?.split('&')[0];
-        } else if (embedUrl.includes('id=')) {
-            fileId = embedUrl.split('id=')[1]?.split('&')[0];
-        }
-        
-        if (fileId) {
-            embedUrl = 'https://drive.google.com/file/d/' + fileId + '/preview';
-        }
+        embedUrl = embedUrl.replace('/view', '/preview').replace('/edit', '/preview');
     }
     
     titleEl.textContent = title || 'Document';
@@ -2783,8 +2776,7 @@ function loadDatabaseData() {
                             '</div>' +
                             '<h4 class="note-topic">' + topic + '</h4>' +
                         '</div>' +
-                        const safeUrl = (d.link || '').replace(/'/g, "\\'");
-'<button onclick="openPdfViewer(\'' + safeUrl + '\', \'' + displayTitle.replace(/'/g, "\\'") + '\')" class="note-open-btn">'
+                        '<button onclick="openPdfViewer(\'' + encodeURIComponent(d.link) + '\', \'' + encodeURIComponent(displayTitle) + '\')" class="note-open-btn">' +
                             '<i class="fa-solid fa-eye"></i> Open File' +
                         '</button>' +
                     '</div>';
