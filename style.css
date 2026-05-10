@@ -933,3 +933,12 @@ body.light-mode {
     background: #f9f9f9 !important;
     color: #000 !important;
 }
+/* 🚨 GIANT GOOGLE LOGO FIX 🚨 */
+.login-btn svg, 
+.login-btn img,
+svg {
+    width: 26px !important;
+    height: 26px !important;
+    max-width: 100% !important;
+    display: inline-block !important;
+}
