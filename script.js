@@ -1793,11 +1793,14 @@ window.adminAction = async function(type) {
             const subject = document.getElementById('lecture-subject')?.value.trim();
             const chapter = document.getElementById('lecture-chapter')?.value.trim();
             const l = document.getElementById('lecture-link')?.value.trim();
-            if (!subject || !chapter || !l) return showToast("All fields required", "err");
-            const videoId = extractVideoId(l);
-            if (!videoId) return showToast("Invalid YouTube link", "err");
+            
+            if (!subject || !chapter || !l) return showToast("Sabh details bharein!", "err");
+
             await push(ref(db, 'public_data/lectures'), {
-                category: cat, subject, chapter, link: l,
+                category: cat, 
+                subject, 
+                chapter, 
+                link: l,
                 date: new Date().toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'})
             });
         } else if (type === 'progress') {
