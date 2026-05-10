@@ -78,7 +78,7 @@
 <!-- ========================================== -->
 <!-- TOP NAVIGATION (with hamburger)            -->
 <!-- ========================================== -->
-<nav id="main-nav" class="main-nav" style="display: flex !important; z-index: 9999 !important; position: sticky; top: 0;">
+<nav id="main-nav" class="main-nav hidden">
   <div class="flex items-center gap-3">
     <button onclick="openSidebar()" class="w-9 h-9 rounded-xl bg-[#2c2c2e] flex items-center justify-center text-gray-400 hover:bg-[#3a3a3c] hover:text-white active:scale-90 transition-all btn-press border border-white/5">
       <i class="fa-solid fa-bars"></i>
@@ -368,7 +368,7 @@
       <button onclick="openExamModal()" class="w-full bg-[#6366f1] text-white py-3.5 rounded-2xl font-bold shadow-lg hover:brightness-110 active:scale-95 transition-all mb-4 flex justify-center items-center gap-2 btn-press">
         <i class="fa-solid fa-ticket"></i> View Exam Seat & Schedule
       </button>
-
+      
       <div class="ios-gcard p-4 rounded-2xl mb-4 text-left space-y-3">
         <div class="flex justify-between items-center border-b border-white/10 pb-2">
           <span class="text-gray-500 text-sm font-medium">Subjects</span>
@@ -694,6 +694,7 @@
     <button onclick="switchTab('ai')" class="ai-nav-btn" data-target="ai"><i class="fa-solid fa-robot"></i></button>
   </div>
   <button onclick="switchTab('notice')" class="nav-btn" data-target="notice"><i class="fa-solid fa-bell"></i></button>
+    <button onclick="openSidebar()" class="nav-btn"><i class="fa-solid fa-bars-staggered"></i></button>
   <button onclick="switchTab('profile')" class="nav-btn" data-target="profile"><i class="fa-solid fa-user-astronaut"></i></button>
 </div>
 
