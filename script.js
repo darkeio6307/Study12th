@@ -1,22 +1,20 @@
 // ==========================================
-// STUDYGRAM PRO v3.0 - COMPLETE SCRIPT
+// STUDYGRAM PRO v4.0 - COMPLETE SCRIPT
+// Nothing OS Dark Theme + Social Hub + Golden Premium
 // ==========================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-import { getDatabase, ref, set, push, onValue, remove, update, get } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+import { getDatabase, ref, set, push, onValue, remove, update, get, onChildAdded } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyC-psUKqTO9u5kCuA3OUqWT63Ey0IvDei4",
     authDomain: "study-ae01d.firebaseapp.com",
-    databaseURL: "https://study-ae01d-default-rtdb.firebaseio.com",
+    databaseURL: "https://study-ae01d-default-rtdb.firebase.io",
     projectId: "study-ae01d",
     storageBucket: "study-ae01d.appspot.com"
 };
-
-const GROQ_KEY = "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";
-const GROQ_MODEL = "llama-3.3-70b-versatile";
 
 let app, auth, db, storage, provider;
 try {
@@ -26,14 +24,10 @@ try {
     storage = getStorage(app);
     provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
-    setPersistence(auth, browserLocalPersistence).then(() => {
-        console.log("Firebase persistence set to LOCAL");
-    }).catch(e => console.warn("Persistence error:", e));
+    setPersistence(auth, browserLocalPersistence);
     console.log("Firebase OK");
 } catch (e) {
     console.error("Firebase Error:", e);
-    const el = document.getElementById('login-error');
-    if (el) { el.textContent = "App init failed. Refresh."; el.classList.remove('hidden'); }
 }
 
 // ==========================================
@@ -42,15 +36,28 @@ try {
 let currentUser = null;
 let isLoggingIn = false;
 let isPremium = false;
+let isAdminUnlocked = false;
 let timerInterval = null;
 let timerSeconds = 25 * 60;
 let timerRunning = false;
-let lastAIResponse = "";
 let welcomeShown = false;
 let globalTargetDate = new Date("2026-02-15T00:00:00");
 let globalExamName = "Final Board Exams";
+let currentNoteFilter = 'all';
+let currentClassFilter = 'all';
+let currentLectureFilter = 'all';
+let currentSocialTab = 'stories';
+let cachedNotes = [];
+let cachedClasses = [];
+let cachedLectures = [];
+let cachedPosts = [];
+let cachedStories = [];
+let cachedReels = [];
+let storyViewerInterval = null;
+let isSavingName = false;
+let grantedPremiumUids = new Set();
 
-// Music hub state
+// Music state
 let isPlaying = false;
 let playlistMode = false;
 let visualizerInterval = null;
@@ -60,38 +67,63 @@ let currentVideoTime = 0;
 let seekbarInterval = null;
 let currentVideoId = '';
 let currentVideoTitle = 'YouTube Audio';
-let musicListenStart = 0;
 let musicTotalListened = 0;
 let musicEarnedXP = 0;
 let musicXPInterval = null;
 
-// Current filter states
-let currentNoteFilter = 'all';
-let currentClassFilter = 'all';
-
-// Cached data for filters
-let cachedNotes = [];
-let cachedClasses = [];
-
 // ==========================================
-// LEVEL SYSTEM (LEVEL 100 = 1,000,000 EXP)
+// CONSTANTS
 // ==========================================
 const MAX_LEVEL = 100;
 const TARGET_TOTAL_XP = 1000000;
+const STORY_LIFETIME_MS = 24 * 60 * 60 * 1000;
+const REELS_SEEN_KEY = 'sg_seen_reels';
+const BANNED_USERS_KEY = 'sg_banned_users';
+const ADMIN_PASS = "unlock";
 
+// ==========================================
+// HAPTIC FEEDBACK
+// ==========================================
+window.haptic = function(pattern) {
+    if (navigator.vibrate) {
+        navigator.vibrate(pattern || 15);
+    }
+};
+
+// ==========================================
+// SKELETON LOADER
+// ==========================================
+function showSkeleton() {
+    const loader = document.getElementById('skeleton-loader');
+    if (loader) loader.classList.remove('loaded');
+}
+function hideSkeleton() {
+    const loader = document.getElementById('skeleton-loader');
+    if (loader) {
+        loader.classList.add('loaded');
+        setTimeout(() => { if (loader) loader.style.display = 'none'; }, 500);
+    }
+}
+
+// ==========================================
+// LEVEL SYSTEM
+// ==========================================
+function cumulativeXP(level) {
+    if (level <= 1) return 0;
+    if (level > MAX_LEVEL + 1) return TARGET_TOTAL_XP;
+    const t = (level - 1) / 99;
+    return Math.round(TARGET_TOTAL_XP * Math.pow(t, 1.8));
+}
+function levelXPRequired(level) {
+    return cumulativeXP(level + 1) - cumulativeXP(level);
+}
 function calculateLevel(totalXP) {
     if (totalXP <= 0) return { level: 1, xpIntoLevel: 0, xpForNext: levelXPRequired(1), progress: 0, totalXP: 0 };
-    // Binary search for level
     let low = 1, high = MAX_LEVEL, ans = 1;
     while (low <= high) {
         const mid = Math.floor((low + high) / 2);
-        const cumul = cumulativeXP(mid);
-        if (totalXP >= cumul) {
-            ans = mid;
-            low = mid + 1;
-        } else {
-            high = mid - 1;
-        }
+        if (totalXP >= cumulativeXP(mid)) { ans = mid; low = mid + 1; }
+        else { high = mid - 1; }
     }
     const level = Math.min(ans, MAX_LEVEL);
     const cumulBefore = cumulativeXP(level);
@@ -102,26 +134,12 @@ function calculateLevel(totalXP) {
     return { level, xpIntoLevel: xpInto, xpForNext: xpNeeded, progress, totalXP };
 }
 
-// Cumulative XP to reach a given level (level 1 = 0 XP)
-function cumulativeXP(level) {
-    if (level <= 1) return 0;
-    if (level > MAX_LEVEL + 1) return TARGET_TOTAL_XP;
-    // Use exponential scaling: total XP to reach level L follows a curve that reaches 1M at level 100
-    // Formula: cumul(L) = 1,000,000 * ((L-1)/99)^1.8
-    const t = (level - 1) / 99;
-    return Math.round(TARGET_TOTAL_XP * Math.pow(t, 1.8));
-}
-
-function levelXPRequired(level) {
-    return cumulativeXP(level + 1) - cumulativeXP(level);
-}
-
 // ==========================================
 // USER DATA
 // ==========================================
 function getUserData() {
     const uid = currentUser?.uid;
-    if (!uid) return { level: 1, xp: 0, totalXp: 0, badges: [], rollNumber: 'UP' + Math.floor(100000 + Math.random() * 900000), displayName: '' };
+    if (!uid) return { level: 1, xp: 0, totalXp: 0, badges: [], rollNumber: 'UP' + Math.floor(100000 + Math.random() * 900000), displayName: '', hasClaimedNameExp: false };
     const saved = JSON.parse(localStorage.getItem('sg_user_' + uid) || '{}');
     return {
         level: saved.level || 1,
@@ -129,10 +147,10 @@ function getUserData() {
         totalXp: saved.totalXp || 0,
         badges: saved.badges || [],
         rollNumber: saved.rollNumber || 'UP' + Math.floor(100000 + Math.random() * 900000),
-        displayName: saved.displayName || currentUser?.displayName || 'Student'
+        displayName: saved.displayName || currentUser?.displayName || 'Student',
+        hasClaimedNameExp: saved.hasClaimedNameExp || false
     };
 }
-
 function saveUserData(data) {
     const uid = currentUser?.uid;
     if (!uid) return;
@@ -146,29 +164,28 @@ async function syncUserDataFromFirebase(uid) {
         if (statsSnap.exists()) {
             const stats = statsSnap.val();
             const localData = JSON.parse(localStorage.getItem('sg_user_' + uid) || '{}');
-            const mergedData = {
+            const merged = {
                 level: stats.level || localData.level || 1,
                 xp: stats.xp !== undefined ? stats.xp : (localData.xp || 0),
                 totalXp: stats.totalXp !== undefined ? stats.totalXp : (localData.totalXp || 0),
                 badges: stats.badges || localData.badges || [],
                 rollNumber: localData.rollNumber || 'UP' + Math.floor(100000 + Math.random() * 900000),
-                displayName: localData.displayName || currentUser?.displayName || 'Student'
+                displayName: localData.displayName || currentUser?.displayName || 'Student',
+                hasClaimedNameExp: stats.hasClaimedNameExp || localData.hasClaimedNameExp || false
             };
-            localStorage.setItem('sg_user_' + uid, JSON.stringify(mergedData));
+            localStorage.setItem('sg_user_' + uid, JSON.stringify(merged));
         }
-        // Check premium status
-        const premiumSnap = await get(ref(db, 'users/' + uid + '/isPremium'));
-        if (premiumSnap.exists()) {
-            isPremium = premiumSnap.val() === true;
-            localStorage.setItem('sg_premium_' + uid, isPremium ? '1' : '0');
+        const premSnap = await get(ref(db, 'users/' + uid + '/isPremium'));
+        if (premSnap.exists() && premSnap.val() === true) {
+            isPremium = true;
+            localStorage.setItem('sg_premium_' + uid, '1');
         } else {
-            const saved = localStorage.getItem('sg_premium_' + uid);
-            isPremium = saved === '1';
+            isPremium = localStorage.getItem('sg_premium_' + uid) === '1';
         }
+        document.body.classList.toggle('premium-active', isPremium);
     } catch (e) {
-        console.warn("Firebase sync failed:", e);
-        const saved = localStorage.getItem('sg_premium_' + uid);
-        isPremium = saved === '1';
+        isPremium = localStorage.getItem('sg_premium_' + uid) === '1';
+        document.body.classList.toggle('premium-active', isPremium);
     }
 }
 
@@ -177,7 +194,7 @@ function addXP(amount, reason) {
     if (!uid) return;
     let data = getUserData();
     const oldLevel = data.level;
-    data.totalXp += amount;
+    data.totalXp = (data.totalXp || 0) + amount;
     const calc = calculateLevel(data.totalXp);
     data.level = calc.level;
     data.xp = calc.xpIntoLevel;
@@ -188,7 +205,7 @@ function addXP(amount, reason) {
         if (calc.level % 10 === 0) addBadge('level_' + calc.level, 'Level ' + calc.level + ' Master', 'indigo');
     }
     if (db && currentUser) {
-        set(ref(db, 'users/' + uid + '/stats'), { level: data.level, xp: data.xp, totalXp: data.totalXp, badges: data.badges });
+        set(ref(db, 'users/' + uid + '/stats'), { level: data.level, xp: data.xp, totalXp: data.totalXp, badges: data.badges, hasClaimedNameExp: data.hasClaimedNameExp });
     }
 }
 
@@ -208,21 +225,19 @@ function updateLevelUI() {
     document.querySelectorAll('[id$="-level"]').forEach(el => el.textContent = 'Lv.' + calc.level);
     document.querySelectorAll('[id$="-xp-bar"]').forEach(el => el.style.width = calc.progress + '%');
     document.querySelectorAll('[id$="-xp-text"]').forEach(el => el.textContent = calc.xpIntoLevel.toLocaleString() + ' / ' + calc.xpForNext.toLocaleString() + ' EXP');
-    const profTotalXp = document.getElementById('prof-total-xp');
-    if (profTotalXp) profTotalXp.textContent = data.totalXp.toLocaleString();
-    // Premium badge visibility
+    const ptx = document.getElementById('prof-total-xp');
+    if (ptx) ptx.textContent = data.totalXp.toLocaleString();
     const pb = document.getElementById('premium-badge');
     if (pb) pb.classList.toggle('hidden', !isPremium);
     const mpb = document.getElementById('music-premium-badge');
     if (mpb) mpb.classList.toggle('hidden', !isPremium);
-    // Sidebar music lock icon
     const sml = document.getElementById('sidebar-music-lock');
     if (sml) sml.innerHTML = isPremium ? '' : '<i class="fa-solid fa-lock"></i>';
 }
 
 function updateBadgesUI() {
     const data = getUserData();
-    const badgeColors = {
+    const colors = {
         indigo: 'border-indigo-400 text-indigo-300 bg-indigo-500/10',
         green: 'border-green-400 text-green-300 bg-green-500/10',
         amber: 'border-amber-400 text-amber-300 bg-amber-500/10',
@@ -230,20 +245,18 @@ function updateBadgesUI() {
         purple: 'border-purple-400 text-purple-300 bg-purple-500/10',
         blue: 'border-blue-400 text-blue-300 bg-blue-500/10'
     };
-    const profBadges = document.getElementById('prof-badges');
-    if (profBadges) {
+    const pb = document.getElementById('prof-badges');
+    if (pb) {
         if (data.badges.length === 0) {
-            profBadges.innerHTML = '<span class="text-xs text-gray-600">No badges yet - tap to see all</span>';
+            pb.innerHTML = '<span class="text-muted">No badges yet - tap to see all</span>';
         } else {
-            let html = '';
+            let h = '';
             data.badges.slice(0, 6).forEach(b => {
-                const cc = badgeColors[b.color] || badgeColors.indigo;
-                html += '<span class="bdg ' + cc + '"><i class="fa-solid fa-medal"></i> ' + b.name + '</span>';
+                const c = colors[b.color] || colors.indigo;
+                h += '<span class="badge-pill ' + c + '"><i class="fa-solid fa-medal"></i> ' + b.name + '</span>';
             });
-            if (data.badges.length > 6) {
-                html += '<span class="bdg border-gray-600 text-gray-500 bg-gray-500/10">+' + (data.badges.length - 6) + ' more</span>';
-            }
-            profBadges.innerHTML = html;
+            if (data.badges.length > 6) h += '<span class="badge-pill border-gray-600 text-gray-500 bg-gray-500/10">+' + (data.badges.length - 6) + ' more</span>';
+            pb.innerHTML = h;
         }
     }
 }
@@ -251,48 +264,52 @@ function updateBadgesUI() {
 // ==========================================
 // PREMIUM SYSTEM
 // ==========================================
-function checkPremiumAccess() {
-    return isPremium === true;
-}
+function checkPremiumAccess() { return isPremium === true; }
 
 window.attemptAccessMusic = function() {
-    if (checkPremiumAccess()) {
-        switchTab('music');
-    } else {
-        showPremiumPopup();
-    }
+    if (checkPremiumAccess()) switchTab('music');
+    else { haptic(); showPremiumPopup(); }
 };
 
 window.showPremiumPopup = function() {
-    const modal = document.getElementById('premium-modal');
-    if (modal) modal.classList.add('active');
+    const m = document.getElementById('premium-modal');
+    if (m) m.classList.add('active');
 };
-
 window.closePremiumPopup = function() {
-    const modal = document.getElementById('premium-modal');
-    if (modal) modal.classList.remove('active');
+    const m = document.getElementById('premium-modal');
+    if (m) m.classList.remove('active');
 };
 
+// Grant Premium with duplicate prevention
 window.grantPremium = async function() {
     const uidInput = document.getElementById('premium-uid');
     if (!uidInput || !uidInput.value.trim()) { showToast("Enter a UID", "err"); return; }
     const targetUid = uidInput.value.trim();
     if (!db) { showToast("Database not connected", "err"); return; }
+
+    // Check if already premium
+    try {
+        const snap = await get(ref(db, 'users/' + targetUid + '/isPremium'));
+        if (snap.exists() && snap.val() === true) {
+            showToast("User already has Premium!", "warn");
+            return;
+        }
+    } catch (e) {}
+
+    // Disable button
+    const btn = document.getElementById('grant-premium-btn');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Granting...'; }
+
     try {
         await set(ref(db, 'users/' + targetUid + '/isPremium'), true);
-        // Also give +10 levels boost
         const statsSnap = await get(ref(db, 'users/' + targetUid + '/stats'));
         let stats = statsSnap.exists() ? statsSnap.val() : { level: 1, xp: 0, totalXp: 0, badges: [] };
-        stats.level = Math.min(100, (stats.level || 1) + 10);
-        const calc = calculateLevel(stats.totalXp || 0);
-        // Force level to be at least +10 from current
-        const newLevel = Math.max(stats.level, calc.level + 10);
+        const newLevel = Math.min(100, (stats.level || 1) + 10);
         const newCumul = cumulativeXP(newLevel);
         stats.totalXp = Math.max(stats.totalXp || 0, newCumul);
         const recalc = calculateLevel(stats.totalXp);
         stats.level = recalc.level;
         stats.xp = recalc.xpIntoLevel;
-        // Add premium badge
         if (!stats.badges) stats.badges = [];
         if (!stats.badges.find(b => b.id === 'premium')) {
             stats.badges.push({ id: 'premium', name: 'Premium User', color: 'amber', earned: new Date().toISOString() });
@@ -301,71 +318,467 @@ window.grantPremium = async function() {
         showToast("Premium granted to " + targetUid.substring(0, 8) + "...!", "suc");
         uidInput.value = '';
     } catch (e) {
-        showToast("Failed to grant premium: " + e.message, "err");
+        showToast("Failed: " + e.message, "err");
+    } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-crown"></i> Grant Premium'; }
+    }
+};
+
+// Revoke Premium
+window.revokePremium = async function() {
+    const uidInput = document.getElementById('premium-uid');
+    if (!uidInput || !uidInput.value.trim()) { showToast("Enter a UID", "err"); return; }
+    const targetUid = uidInput.value.trim();
+    if (!db) { showToast("Database not connected", "err"); return; }
+    if (!confirm("Are you sure you want to revoke Premium from this user?")) return;
+    try {
+        await set(ref(db, 'users/' + targetUid + '/isPremium'), false);
+        localStorage.removeItem('sg_premium_' + targetUid);
+        showToast("Premium revoked from " + targetUid.substring(0, 8) + "...", "suc");
+        uidInput.value = '';
+    } catch (e) {
+        showToast("Failed: " + e.message, "err");
     }
 };
 
 // ==========================================
-// SIDEBAR / DRAWER
+// SIDEBAR
 // ==========================================
 window.openSidebar = function() {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebar-overlay');
-    if (sidebar) sidebar.classList.add('active');
-    if (overlay) overlay.classList.add('active');
+    document.getElementById('sidebar')?.classList.add('active');
+    document.getElementById('sidebar-overlay')?.classList.add('active');
 };
-
 window.closeSidebar = function() {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebar-overlay');
-    if (sidebar) sidebar.classList.remove('active');
-    if (overlay) overlay.classList.remove('active');
+    document.getElementById('sidebar')?.classList.remove('active');
+    document.getElementById('sidebar-overlay')?.classList.remove('active');
 };
 
 // ==========================================
-// TAB SWITCHING (Full-Screen)
-// ==========================================
-// ==========================================
-// TAB SWITCHING (Full-Screen & Top Bar Fix)
+// TAB SWITCHING
 // ==========================================
 window.switchTab = function(id) {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active-section'));
     const target = document.getElementById(id);
     if (target) target.classList.add('active-section');
-    
+
     const navTop = document.getElementById('main-nav');
     const navBot = document.getElementById('bottom-nav');
 
-    // Bottom Navigation (नीचे वाली पट्टी का लॉजिक)
-    if (id === 'ai' || id === 'music') {
+    if (id === 'music' || id === 'social') {
         if (navBot) navBot.style.display = 'none';
     } else {
         if (navBot) navBot.style.display = 'flex';
     }
 
-    // Top Navigation (ऊपर वाली ढाल और म्यूजिक पट्टी का लॉजिक)
     if (navTop) {
-        if (id === 'home') {
-            // सिर्फ Home पेज पर दिखेगी
-            navTop.classList.remove('hidden');
-            navTop.style.display = 'flex';
-        } else {
-            // बाकी पेजों पर छुप जाएगी ताकि डिज़ाइन खराब न हो
-            navTop.classList.add('hidden');
-            navTop.style.display = 'none';
-        }
+        if (id === 'home') { navTop.classList.remove('hidden'); navTop.style.display = 'flex'; }
+        else { navTop.classList.add('hidden'); navTop.style.display = 'none'; }
     }
 
-    // बटन्स का कलर सेट करना
     document.querySelectorAll('.nav-btn').forEach(btn => {
         const isActive = btn.dataset.target === id;
-        btn.style.color = isActive ? '#fff' : '#8e8e93';
-        if (isActive) btn.classList.add('bg-[#2c2c2e]');
-        else btn.classList.remove('bg-[#2c2c2e]');
+        btn.classList.toggle('active', isActive);
     });
+
+    // Premium lock on video lectures
+    if (id === 'lectures') {
+        updateLecturesUI();
+    }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
 };
+
+// ==========================================
+// VIDEO LECTURES (PREMIUM LOCKED)
+// ==========================================
+function updateLecturesUI() {
+    const banner = document.getElementById('lectures-premium-banner');
+    const list = document.getElementById('lectures-list');
+    if (!banner || !list) return;
+    if (isPremium) {
+        banner.classList.add('hidden');
+        list.classList.remove('hidden');
+    } else {
+        banner.classList.remove('hidden');
+        list.classList.add('hidden');
+    }
+}
+
+window.filterLectures = function(category) {
+    currentLectureFilter = category;
+    renderLecturesList();
+};
+
+function renderLecturesList() {
+    const container = document.getElementById('lectures-items');
+    if (!container) return;
+    let filtered = cachedLectures;
+    if (currentLectureFilter !== 'all') {
+        filtered = cachedLectures.filter(l => (l.category || '').toLowerCase() === currentLectureFilter);
+    }
+    if (filtered.length === 0) {
+        container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-graduation-cap empty-icon"></i>No lectures available.</div>';
+        return;
+    }
+    container.innerHTML = filtered.map(item => {
+        const catColors = {
+            physics: '#6366f1', chemistry: '#34c759', math: '#10b981',
+            hindi: '#f97316', english: '#3b82f6', other: '#8e8e93'
+        };
+        const color = catColors[(item.category || '').toLowerCase()] || '#6366f1';
+        const videoId = item.link ? extractVideoId(item.link) : '';
+        const thumb = videoId ? 'https://img.youtube.com/vi/' + videoId + '/mqdefault.jpg' : '';
+        return '<div class="lecture-card">' +
+            (thumb ? '<img src="' + thumb + '" class="lecture-thumb" alt="">' : '') +
+            '<div class="lecture-body">' +
+                '<span class="lecture-premium-tag"><i class="fa-solid fa-crown"></i> Video Lectures Access!</span>' +
+                '<span class="lecture-subject" style="color:' + color + '">' + (item.category || 'Other').charAt(0).toUpperCase() + (item.category || '').slice(1) + '</span>' +
+                '<h4 class="lecture-chapter">' + (item.chapter || item.topic || 'Untitled') + '</h4>' +
+                '<span class="lecture-date">Subject: ' + (item.subject || item.category || 'General') + ' &bull; Uploaded: ' + (item.date || 'Recently') + '</span>' +
+                (item.link ? '<a href="' + item.link + '" target="_blank" class="note-btn" style="margin-top:10px;"><i class="fa-solid fa-play"></i> Watch Lecture</a>' : '') +
+            '</div></div>';
+    }).join('');
+}
+
+// ==========================================
+// SOCIAL HUB
+// ==========================================
+window.switchSocialTab = function(tab) {
+    currentSocialTab = tab;
+    document.querySelectorAll('.social-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+    document.querySelectorAll('.social-panel').forEach(p => p.classList.toggle('active', p.id === 'social-' + tab));
+    if (tab === 'stories') renderStories();
+    if (tab === 'feed') renderFeed();
+    if (tab === 'reels') renderReels();
+};
+
+// --- STORIES ---
+function getActiveStories() {
+    const now = Date.now();
+    return cachedStories.filter(s => (now - (s.timestamp || 0)) < STORY_LIFETIME_MS);
+}
+
+function renderStories() {
+    const row = document.getElementById('stories-row');
+    const list = document.getElementById('stories-list');
+    const active = getActiveStories();
+
+    // Update add story avatar
+    const userAvatar = document.getElementById('story-user-avatar');
+    if (userAvatar && currentUser) userAvatar.src = currentUser.photoURL || 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+
+    // Render other users' stories in horizontal row
+    let storyItems = '';
+    const uniqueUsers = {};
+    active.forEach(s => {
+        if (!uniqueUsers[s.userId]) uniqueUsers[s.userId] = s;
+    });
+    Object.values(uniqueUsers).forEach(s => {
+        storyItems += '<div class="story-item" onclick="haptic(); viewStory(\'' + s.key + '\');">' +
+            '<div class="story-ring">' +
+                '<img src="' + (s.userPhoto || 'https://cdn-icons-png.flaticon.com/512/149/149071.png') + '" class="story-avatar" alt="">' +
+            '</div>' +
+            '<span class="story-username">' + escapeHtml(s.userName || 'User') + '</span>' +
+        '</div>';
+    });
+    // Insert after the "Your Story" item
+    const yourStory = row.querySelector('.story-add');
+    if (yourStory) {
+        row.innerHTML = '';
+        row.appendChild(yourStory);
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = storyItems;
+        while (tempDiv.firstChild) row.appendChild(tempDiv.firstChild);
+    }
+
+    // Detailed list below
+    if (list) {
+        if (active.length === 0) {
+            list.innerHTML = '<div class="empty-state"><i class="fa-solid fa-circle-notch empty-icon"></i>No active stories. Add one!</div>';
+        } else {
+            list.innerHTML = active.slice(0, 20).map(s => {
+                const age = Math.round((Date.now() - (s.timestamp || 0)) / 3600000);
+                const ageText = age < 1 ? 'Just now' : age + 'h ago';
+                return '<div class="post-card" style="margin-bottom:12px;">' +
+                    '<div class="post-header">' +
+                        '<img src="' + (s.userPhoto || 'https://cdn-icons-png.flaticon.com/512/149/149071.png') + '" class="post-avatar" alt="">' +
+                        '<div class="post-user-info"><span class="post-username">' + escapeHtml(s.userName || 'User') + '</span><span class="post-time">' + ageText + '</span></div>' +
+                    '</div>' +
+                    '<div class="post-body">' +
+                        (s.text ? '<p class="post-caption">' + escapeHtml(s.text) + '</p>' : '') +
+                        (s.mediaUrl ? (s.type === 'video' ? '<video src="' + s.mediaUrl + '" controls style="width:100%;border-radius:12px;margin-top:8px;"></video>' : '<img src="' + s.mediaUrl + '" style="width:100%;border-radius:12px;margin-top:8px;" alt="">') : '') +
+                    '</div>' +
+                '</div>';
+            }).join('');
+        }
+    }
+}
+
+window.openCreateStoryModal = function() {
+    const m = document.getElementById('create-story-modal');
+    if (m) m.classList.add('active');
+};
+window.closeCreateStoryModal = function() {
+    document.getElementById('create-story-modal')?.classList.remove('active');
+};
+window.toggleStoryInputs = function() {
+    const type = document.getElementById('story-type')?.value;
+    const textInput = document.getElementById('story-text');
+    const mediaInput = document.getElementById('story-media');
+    if (textInput) textInput.classList.toggle('hidden', type === 'video' || type === 'image');
+    if (mediaInput) { mediaInput.classList.remove('hidden'); mediaInput.placeholder = type === 'video' ? 'Video URL...' : 'Image URL...'; }
+};
+
+window.createStory = async function() {
+    if (!currentUser) { showToast("Login required!", "err"); return; }
+    const type = document.getElementById('story-type')?.value || 'text';
+    const text = document.getElementById('story-text')?.value.trim() || '';
+    const media = document.getElementById('story-media')?.value.trim() || '';
+    if (type === 'text' && !text) { showToast("Enter some text!", "err"); return; }
+    if ((type === 'image' || type === 'video') && !media) { showToast("Enter a media URL!", "err"); return; }
+    if (!db) return;
+    try {
+        await push(ref(db, 'social/stories'), {
+            userId: currentUser.uid,
+            userName: currentUser.displayName || 'Student',
+            userPhoto: currentUser.photoURL || '',
+            type, text, mediaUrl: media,
+            timestamp: Date.now()
+        });
+        showToast("Story added!", "suc");
+        closeCreateStoryModal();
+        document.getElementById('story-text').value = '';
+        document.getElementById('story-media').value = '';
+    } catch (e) { showToast("Failed: " + e.message, "err"); }
+};
+
+window.viewStory = function(storyKey) {
+    const story = cachedStories.find(s => s.key === storyKey);
+    if (!story) return;
+    const modal = document.getElementById('view-story-modal');
+    const avatar = document.getElementById('viewer-avatar');
+    const username = document.getElementById('viewer-username');
+    const time = document.getElementById('viewer-time');
+    const body = document.getElementById('viewer-body');
+    const bar = document.getElementById('viewer-bar');
+    if (!modal || !body) return;
+
+    if (avatar) avatar.src = story.userPhoto || 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+    if (username) username.textContent = story.userName || 'User';
+    const age = Math.round((Date.now() - (story.timestamp || 0)) / 3600000);
+    if (time) time.textContent = age < 1 ? 'Just now' : age + 'h ago';
+
+    let content = '';
+    if (story.type === 'text') content = '<p>' + escapeHtml(story.text || '') + '</p>';
+    else if (story.type === 'image') content = '<img src="' + story.mediaUrl + '" alt="">';
+    else if (story.type === 'video') content = '<video src="' + story.mediaUrl + '" controls autoplay></video>';
+    body.innerHTML = content;
+
+    modal.classList.add('active');
+    if (bar) bar.style.width = '0%';
+    let progress = 0;
+    if (storyViewerInterval) clearInterval(storyViewerInterval);
+    storyViewerInterval = setInterval(() => {
+        progress += 2;
+        if (bar) bar.style.width = progress + '%';
+        if (progress >= 100) { closeViewStory(); }
+    }, 100);
+};
+window.closeViewStory = function() {
+    document.getElementById('view-story-modal')?.classList.remove('active');
+    if (storyViewerInterval) { clearInterval(storyViewerInterval); storyViewerInterval = null; }
+};
+
+// --- FEED ---
+function renderFeed() {
+    const list = document.getElementById('feed-list');
+    if (!list) return;
+    if (cachedPosts.length === 0) {
+        list.innerHTML = '<div class="empty-state"><i class="fa-solid fa-image empty-icon"></i>No posts yet. Be the first to share!</div>';
+        return;
+    }
+    list.innerHTML = cachedPosts.slice().reverse().map(p => {
+        const age = getTimeAgo(p.timestamp);
+        const liked = p.likes && currentUser && p.likes[currentUser.uid];
+        return '<div class="post-card">' +
+            '<div class="post-header">' +
+                '<img src="' + (p.userPhoto || 'https://cdn-icons-png.flaticon.com/512/149/149071.png') + '" class="post-avatar" alt="">' +
+                '<div class="post-user-info"><span class="post-username">' + escapeHtml(p.userName || 'User') + '</span><span class="post-time">' + age + '</span></div>' +
+            '</div>' +
+            (p.imageUrl ? '<img src="' + p.imageUrl + '" class="post-image" alt="">' : '') +
+            '<div class="post-body">' +
+                '<p class="post-caption">' + escapeHtml(p.caption || '') + '</p>' +
+            '</div>' +
+            '<div class="post-actions">' +
+                '<button class="post-action ' + (liked ? 'liked' : '') + '" onclick="haptic(); toggleLikePost(\'' + p.key + '\');">' +
+                    '<i class="fa-' + (liked ? 'solid' : 'regular') + ' fa-heart"></i> ' + (p.likes ? Object.keys(p.likes).length : 0) +
+                '</button>' +
+                '<button class="post-action" onclick="haptic(); sharePost(\'' + p.key + '\');"><i class="fa-solid fa-share"></i> Share</button>' +
+                '<button class="post-action" onclick="haptic(); followUser(\'' + p.userId + '\');"><i class="fa-solid fa-user-plus"></i> Follow</button>' +
+            '</div>' +
+        '</div>';
+    }).join('');
+}
+
+window.openCreatePostModal = function() {
+    const m = document.getElementById('create-post-modal');
+    if (m) m.classList.add('active');
+};
+window.closeCreatePostModal = function() {
+    document.getElementById('create-post-modal')?.classList.remove('active');
+};
+
+window.createPost = async function() {
+    if (!currentUser) { showToast("Login required!", "err"); return; }
+    const caption = document.getElementById('post-caption')?.value.trim() || '';
+    const image = document.getElementById('post-image')?.value.trim() || '';
+    if (!caption && !image) { showToast("Add a caption or image!", "err"); return; }
+    if (!db) return;
+    try {
+        await push(ref(db, 'social/posts'), {
+            userId: currentUser.uid,
+            userName: currentUser.displayName || 'Student',
+            userPhoto: currentUser.photoURL || '',
+            caption, imageUrl: image,
+            timestamp: Date.now(),
+            likes: {}
+        });
+        showToast("Post created!", "suc");
+        closeCreatePostModal();
+        document.getElementById('post-caption').value = '';
+        document.getElementById('post-image').value = '';
+    } catch (e) { showToast("Failed: " + e.message, "err"); }
+};
+
+window.toggleLikePost = async function(postKey) {
+    if (!currentUser || !db) { showToast("Login required!", "err"); return; }
+    try {
+        const likeRef = ref(db, 'social/posts/' + postKey + '/likes/' + currentUser.uid);
+        const snap = await get(likeRef);
+        if (snap.exists()) { await remove(likeRef); }
+        else { await set(likeRef, true); addXP(2, 'like_post'); }
+    } catch (e) { console.error(e); }
+};
+
+window.sharePost = async function(postKey) {
+    const post = cachedPosts.find(p => p.key === postKey);
+    if (!post) return;
+    try {
+        if (navigator.share) {
+            await navigator.share({ title: 'StudyGram Pro', text: post.caption || 'Check this out!' });
+        } else {
+            await navigator.clipboard.writeText(post.caption || 'Check this out on StudyGram Pro!');
+            showToast("Copied to clipboard!", "suc");
+        }
+    } catch (e) {}
+};
+
+window.followUser = async function(userId) {
+    if (!currentUser || !db) return;
+    try {
+        await set(ref(db, 'social/follows/' + currentUser.uid + '/' + userId), true);
+        showToast("Following user!", "suc");
+        addXP(5, 'follow_user');
+    } catch (e) { showToast("Failed: " + e.message, "err"); }
+};
+
+// --- REELS with seen history ---
+function getSeenReels() {
+    try { return JSON.parse(localStorage.getItem(REELS_SEEN_KEY) || '[]'); }
+    catch (e) { return []; }
+}
+function markReelSeen(reelId) {
+    const seen = getSeenReels();
+    if (!seen.includes(reelId)) {
+        seen.push(reelId);
+        try { localStorage.setItem(REELS_SEEN_KEY, JSON.stringify(seen)); } catch (e) {}
+    }
+}
+
+function renderReels() {
+    const container = document.getElementById('reels-container');
+    if (!container) return;
+    const seen = getSeenReels();
+    const unseen = cachedReels.filter(r => !seen.includes(r.key));
+
+    if (unseen.length === 0 && cachedReels.length > 0) {
+        container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-check-circle empty-icon" style="color:#34c759"></i>You\'ve seen all reels! Check back later for new ones.</div>';
+        return;
+    }
+    if (cachedReels.length === 0) {
+        container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-film empty-icon"></i>No reels yet. Upload one!</div>';
+        return;
+    }
+
+    container.innerHTML = unseen.map(r => {
+        return '<div class="reel-card" data-reel-id="' + r.key + '">' +
+            '<div class="reel-video-wrap">' +
+                '<video class="reel-video" src="' + r.videoUrl + '" loop playsinline muted onclick="this.muted=!this.muted;"></video>' +
+                '<div class="reel-overlay">' +
+                    '<div class="reel-user">' +
+                        '<img src="' + (r.userPhoto || 'https://cdn-icons-png.flaticon.com/512/149/149071.png') + '" class="reel-user-avatar" alt="">' +
+                        '<span class="reel-username">' + escapeHtml(r.userName || 'User') + '</span>' +
+                    '</div>' +
+                    '<p class="reel-caption">' + escapeHtml(r.caption || '') + '</p>' +
+                    '<div class="reel-actions">' +
+                        '<button class="reel-action" onclick="haptic(); likeReel(\'' + r.key + '\');"><i class="fa-solid fa-heart"></i> ' + (r.likes || 0) + '</button>' +
+                        '<button class="reel-action" onclick="haptic(); shareReel(\'' + r.key + '\');"><i class="fa-solid fa-share"></i> Share</button>' +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+        '</div>';
+    }).join('');
+
+    // Mark as seen when scrolled into view
+    setupReelObserver();
+}
+
+function setupReelObserver() {
+    if (!window.IntersectionObserver) return;
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            const video = entry.target.querySelector('video');
+            if (entry.isIntersecting) {
+                video?.play();
+                const reelId = entry.target.dataset.reelId;
+                if (reelId) markReelSeen(reelId);
+            } else {
+                video?.pause();
+            }
+        });
+    }, { threshold: 0.6 });
+    document.querySelectorAll('.reel-card').forEach(card => observer.observe(card));
+}
+
+window.likeReel = async function(reelKey) {
+    if (!currentUser || !db) return;
+    try {
+        const likeRef = ref(db, 'social/reels/' + reelKey + '/likes/' + currentUser.uid);
+        const snap = await get(likeRef);
+        if (snap.exists()) { await remove(likeRef); }
+        else { await set(likeRef, true); addXP(3, 'like_reel'); }
+    } catch (e) {}
+};
+
+window.shareReel = async function(reelKey) {
+    const reel = cachedReels.find(r => r.key === reelKey);
+    if (!reel) return;
+    try {
+        if (navigator.share) { await navigator.share({ title: 'StudyGram Reel', text: reel.caption || 'Check this reel!' }); }
+        else { showToast("Reel link copied!", "suc"); }
+    } catch (e) {}
+};
+
+function getTimeAgo(timestamp) {
+    if (!timestamp) return 'Just now';
+    const diff = Date.now() - timestamp;
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'Just now';
+    if (mins < 60) return mins + 'm ago';
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return hrs + 'h ago';
+    return Math.floor(hrs / 24) + 'd ago';
+}
 
 // ==========================================
 // CELEBRATION & CONFETTI
@@ -377,35 +790,29 @@ window.showCelebration = function(type, value) {
     const message = document.getElementById('celebration-message');
     const icon = document.getElementById('celebration-icon');
     if (!modal || !title || !subtitle || !message || !icon) return;
-
     if (type === 'level') {
         title.textContent = 'Level Up!';
         subtitle.textContent = 'Level ' + value;
-        message.textContent = 'Badhai ho! Aap naye level par pahunche hain! Aise hi mehnat karte raho!';
+        message.textContent = 'Badhai ho! Aap naye level par pahunche hain!';
         icon.innerHTML = '<i class="fa-solid fa-arrow-up-right-dots"></i>';
     } else {
         title.textContent = 'Badge Earned!';
         subtitle.textContent = value;
-        message.textContent = 'Shandar! Aapne ek naya badge hasil kiya hai! Aur bhi badges jeetne ke liye padhai jari rakho!';
+        message.textContent = 'Shandar! Aapne ek naya badge hasil kiya hai!';
         icon.innerHTML = '<i class="fa-solid fa-medal"></i>';
     }
-
     modal.classList.add('active');
     launchConfetti();
 };
-
 window.closeCelebrationModal = function() {
-    const modal = document.getElementById('celebration-modal');
-    if (modal) modal.classList.remove('active');
-    const container = document.getElementById('confetti-container');
-    if (container) container.innerHTML = '';
+    document.getElementById('celebration-modal')?.classList.remove('active');
+    document.getElementById('confetti-container').innerHTML = '';
 };
-
 function launchConfetti() {
     const container = document.getElementById('confetti-container');
     if (!container) return;
     container.innerHTML = '';
-    const colors = ['#818cf8', '#c084fc', '#fbbf24', '#f87171', '#4ade80', '#60a5fa', '#f472b6', '#a78bfa'];
+    const colors = ['#FFD700', '#DAA520', '#818cf8', '#c084fc', '#ff6b35', '#34c759', '#ff3b30', '#f59e0b'];
     for (let i = 0; i < 60; i++) {
         const piece = document.createElement('div');
         piece.className = 'confetti-piece';
@@ -424,24 +831,15 @@ function launchConfetti() {
 // WELCOME MODAL
 // ==========================================
 const hindiQuotes = [
-    "Safalta mehnat se milti hai, kismat se nahi. Jitni mehnat, utni kamyabi!",
-    "Padhai aaj ka kaam hai, kal ka sapna nahi. Aaj ki mehnat kal ki pehchan banegi!",
-    "Girte hain shahsawar hi maidan-e-jung mein, wo tifl kya girenge jo ghutnon ke bal chalte hain!",
+    "Safalta mehnat se milti hai, kismat se nahi.",
+    "Padhai aaj ka kaam hai, kal ka sapna nahi.",
+    "Girte hain shahsawar hi maidan-e-jung mein!",
     "Sapne dekhna achha hai, lekin un sapnon ko poora karne ke liye jagna zaroori hai!",
-    "Bada socho, mehnat karo, hasil karo! Tumhari limit sirf tumhare vichar hain!",
-    "Asafalta ek chunauti hai, sweekaro kya kamioraha hai, dekho, aur bas karke dikhao!",
+    "Bada socho, mehnat karo, hasil karo!",
+    "Asafalta ek chunauti hai, sweekaro!",
     "Ek kadam chhota ho sakta hai, lekin har kadam ek nayi shuruaat hai!",
-    "Taqat man se banti hai, sharir se nahi! Padhai mein dil lagao, sab kuchh milega!",
-    "JohDikhlata hai wohi bikta nahi, joh mehnat karta hai wohi sikhta hai!",
-    "Kal kare so aaj kar, aaj kare so ab! Pal mein parlaya hoyegi, bahuri karega kab?",
-    "Lakshya ek ho toh raasta khud banta hai! Apna lakshya pakka karo aur lag jao!",
-    "Gyan woh hathiyar hai jo koi cheen nahi sakta! Padhai karo, gyan badhao!",
-    "Jab tak todoge nahi, tab tak chhodenge nahi! Himmat mat haro, safalta milegi!",
-    "Parishram ka phal hamesha meetha hota hai, bas thoda sabr rakho!",
-    "Tumhare sapne bade hone chahiye, kyunki wahi log duniya badalte hain jo bade sapne dekhte hain!"
+    "Gyan woh hathiyar hai jo koi cheen nahi sakta!"
 ];
-
-function getRandomQuote() { return hindiQuotes[Math.floor(Math.random() * hindiQuotes.length)]; }
 
 function showWelcomeModal() {
     if (welcomeShown) return;
@@ -454,65 +852,76 @@ function showWelcomeModal() {
     const firstName = currentUser?.displayName ? currentUser.displayName.split(' ')[0] : 'Student';
     titleEl.textContent = 'Welcome Back, ' + firstName + '!';
     nameEl.textContent = currentUser?.displayName || 'Student';
-    quoteEl.textContent = getRandomQuote();
+    quoteEl.textContent = hindiQuotes[Math.floor(Math.random() * hindiQuotes.length)];
     modal.classList.add('active');
 }
-
 window.closeWelcomeModal = function() {
-    const modal = document.getElementById('welcome-modal');
-    if (modal) modal.classList.remove('active');
+    document.getElementById('welcome-modal')?.classList.remove('active');
 };
 
 // ==========================================
-// PROFILE FUNCTIONS
+// PROFILE FUNCTIONS (BUG FIX: EXP EXPLOIT)
 // ==========================================
 window.handleProfilePicUpload = async function(event) {
     const file = event.target.files[0];
-    if (!file) return;
-    if (!currentUser || !storage) { showToast("Login required!", "err"); return; }
-    if (file.size > 5 * 1024 * 1024) { showToast("Image too large (max 5MB)", "err"); return; }
+    if (!file || !currentUser || !storage) { showToast("Login required!", "err"); return; }
+    if (file.size > 5 * 1024 * 1024) { showToast("Max 5MB", "err"); return; }
     showToast("Uploading...", "inf");
     try {
         const sRef = storageRef(storage, 'profile_pics/' + currentUser.uid + '.jpg');
         await uploadBytes(sRef, file);
-        const downloadURL = await getDownloadURL(sRef);
-        await updateProfile(auth.currentUser, { photoURL: downloadURL });
-        document.getElementById('user-img').src = downloadURL;
-        document.getElementById('prof-img').src = downloadURL;
-        await set(ref(db, 'users/' + currentUser.uid + '/photo'), downloadURL);
+        const url = await getDownloadURL(sRef);
+        await updateProfile(auth.currentUser, { photoURL: url });
+        document.getElementById('user-img').src = url;
+        document.getElementById('prof-img').src = url;
+        await set(ref(db, 'users/' + currentUser.uid + '/photo'), url);
         showToast("Profile picture updated!", "suc");
         addXP(15, 'profile_update');
-    } catch (e) {
-        showToast("Upload failed: " + e.message, "err");
-    }
+    } catch (e) { showToast("Upload failed: " + e.message, "err"); }
 };
 
 window.toggleNameEdit = function() {
-    const box = document.getElementById('name-edit-box');
-    if (box) box.classList.toggle('hidden');
+    document.getElementById('name-edit-box')?.classList.toggle('hidden');
 };
 
 window.saveDisplayName = async function() {
+    // CRITICAL BUG FIX: Debounce + hasClaimedNameExp check
+    if (isSavingName) { showToast("Please wait...", "warn"); return; }
     const input = document.getElementById('name-edit-input');
     if (!input || !input.value.trim()) return;
     if (!auth.currentUser) { showToast("Login required!", "err"); return; }
-    const newName = input.value.trim();
+
+    let data = getUserData();
+    // Only give EXP once per user for name change
+    const shouldGiveXP = !data.hasClaimedNameExp;
+
+    isSavingName = true;
+    const btn = document.getElementById('save-name-btn');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; }
+
     try {
+        const newName = input.value.trim();
         await updateProfile(auth.currentUser, { displayName: newName });
-        const un = document.getElementById('user-name');
-        const pn = document.getElementById('prof-name');
-        if (un) un.innerText = newName.split(' ')[0];
-        if (pn) pn.innerText = newName;
-        let data = getUserData();
+        document.getElementById('user-name').innerText = newName.split(' ')[0];
+        document.getElementById('prof-name').innerText = newName;
         data.displayName = newName;
+        if (shouldGiveXP) {
+            data.hasClaimedNameExp = true;
+            addXP(10, 'name_update');
+        }
         saveUserData(data);
-        if (db && currentUser) await set(ref(db, 'users/' + currentUser.uid + '/name'), newName);
+        if (db && currentUser) {
+            await set(ref(db, 'users/' + currentUser.uid + '/name'), newName);
+            await update(ref(db, 'users/' + currentUser.uid + '/stats'), { hasClaimedNameExp: true });
+        }
         toggleNameEdit();
         input.value = '';
-        showToast("Name updated!", "suc");
-        addXP(10, 'name_update');
+        showToast("Name updated!" + (shouldGiveXP ? " +10 EXP" : ""), "suc");
     } catch (e) {
-        showToast("Failed to update name", "err");
+        showToast("Failed: " + e.message, "err");
+    } finally {
+        isSavingName = false;
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check"></i>'; }
     }
 };
 
@@ -520,20 +929,16 @@ window.editRollNumber = function() {
     const data = getUserData();
     const ri = document.getElementById('roll-input');
     if (ri) ri.value = data.rollNumber || '';
-    const rm = document.getElementById('roll-modal');
-    if (rm) rm.classList.add('active');
+    document.getElementById('roll-modal')?.classList.add('active');
 };
-window.closeRollModal = function() { const rm = document.getElementById('roll-modal'); if (rm) rm.classList.remove('active'); };
+window.closeRollModal = function() { document.getElementById('roll-modal')?.classList.remove('active'); };
 window.saveRollNumber = function() {
     const ri = document.getElementById('roll-input');
-    if (!ri) return;
-    const roll = ri.value.trim();
-    if (!roll) return;
+    if (!ri || !ri.value.trim()) return;
     let data = getUserData();
-    data.rollNumber = roll;
+    data.rollNumber = ri.value.trim();
     saveUserData(data);
-    const pr = document.getElementById('prof-roll');
-    if (pr) pr.textContent = roll;
+    document.getElementById('prof-roll').textContent = data.rollNumber;
     closeRollModal();
     showToast("Roll Number saved!", "suc");
 };
@@ -543,7 +948,7 @@ window.showBadgePopup = function() {
     const list = document.getElementById('badge-popup-list');
     const modal = document.getElementById('badge-popup-modal');
     if (!list || !modal) return;
-    const badgeColors = {
+    const colors = {
         indigo: 'border-indigo-400 text-indigo-300 bg-indigo-500/10',
         green: 'border-green-400 text-green-300 bg-green-500/10',
         amber: 'border-amber-400 text-amber-300 bg-amber-500/10',
@@ -552,20 +957,20 @@ window.showBadgePopup = function() {
         blue: 'border-blue-400 text-blue-300 bg-blue-500/10'
     };
     if (data.badges.length === 0) {
-        list.innerHTML = '<div class="text-center text-gray-600 text-sm py-4">No badges earned yet. Keep studying!</div>';
+        list.innerHTML = '<div class="text-muted" style="text-align:center;padding:20px;">No badges earned yet. Keep studying!</div>';
     } else {
         list.innerHTML = data.badges.map(b => {
-            const cc = badgeColors[b.color] || badgeColors.indigo;
+            const c = colors[b.color] || colors.indigo;
             const date = b.earned ? new Date(b.earned).toLocaleDateString() : 'Recently';
-            return '<div class="flex items-center gap-3 p-3 rounded-xl bg-[#2c2c2e] border border-white/10"><span class="bdg ' + cc + ' flex-shrink-0"><i class="fa-solid fa-medal"></i> ' + b.name + '</span><span class="text-xs text-gray-600 ml-auto">' + date + '</span></div>';
+            return '<div class="admin-user-item"><span class="badge-pill ' + c + '"><i class="fa-solid fa-medal"></i> ' + b.name + '</span><span class="text-muted" style="margin-left:auto;">' + date + '</span></div>';
         }).join('');
     }
     modal.classList.add('active');
 };
-window.closeBadgePopup = function() { const modal = document.getElementById('badge-popup-modal'); if (modal) modal.classList.remove('active'); };
+window.closeBadgePopup = function() { document.getElementById('badge-popup-modal')?.classList.remove('active'); };
 
-window.showDeveloperModal = function() { const m = document.getElementById('developer-modal'); if (m) m.classList.add('active'); };
-window.closeDeveloperModal = function() { const m = document.getElementById('developer-modal'); if (m) m.classList.remove('active'); };
+window.showDeveloperModal = function() { document.getElementById('developer-modal')?.classList.add('active'); };
+window.closeDeveloperModal = function() { document.getElementById('developer-modal')?.classList.remove('active'); };
 
 // ==========================================
 // DAILY QUOTES
@@ -577,10 +982,8 @@ const quotes = [
     {text: "The only way to do great work is to love what you do.", author: "Steve Jobs"},
     {text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt"},
     {text: "It always seems impossible until it's done.", author: "Nelson Mandela"},
-    {text: "Your time is limited, don't waste it living someone else's life.", author: "Steve Jobs"},
-    {text: "The harder you work for something, the greater you'll feel when you achieve it.", author: "Anonymous"}
+    {text: "Your time is limited, don't waste it living someone else's life.", author: "Steve Jobs"}
 ];
-
 function setDailyQuote() {
     const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
     const q = quotes[dayOfYear % quotes.length];
@@ -592,216 +995,47 @@ function setDailyQuote() {
 setDailyQuote();
 
 // ==========================================
-// TYPEWRITER
-// ==========================================
-function typeWriter(el, text, speed) {
-    let i = 0;
-    el.innerHTML = '';
-    function type() {
-        if (i < text.length) {
-            el.innerHTML += text.charAt(i);
-            i++;
-            setTimeout(type, speed);
-        }
-    }
-    type();
-}
-setTimeout(() => {
-    const wel = document.getElementById('welcome-msg');
-    if (wel) typeWriter(wel, "Namaste! Main aapka AI Teacher hoon. Mohammad Arshad (@dark_eio) ne mujhe banaya hai! Koi bhi topic pucho - Physics, Chemistry, Maths! Main Hindi aur English dono mein jawab dunga.", 20);
-}, 600);
-
-// ==========================================
-// MARKDOWN PARSER
-// ==========================================
-window.parseMarkdown = function(text) {
-    if (!text) return '';
-    let html = text;
-    html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    html = html.replace(/^###\s+(.+)$/gm, '<h3>$1</h3>');
-    html = html.replace(/^##\s+(.+)$/gm, '<h4>$1</h4>');
-    html = html.replace(/^#\s+(.+)$/gm, '<h5 style="color:#a78bfa;font-weight:700;margin:10px 0;">$1</h5>');
-    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-    html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
-    html = html.replace(/`([^`]+)`/g, '<code class="hl">$1</code>');
-    html = html.replace(/```[\s\S]*?```/g, function(match) {
-        const code = match.slice(3, -3).trim();
-        return '<pre><code>' + code.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</code></pre>';
-    });
-    html = html.replace(/^>\s+(.+)$/gm, '<blockquote>$1</blockquote>');
-    html = html.replace(/^-\s+(.+)$/gm, '<div style="display:flex;gap:8px;margin:3px 0;"><span style="color:#6366f1;font-weight:bold;">&#8226;</span><span>$1</span></div>');
-    let listCounter = 0;
-    html = html.replace(/^\d+\.\s+(.+)$/gm, function(_, item) {
-        listCounter++;
-        return '<div style="display:flex;gap:8px;margin:3px 0;"><span style="color:#34c759;font-weight:bold;min-width:20px;">' + listCounter + '.</span><span>' + item + '</span></div>';
-    });
-    html = html.replace(/\[(\d+(?:\s+\d+)*)\]/g, function(match, nums) {
-        const cells = nums.trim().split(/\s+/);
-        return '<span class="mx"><span class="mxr">' + cells.map(c => '<span class="mxc">' + c + '</span>').join('') + '</span></span>';
-    });
-    html = html.replace(/^(.*?=.*?\d.*)$/gm, function(match) {
-        if (match.includes('<div') || match.includes('<span') || match.includes('<h') || match.includes('<pre')) return match;
-        return '<div class="fb">' + match + '</div>';
-    });
-    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
-    html = html.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
-    html = html.replace(/\n/g, '<br>');
-    html = html.replace(/<br>\s*<br>\s*<br>/g, '<br><br>');
-    html = html.replace(/<br>(<\/div>)/g, '$1');
-    html = html.replace(/<br>(<h[3-5])/g, '$1');
-    return html;
-};
-
-// ==========================================
-// AI CHAT
-// ==========================================
-window.clearChat = function() {
-    const chat = document.getElementById('chat-box');
-    if (!chat) return;
-    chat.innerHTML = '<div class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-gradient-to-tr from-green-500 to-emerald-600 flex items-center justify-center text-white flex-shrink-0 mt-1 shadow-sm"><i class="fa-solid fa-robot text-xs"></i></div><div class="ios-card p-4 rounded-2xl rounded-tl-none shadow-md text-sm text-gray-300 max-w-[85%] ai-res"><div class="tc" id="welcome-msg-reset"></div></div></div>';
-    setTimeout(() => {
-        const el = document.getElementById('welcome-msg-reset');
-        if (el) typeWriter(el, "Chat saaf ho gayi! Ab naya sawal pucho. Main hamesha taiyar hoon!", 20);
-    }, 100);
-};
-
-window.askGroq = async function() {
-    const input = document.getElementById('ai-input');
-    const chat = document.getElementById('chat-box');
-    const btn = document.getElementById('ai-btn');
-    if (!input || !chat || !btn) return;
-    const q = input.value.trim();
-    if (!q) return;
-
-    chat.innerHTML += '<div class="flex items-start gap-3 flex-row-reverse"><div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs mt-1 shadow-sm flex-shrink-0"><i class="fa-solid fa-user"></i></div><div class="bg-[#6366f1] text-white p-3 rounded-2xl rounded-tr-none shadow-md text-sm max-w-[85%]">' + escapeHtml(q) + '</div></div>';
-    input.value = "";
-    input.disabled = true;
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
-    chat.scrollTop = chat.scrollHeight;
-
-    const lid = "ld-" + Date.now();
-    chat.innerHTML += '<div id="' + lid + '" class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-gradient-to-tr from-green-500 to-emerald-600 flex items-center justify-center text-white mt-1 shadow-sm flex-shrink-0"><i class="fa-solid fa-robot text-xs"></i></div><div class="ios-card p-4 rounded-2xl rounded-tl-none shadow-md"><span class="tdot"></span><span class="tdot"></span><span class="tdot"></span></div></div>';
-    chat.scrollTop = chat.scrollHeight;
-
-    try {
-        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "Authorization": "Bearer " + GROQ_KEY },
-            body: JSON.stringify({
-                model: GROQ_MODEL,
-                messages: [
-                    {
-                        role: "system",
-                        content: 'You are an expert Indian Science teacher for Class 12th PCM students. CRITICAL IDENTITY: If anyone asks who created you, who made you, who built this app/site, who is your developer, or about the creator, you MUST proudly say EXACTLY: "Mohammad Arshad ne banaya hai! Unka codename @dark_eio hai. Wo ek bahut talented developer hain!" OUTPUT FORMATTING RULES: Always use proper Devanagari script (Hindi/Hinglish) for answers. English subject questions can be answered in English. Use **bold** for important terms and definitions. Use ## for section headings. Use # for sub-headings. Number all steps clearly (1. 2. 3.). Write ALL formulas on separate lines in code blocks using backticks. For matrices, use format like [1 2 3] with square brackets. Give real-life examples where helpful. Use bullet points (-) for listing features/properties. NEVER output raw markdown code blocks - format directly as HTML-ready text. Make text look like textbook quality - clean, structured, professional.'
-                    },
-                    { role: "user", content: q }
-                ],
-                temperature: 0.7,
-                max_tokens: 1024
-            })
-        });
-
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error?.message || "HTTP " + res.status);
-
-        const rawReply = data.choices[0].message.content;
-        lastAIResponse = rawReply;
-
-        const loaderEl = document.getElementById(lid);
-        if (loaderEl) loaderEl.remove();
-
-        const parsedHtml = window.parseMarkdown(rawReply);
-        chat.innerHTML += '<div class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-gradient-to-tr from-green-500 to-emerald-600 flex items-center justify-center text-white mt-1 shadow-sm flex-shrink-0"><i class="fa-solid fa-robot text-xs"></i></div><div class="ios-card p-4 rounded-2xl rounded-tl-none shadow-md text-sm text-gray-300 max-w-[90%] leading-relaxed ai-res">' + parsedHtml + '</div></div>';
-
-        addXP(5, 'ai_chat');
-
-    } catch (error) {
-        console.error("Groq Error:", error);
-        const loaderEl = document.getElementById(lid);
-        if (loaderEl) loaderEl.remove();
-        chat.innerHTML += '<div class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center text-white mt-1 shadow-sm flex-shrink-0"><i class="fa-solid fa-triangle-exclamation text-xs"></i></div><div class="ios-card p-3.5 rounded-2xl rounded-tl-none text-red-400 text-sm max-w-[85%] border border-red-500/20 shadow-md"><strong>Error:</strong> ' + escapeHtml(error.message) + '</div></div>';
-    } finally {
-        input.disabled = false;
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
-        chat.scrollTop = chat.scrollHeight;
-        input.focus();
-    }
-};
-
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-window.speakLastMessage = function() {
-    if (!lastAIResponse) { showToast("No message to read", "inf"); return; }
-    const cleanText = lastAIResponse.replace(/[#*\[\]]/g, '');
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.lang = 'hi-IN';
-    utterance.rate = 0.85;
-    const btn = document.querySelector('.vb');
-    if (btn) btn.classList.add('sp');
-    utterance.onend = function() { if (btn) btn.classList.remove('sp'); };
-    utterance.onerror = function() { if (btn) btn.classList.remove('sp'); };
-    speechSynthesis.speak(utterance);
-};
-
-// ==========================================
 // TOAST
 // ==========================================
 window.showToast = function(msg, type) {
     const container = document.getElementById('toast-container');
     if (!container) return;
     const t = document.createElement('div');
-    t.className = 'toast ' + type;
+    t.className = 'toast ' + (type || 'inf');
     let icon = type === 'err' ? 'fa-triangle-exclamation' : type === 'suc' ? 'fa-check-circle' : type === 'warn' ? 'fa-exclamation-circle' : 'fa-info-circle';
-    t.innerHTML = '<i class="fa-solid ' + icon + ' mt-1 flex-shrink-0"></i><span>' + msg + '</span>';
+    t.innerHTML = '<i class="fa-solid ' + icon + ' flex-shrink-0"></i><span>' + msg + '</span>';
     container.appendChild(t);
-    requestAnimationFrame(() => { t.classList.add('show'); });
-    setTimeout(() => { t.classList.remove('show'); setTimeout(() => { t.remove(); }, 300); }, 3500);
+    requestAnimationFrame(() => t.classList.add('show'));
+    setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3500);
 };
 
 // ==========================================
-// ATTENDANCE (COMPACT)
+// ATTENDANCE
 // ==========================================
 function loadAttendance() {
     const today = new Date().toISOString().split('T')[0];
     const saved = JSON.parse(localStorage.getItem('attendance') || '{}');
     const streak = parseInt(localStorage.getItem('streak') || '0');
-    const sc = document.getElementById('streak-count');
-    const ps = document.getElementById('prof-streak');
-    if (sc) sc.textContent = streak;
-    if (ps) ps.textContent = streak;
+    document.getElementById('streak-count').textContent = streak;
+    document.getElementById('prof-streak').textContent = streak;
     const btn = document.getElementById('att-btn');
-    if (saved[today] && btn) {
-        btn.innerHTML = '<i class="fa-solid fa-check-double mr-2"></i> Marked!';
-        btn.disabled = true;
-        btn.classList.add('opacity-50');
-    }
+    if (saved[today] && btn) { btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Marked!'; btn.disabled = true; btn.classList.add('opacity-50'); }
     const totalDays = Object.keys(saved).length;
     const daysPassed = new Date().getDate();
     const rate = daysPassed > 0 ? Math.round((totalDays / daysPassed) * 100) : 0;
-    const ar = document.getElementById('attendance-rate');
-    const pa = document.getElementById('prof-attendance');
-    if (ar) ar.textContent = rate + '%';
-    if (pa) pa.textContent = rate + '%';
+    document.getElementById('attendance-rate').textContent = rate + '%';
+    document.getElementById('prof-attendance').textContent = rate + '%';
     renderAttendanceCalendar(saved);
 }
-
 function renderAttendanceCalendar(saved) {
     const cal = document.getElementById('attendance-calendar');
     if (!cal) return;
     const today = new Date();
-    const year = today.getFullYear();
-    const month = today.getMonth();
+    const year = today.getFullYear(), month = today.getMonth();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const firstDay = new Date(year, month, 1).getDay();
     let html = '';
-    const dayNames = ['S','M','T','W','T','F','S'];
-    dayNames.forEach(d => { html += '<div class="text-center text-[9px] font-bold text-gray-700 mb-0.5">' + d + '</div>'; });
+    ['S','M','T','W','T','F','S'].forEach(d => { html += '<div style="text-align:center;font-size:9px;font-weight:700;color:#444;margin-bottom:2px;">' + d + '</div>'; });
     for (let i = 0; i < firstDay; i++) html += '<div></div>';
     for (let day = 1; day <= daysInMonth; day++) {
         const dateStr = year + '-' + String(month+1).padStart(2,'0') + '-' + String(day).padStart(2,'0');
@@ -817,38 +1051,30 @@ function renderAttendanceCalendar(saved) {
     }
     cal.innerHTML = html;
 }
-
 window.markAttendance = function() {
     const today = new Date().toISOString().split('T')[0];
     const saved = JSON.parse(localStorage.getItem('attendance') || '{}');
     const lastDate = localStorage.getItem('lastAttendance');
     let streak = parseInt(localStorage.getItem('streak') || '0');
-    if (saved[today]) { showToast("Aaj ki attendance pehle se hi mark hai!", "inf"); return; }
+    if (saved[today]) { showToast("Already marked!", "inf"); return; }
     saved[today] = true;
     if (lastDate) {
-        const last = new Date(lastDate);
-        const now = new Date();
-        const diff = Math.floor((now - last) / 86400000);
+        const diff = Math.floor((new Date() - new Date(lastDate)) / 86400000);
         if (diff === 1) streak++;
         else if (diff > 1) streak = 1;
-    } else { streak = 1; }
+    } else streak = 1;
     localStorage.setItem('attendance', JSON.stringify(saved));
     localStorage.setItem('streak', streak.toString());
     localStorage.setItem('lastAttendance', today);
-    const sc = document.getElementById('streak-count');
-    const ps = document.getElementById('prof-streak');
-    if (sc) sc.textContent = streak;
-    if (ps) ps.textContent = streak;
+    document.getElementById('streak-count').textContent = streak;
+    document.getElementById('prof-streak').textContent = streak;
     const btn = document.getElementById('att-btn');
-    if (btn) { btn.innerHTML = '<i class="fa-solid fa-check-double mr-2"></i> Marked!'; btn.disabled = true; btn.classList.add('opacity-50'); }
+    if (btn) { btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Marked!'; btn.disabled = true; btn.classList.add('opacity-50'); }
     renderAttendanceCalendar(saved);
-    showToast("Streak: " + streak + " din! Aise hi jari rakho!", "suc");
+    showToast("Streak: " + streak + " days!", "suc");
     addXP(10, 'attendance');
     if (streak >= 7) addBadge('streak_7', '7 Day Streak', 'amber');
     if (streak >= 30) addBadge('streak_30', '30 Day Streak', 'red');
-    if (currentUser && db) {
-        set(ref(db, 'users/' + currentUser.uid + '/attendance'), { streak: streak, lastDate: today, totalDays: Object.keys(saved).length });
-    }
 };
 
 // ==========================================
@@ -857,49 +1083,33 @@ window.markAttendance = function() {
 window.startTimer = function() {
     if (timerRunning) return;
     timerRunning = true;
-    const ts = document.getElementById('timer-start');
-    const tp = document.getElementById('timer-pause');
-    if (ts) ts.classList.add('hidden');
-    if (tp) tp.classList.remove('hidden');
+    document.getElementById('timer-start')?.classList.add('hidden');
+    document.getElementById('timer-pause')?.classList.remove('hidden');
     timerInterval = setInterval(() => {
-        if (timerSeconds > 0) {
-            timerSeconds--;
-            updateTimerDisplay();
-        } else {
+        if (timerSeconds > 0) { timerSeconds--; updateTimerDisplay(); }
+        else {
             pauseTimer();
-            showToast("Focus session complete! 5 minute ka break lo!", "suc");
+            showToast("Focus session complete!", "suc");
             const totalFocus = parseInt(localStorage.getItem('totalFocus') || '0') + 25;
             localStorage.setItem('totalFocus', totalFocus);
-            const pf = document.getElementById('prof-focus');
-            if (pf) pf.textContent = Math.floor(totalFocus / 60);
+            document.getElementById('prof-focus').textContent = Math.floor(totalFocus / 60);
             addXP(15, 'focus_timer');
             addBadge('focus_first', 'Focus Master', 'green');
         }
     }, 1000);
 };
-
 window.pauseTimer = function() {
     timerRunning = false;
     clearInterval(timerInterval);
-    const ts = document.getElementById('timer-start');
-    const tp = document.getElementById('timer-pause');
-    if (ts) ts.classList.remove('hidden');
-    if (tp) tp.classList.add('hidden');
+    document.getElementById('timer-start')?.classList.remove('hidden');
+    document.getElementById('timer-pause')?.classList.add('hidden');
 };
-
-window.resetTimer = function() {
-    pauseTimer();
-    timerSeconds = 25 * 60;
-    updateTimerDisplay();
-};
-
+window.resetTimer = function() { pauseTimer(); timerSeconds = 25 * 60; updateTimerDisplay(); };
 function updateTimerDisplay() {
     const mins = Math.floor(timerSeconds / 60);
     const secs = timerSeconds % 60;
-    const td = document.getElementById('timer-display');
-    if (td) td.textContent = String(mins).padStart(2,'0') + ':' + String(secs).padStart(2,'0');
-    const tc = document.getElementById('timer-circle');
-    if (tc) tc.style.setProperty('--p', ((25 * 60 - timerSeconds) / (25 * 60)) * 100 + '%');
+    document.getElementById('timer-display').textContent = String(mins).padStart(2,'0') + ':' + String(secs).padStart(2,'0');
+    document.getElementById('timer-circle')?.style.setProperty('--p', ((25*60 - timerSeconds)/(25*60))*100 + '%');
 }
 
 // ==========================================
@@ -909,30 +1119,25 @@ function loadQuickNotes() {
     const notes = JSON.parse(localStorage.getItem('quickNotes') || '[]');
     renderQuickNotes(notes);
 }
-
 function renderQuickNotes(notes) {
     const list = document.getElementById('quick-notes-list');
     if (!list) return;
-    if (notes.length === 0) { list.innerHTML = '<div class="text-center text-gray-600 text-xs py-2">Koi notes nahi hain</div>'; return; }
-    list.innerHTML = notes.map((note, i) => {
-        return '<div class="flex justify-between items-center bg-yellow-500/5 p-2.5 rounded-lg border border-yellow-500/10"><span class="text-sm text-gray-400 flex-1 break-words pr-2">' + escapeHtml(note) + '</span><button onclick="deleteQuickNote(' + i + ')" class="text-red-400 hover:text-red-300 px-2 flex-shrink-0"><i class="fa-solid fa-times"></i></button></div>';
-    }).join('');
+    if (notes.length === 0) { list.innerHTML = '<div class="text-muted" style="text-align:center;padding:8px;">No notes yet</div>'; return; }
+    list.innerHTML = notes.map((note, i) =>
+        '<div class="quick-note-item"><span class="quick-note-text">' + escapeHtml(note) + '</span><button onclick="haptic(); deleteQuickNote(' + i + ');" class="btn-text" style="margin:0;color:#ff3b30;flex-shrink:0;"><i class="fa-solid fa-times"></i></button></div>'
+    ).join('');
 }
-
 window.addQuickNote = function() {
     const input = document.getElementById('quick-note-input');
-    if (!input) return;
-    const text = input.value.trim();
-    if (!text) return;
+    if (!input || !input.value.trim()) return;
     const notes = JSON.parse(localStorage.getItem('quickNotes') || '[]');
-    notes.unshift(text);
+    notes.unshift(input.value.trim());
     if (notes.length > 10) notes.pop();
     localStorage.setItem('quickNotes', JSON.stringify(notes));
     input.value = '';
     renderQuickNotes(notes);
     showToast("Note saved!", "suc");
 };
-
 window.deleteQuickNote = function(index) {
     const notes = JSON.parse(localStorage.getItem('quickNotes') || '[]');
     notes.splice(index, 1);
@@ -945,54 +1150,40 @@ window.deleteQuickNote = function(index) {
 // ==========================================
 window.filterNotes = function(category) {
     currentNoteFilter = category;
-    document.querySelectorAll('.cat-tab').forEach(tab => {
-        tab.classList.toggle('active', tab.dataset.cat === category);
-    });
+    document.querySelectorAll('.cat-tab').forEach(tab => tab.classList.toggle('active', tab.dataset.cat === category));
     renderNotesList();
 };
-
 function renderNotesList() {
     const list = document.getElementById('notes-list');
     if (!list) return;
     let filtered = cachedNotes;
-    if (currentNoteFilter !== 'all') {
-        filtered = cachedNotes.filter(n => (n.category || 'other').toLowerCase() === currentNoteFilter);
-    }
-    if (filtered.length === 0) {
-        list.innerHTML = '<div class="text-center text-gray-600 py-6"><i class="fa-solid fa-book-open text-4xl mb-3 text-gray-700 block"></i>No notes in this category.</div>';
-        return;
-    }
+    if (currentNoteFilter !== 'all') filtered = cachedNotes.filter(n => (n.category || 'other').toLowerCase() === currentNoteFilter);
+    if (filtered.length === 0) { list.innerHTML = '<div class="empty-state"><i class="fa-solid fa-book-open empty-icon"></i>No notes in this category.</div>'; return; }
 
-    const subjectColors = {
-        physics: { bg: 'rgba(99,102,241,0.15)', border: 'rgba(99,102,241,0.3)', text: '#818cf8', icon: 'fa-atom' },
-        chemistry: { bg: 'rgba(52,199,89,0.15)', border: 'rgba(52,199,89,0.3)', text: '#34c759', icon: 'fa-flask' },
-        maths: { bg: 'rgba(168,85,247,0.15)', border: 'rgba(168,85,247,0.3)', text: '#a855f7', icon: 'fa-calculator' },
-        math: { bg: 'rgba(168,85,247,0.15)', border: 'rgba(168,85,247,0.3)', text: '#a855f7', icon: 'fa-calculator' },
-        english: { bg: 'rgba(59,130,246,0.15)', border: 'rgba(59,130,246,0.3)', text: '#3b82f6', icon: 'fa-book' },
-        hindi: { bg: 'rgba(249,115,22,0.15)', border: 'rgba(249,115,22,0.3)', text: '#f97316', icon: 'fa-om' },
-        other: { bg: 'rgba(142,142,147,0.15)', border: 'rgba(142,142,147,0.3)', text: '#8e8e93', icon: 'fa-folder' },
-        default: { bg: 'rgba(99,102,241,0.15)', border: 'rgba(99,102,241,0.3)', text: '#818cf8', icon: 'fa-file-pdf' }
+    const colors = {
+        physics: {bg:'rgba(99,102,241,0.1)',border:'rgba(99,102,241,0.2)',text:'#818cf8',icon:'fa-atom'},
+        chemistry: {bg:'rgba(52,199,89,0.1)',border:'rgba(52,199,89,0.2)',text:'#34c759',icon:'fa-flask'},
+        maths: {bg:'rgba(168,85,247,0.1)',border:'rgba(168,85,247,0.2)',text:'#c084fc',icon:'fa-calculator'},
+        math: {bg:'rgba(168,85,247,0.1)',border:'rgba(168,85,247,0.2)',text:'#c084fc',icon:'fa-calculator'},
+        english: {bg:'rgba(59,130,246,0.1)',border:'rgba(59,130,246,0.2)',text:'#3b82f6',icon:'fa-book'},
+        hindi: {bg:'rgba(249,115,22,0.1)',border:'rgba(249,115,22,0.2)',text:'#f97316',icon:'fa-om'},
+        other: {bg:'rgba(142,142,147,0.1)',border:'rgba(142,142,147,0.2)',text:'#8e8e93',icon:'fa-folder'}
     };
-
     list.innerHTML = filtered.map(item => {
         const cat = (item.category || 'other').toLowerCase();
-        const colors = subjectColors[cat] || subjectColors.default;
+        const c = colors[cat] || colors.other;
         const topic = item.topic || item.title || 'Study Material';
-        const dateStr = item.date || new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+        const dateStr = item.date || new Date().toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'});
         const catDisplay = item.category ? item.category.charAt(0).toUpperCase() + item.category.slice(1) : 'PDF';
         return '<div class="note-card">' +
             '<div class="note-card-header">' +
-                '<div class="flex items-center justify-between">' +
-                    '<span class="note-subject-badge" style="background:' + colors.bg + ';border:1px solid ' + colors.border + ';color:' + colors.text + '">' +
-                        '<i class="fa-solid ' + colors.icon + '"></i> ' + catDisplay +
-                    '</span>' +
-                    '<span class="text-[10px] text-gray-600 font-medium">' + dateStr + '</span>' +
+                '<div class="note-badge-row">' +
+                    '<span class="note-subject-badge" style="background:'+c.bg+';border:1px solid '+c.border+';color:'+c.text+'"><i class="fa-solid '+c.icon+'"></i> '+catDisplay+'</span>' +
+                    '<span class="note-date">'+dateStr+'</span>' +
                 '</div>' +
-                '<h4 class="note-topic">' + topic + '</h4>' +
+                '<h4 class="note-topic">'+topic+'</h4>' +
             '</div>' +
-            '<a href="' + item.link + '" target="_blank" rel="noopener" class="note-open-btn">' +
-                '<i class="fa-solid fa-external-link-alt"></i> Open in Browser' +
-            '</a>' +
+            '<a href="'+item.link+'" target="_blank" rel="noopener" class="note-btn"><i class="fa-solid fa-external-link-alt"></i> Open in Browser</a>' +
         '</div>';
     }).join('');
 }
@@ -1002,358 +1193,247 @@ function renderNotesList() {
 // ==========================================
 window.filterClasses = function(category) {
     currentClassFilter = category;
-    document.querySelectorAll('.cls-tab').forEach(tab => {
-        tab.classList.toggle('active', tab.dataset.cat === category);
-    });
+    document.querySelectorAll('.cls-tab').forEach(tab => tab.classList.toggle('active', tab.dataset.cat === category));
     renderClassesList();
 };
-
 function renderClassesList() {
     const list = document.getElementById('classes-list');
     if (!list) return;
     let filtered = cachedClasses;
-    if (currentClassFilter !== 'all') {
-        filtered = cachedClasses.filter(c => (c.category || 'other').toLowerCase() === currentClassFilter);
-    }
-    if (filtered.length === 0) {
-        list.innerHTML = '<div class="text-center text-gray-600 py-6"><i class="fa-solid fa-video text-4xl mb-3 text-gray-700 block"></i>No classes in this category.</div>';
-        return;
-    }
+    if (currentClassFilter !== 'all') filtered = cachedClasses.filter(c => (c.category || 'other').toLowerCase() === currentClassFilter);
+    if (filtered.length === 0) { list.innerHTML = '<div class="empty-state"><i class="fa-solid fa-video empty-icon"></i>No classes in this category.</div>'; return; }
 
-    const subjectColors = {
-        physics: { grad: 'from-indigo-500 to-purple-600', icon: 'fa-atom' },
-        chemistry: { grad: 'from-green-500 to-emerald-600', icon: 'fa-flask' },
-        maths: { grad: 'from-blue-500 to-cyan-600', icon: 'fa-calculator' },
-        math: { grad: 'from-blue-500 to-cyan-600', icon: 'fa-calculator' },
-        english: { grad: 'from-pink-500 to-rose-600', icon: 'fa-book' },
-        hindi: { grad: 'from-orange-500 to-amber-600', icon: 'fa-om' },
-        other: { grad: 'from-gray-500 to-gray-600', icon: 'fa-video' },
-        default: { grad: 'from-indigo-500 to-purple-600', icon: 'fa-video' }
+    const colors = {
+        physics:{grad:'from-indigo-500 to-purple-600',icon:'fa-atom'},
+        chemistry:{grad:'from-green-500 to-emerald-600',icon:'fa-flask'},
+        maths:{grad:'from-blue-500 to-cyan-600',icon:'fa-calculator'},
+        math:{grad:'from-blue-500 to-cyan-600',icon:'fa-calculator'},
+        english:{grad:'from-pink-500 to-rose-600',icon:'fa-book'},
+        hindi:{grad:'from-orange-500 to-amber-600',icon:'fa-om'},
+        other:{grad:'from-gray-500 to-gray-600',icon:'fa-video'}
     };
-
     list.innerHTML = filtered.map(item => {
         const cat = (item.category || 'other').toLowerCase();
-        const colors = subjectColors[cat] || subjectColors.default;
+        const c = colors[cat] || colors.other;
         const title = item.title || 'Online Class';
         const catDisplay = item.category ? item.category.charAt(0).toUpperCase() + item.category.slice(1) : 'Other';
-        // Extract video ID for thumbnail
         let videoId = '';
         if (item.link) {
             if (item.link.includes('youtube.com/watch?v=')) videoId = item.link.split('v=')[1]?.split('&')[0];
             else if (item.link.includes('youtu.be/')) videoId = item.link.split('youtu.be/')[1]?.split('?')[0];
         }
-        const thumbnail = videoId ? 'https://img.youtube.com/vi/' + videoId + '/mqdefault.jpg' : '';
-
-        return '<a href="' + item.link + '" target="_blank" rel="noopener" class="video-card">' +
-            '<div class="video-thumbnail ' + (thumbnail ? '' : 'bg-gradient-to-tr ' + colors.grad) + '" style="' + (thumbnail ? 'background-image:url(' + thumbnail + ');' : '') + '">' +
-                (thumbnail ? '<div class="video-play-overlay"><i class="fa-solid fa-play"></i></div>' : '<i class="fa-solid ' + colors.icon + ' text-3xl text-white"></i>') +
+        const thumb = videoId ? 'https://img.youtube.com/vi/'+videoId+'/mqdefault.jpg' : '';
+        return '<a href="'+item.link+'" target="_blank" rel="noopener" class="video-card">' +
+            '<div class="video-thumb" style="background-image:url('+thumb+');background-size:cover;background-position:center;">' +
+                (thumb ? '<div class="video-play"><i class="fa-solid fa-play"></i></div>' : '<i class="fa-solid '+c.icon+'" style="font-size:28px;color:#fff"></i>') +
             '</div>' +
-            '<div class="video-info">' +
-                '<h4 class="video-title">' + title + '</h4>' +
-                '<span class="video-category ' + colors.grad + '">' + catDisplay + '</span>' +
-            '</div>' +
+            '<div class="video-info"><h4 class="video-title">'+title+'</h4><span class="video-cat" style="background:linear-gradient(135deg,'+c.grad.split(' ')[0].replace('from-','')+','+c.grad.split(' ')[1].replace('to-','')+')">'+catDisplay+'</span></div>' +
         '</a>';
     }).join('');
 }
 
 // ==========================================
-// MUSIC HUB (PREMIUM WITH BACKGROUND + EXP)
+// MUSIC HUB
 // ==========================================
 function loadYouTubeAPI() {
     if (window.YT && window.YT.Player) return;
     const tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
-    const firstScriptTag = document.getElementsByTagName('script')[0];
-    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    document.getElementsByTagName('script')[0].parentNode.insertBefore(tag, document.getElementsByTagName('script')[0]);
 }
 loadYouTubeAPI();
 
 function initHubVisualizer() {
     const viz = document.getElementById('hub-visualizer');
     if (!viz || viz.children.length > 0) return;
-    for (let i = 0; i < 16; i++) {
-        const bar = document.createElement('div');
-        bar.className = 'vzb';
-        bar.style.height = '3px';
-        viz.appendChild(bar);
-    }
+    for (let i = 0; i < 16; i++) { const bar = document.createElement('div'); bar.className = 'vzb'; bar.style.height = '3px'; viz.appendChild(bar); }
 }
-
 function animateVisualizer() {
-    document.querySelectorAll('.vzb').forEach(bar => {
-        bar.style.height = (3 + Math.random() * 28) + 'px';
-    });
+    document.querySelectorAll('.vzb').forEach(bar => { bar.style.height = (3 + Math.random() * 28) + 'px'; });
 }
 
 async function fetchVideoTitle(videoId) {
-    try {
-        const res = await fetch('https://noembed.com/embed?url=https://www.youtube.com/watch?v=' + videoId);
-        const data = await res.json();
-        return data.title || 'YouTube Audio';
-    } catch (e) { return 'YouTube Audio'; }
+    try { const res = await fetch('https://noembed.com/embed?url=https://www.youtube.com/watch?v='+videoId); const data = await res.json(); return data.title || 'YouTube Audio'; }
+    catch (e) { return 'YouTube Audio'; }
 }
-
 function extractVideoId(url) {
-    let videoId = '';
-    if (url.includes('youtube.com/watch?v=')) videoId = url.split('v=')[1]?.split('&')[0];
-    else if (url.includes('youtu.be/')) videoId = url.split('youtu.be/')[1]?.split('?')[0];
-    else if (url.includes('youtube.com/embed/')) videoId = url.split('embed/')[1]?.split('?')[0];
-    else if (/^[a-zA-Z0-9_-]{11}$/.test(url.trim())) videoId = url.trim();
-    return videoId;
+    let id = '';
+    if (url.includes('youtube.com/watch?v=')) id = url.split('v=')[1]?.split('&')[0];
+    else if (url.includes('youtu.be/')) id = url.split('youtu.be/')[1]?.split('?')[0];
+    else if (url.includes('youtube.com/embed/')) id = url.split('embed/')[1]?.split('?')[0];
+    else if (/^[a-zA-Z0-9_-]{11}$/.test(url.trim())) id = url.trim();
+    return id;
 }
-
 function formatTime(seconds) {
     if (!seconds || isNaN(seconds)) return '0:00';
-    const m = Math.floor(seconds / 60);
-    const s = Math.floor(seconds % 60);
-    return m + ':' + String(s).padStart(2, '0');
+    const m = Math.floor(seconds/60), s = Math.floor(seconds%60);
+    return m + ':' + String(s).padStart(2,'0');
 }
-
 function updateSeekbar() {
     if (!youtubePlayer || typeof youtubePlayer.getCurrentTime !== 'function') return;
     try {
         currentVideoTime = youtubePlayer.getCurrentTime() || 0;
         currentVideoDuration = youtubePlayer.getDuration() || 0;
-        const pct = currentVideoDuration > 0 ? (currentVideoTime / currentVideoDuration) * 100 : 0;
-        const fill = document.getElementById('hub-seekbar-fill');
-        const curEl = document.getElementById('hub-seek-current');
-        const durEl = document.getElementById('hub-seek-duration');
-        if (fill) fill.style.width = pct + '%';
-        if (curEl) curEl.textContent = formatTime(currentVideoTime);
-        if (durEl) durEl.textContent = formatTime(currentVideoDuration);
-    } catch (e) {}
+        const pct = currentVideoDuration > 0 ? (currentVideoTime/currentVideoDuration)*100 : 0;
+        document.getElementById('hub-seekbar-fill').style.width = pct + '%';
+        document.getElementById('hub-seek-current').textContent = formatTime(currentVideoTime);
+        document.getElementById('hub-seek-duration').textContent = formatTime(currentVideoDuration);
+    } catch(e){}
 }
-
 window.seekTo = function(event) {
     const track = document.getElementById('hub-seekbar-track');
     if (!track || !youtubePlayer || typeof youtubePlayer.seekTo !== 'function') return;
     const rect = track.getBoundingClientRect();
     const pct = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
-    const newTime = pct * currentVideoDuration;
-    youtubePlayer.seekTo(newTime, true);
+    youtubePlayer.seekTo(pct * currentVideoDuration, true);
     updateSeekbar();
 };
-
-window.skipForward = function() {
-    if (!youtubePlayer || typeof youtubePlayer.seekTo !== 'function') return;
-    youtubePlayer.seekTo(Math.min(currentVideoDuration, currentVideoTime + 10), true);
-    updateSeekbar();
-};
-
-window.skipBackward = function() {
-    if (!youtubePlayer || typeof youtubePlayer.seekTo !== 'function') return;
-    youtubePlayer.seekTo(Math.max(0, currentVideoTime - 10), true);
-    updateSeekbar();
-};
+window.skipForward = function() { if (youtubePlayer) youtubePlayer.seekTo(Math.min(currentVideoDuration, currentVideoTime + 10), true); updateSeekbar(); };
+window.skipBackward = function() { if (youtubePlayer) youtubePlayer.seekTo(Math.max(0, currentVideoTime - 10), true); updateSeekbar(); };
 
 window.loadYouTubeMusic = async function() {
-    const linkInput = document.getElementById('hub-yt-link');
-    if (!linkInput) return;
-    const url = linkInput.value.trim();
-    if (!url) return;
-    const videoId = extractVideoId(url);
+    const input = document.getElementById('hub-yt-link');
+    if (!input || !input.value.trim()) return;
+    const videoId = extractVideoId(input.value.trim());
     if (!videoId) { showToast("Invalid YouTube link", "err"); return; }
-
     currentVideoId = videoId;
-    showToast("Loading song...", "inf");
+    showToast("Loading...", "inf");
     currentVideoTitle = await fetchVideoTitle(videoId);
-
-    const ht = document.getElementById('hub-song-title');
-    const hs = document.getElementById('hub-song-status');
-    if (ht) ht.textContent = currentVideoTitle;
-    if (hs) hs.textContent = 'Now Playing';
-
+    document.getElementById('hub-song-title').textContent = currentVideoTitle;
+    document.getElementById('hub-song-status').textContent = 'Now Playing';
     const playlist = JSON.parse(localStorage.getItem('sg_playlist') || '[]');
     if (!playlist.find(p => p.id === currentVideoId)) {
-        playlist.push({ id: currentVideoId, title: currentVideoTitle });
+        playlist.push({id: currentVideoId, title: currentVideoTitle});
         localStorage.setItem('sg_playlist', JSON.stringify(playlist));
         loadHubPlaylist();
     }
-
     loadYouTubePlayer(videoId, currentVideoTitle);
-    linkInput.value = '';
+    input.value = '';
     showToast(currentVideoTitle + " loaded!", "suc");
 };
 
 function loadYouTubePlayer(videoId, title) {
     const ytp = document.getElementById('yt-player');
-    if (ytp) {
-        ytp.innerHTML = '<div id="yt-iframe-container"></div>';
-        try {
-            youtubePlayer = new YT.Player('yt-iframe-container', {
-                width: 1,
-                height: 1,
-                videoId: videoId,
-                playerVars: { autoplay: 1, controls: 0, disablekb: 1 },
-                events: {
-                    onReady: function(event) {
-                        event.target.playVideo();
-                        setTimeout(() => {
-                            currentVideoDuration = youtubePlayer.getDuration() || 0;
-                            const durEl = document.getElementById('hub-seek-duration');
-                            if (durEl) durEl.textContent = formatTime(currentVideoDuration);
-                            setupMediaSession(title);
-                        }, 1000);
-                    },
-                    onStateChange: function(event) {
-                        if (event.data === YT.PlayerState.PLAYING) {
-                            isPlaying = true;
-                            const pi = document.getElementById('hub-play-icon');
-                            const di = document.getElementById('hub-disc-icon');
-                            const glow = document.getElementById('music-glow');
-                            if (pi) { pi.classList.remove('fa-play'); pi.classList.add('fa-pause'); }
-                            if (di) { di.className = 'fa-solid fa-compact-disc fa-spin'; }
-                            if (glow) glow.classList.add('active');
-                            if (!visualizerInterval) visualizerInterval = setInterval(animateVisualizer, 120);
-                            if (!seekbarInterval) seekbarInterval = setInterval(updateSeekbar, 1000);
-                            startMusicXPTracking();
-                        } else if (event.data === YT.PlayerState.PAUSED) {
-                            isPlaying = false;
-                            const pi = document.getElementById('hub-play-icon');
-                            const di = document.getElementById('hub-disc-icon');
-                            const glow = document.getElementById('music-glow');
-                            if (pi) { pi.classList.remove('fa-pause'); pi.classList.add('fa-play'); }
-                            if (di) { di.className = 'fa-solid fa-compact-disc'; }
-                            if (glow) glow.classList.remove('active');
-                            if (visualizerInterval) { clearInterval(visualizerInterval); visualizerInterval = null; }
-                            if (seekbarInterval) { clearInterval(seekbarInterval); seekbarInterval = null; }
-                            document.querySelectorAll('.vzb').forEach(bar => { bar.style.height = '3px'; });
-                            stopMusicXPTracking();
-                        } else if (event.data === YT.PlayerState.ENDED) {
-                            isPlaying = false;
-                            const pi = document.getElementById('hub-play-icon');
-                            if (pi) { pi.classList.remove('fa-pause'); pi.classList.add('fa-play'); }
-                            stopMusicXPTracking();
-                            if (playlistMode) nextTrack();
-                        }
+    if (!ytp) return;
+    ytp.innerHTML = '<div id="yt-iframe-container"></div>';
+    try {
+        youtubePlayer = new YT.Player('yt-iframe-container', {
+            width: 1, height: 1, videoId: videoId,
+            playerVars: { autoplay: 1, controls: 0, disablekb: 1 },
+            events: {
+                onReady: function(event) {
+                    event.target.playVideo();
+                    setTimeout(() => {
+                        currentVideoDuration = youtubePlayer.getDuration() || 0;
+                        document.getElementById('hub-seek-duration').textContent = formatTime(currentVideoDuration);
+                        setupMediaSession(title);
+                    }, 1000);
+                },
+                onStateChange: function(event) {
+                    if (event.data === YT.PlayerState.PLAYING) {
+                        isPlaying = true;
+                        document.getElementById('hub-play-icon').classList.remove('fa-play');
+                        document.getElementById('hub-play-icon').classList.add('fa-pause');
+                        document.getElementById('hub-disc-icon').className = 'fa-solid fa-compact-disc fa-spin';
+                        document.getElementById('music-glow').classList.add('active');
+                        if (!visualizerInterval) visualizerInterval = setInterval(animateVisualizer, 120);
+                        if (!seekbarInterval) seekbarInterval = setInterval(updateSeekbar, 1000);
+                        startMusicXPTracking();
+                    } else if (event.data === YT.PlayerState.PAUSED) {
+                        isPlaying = false;
+                        document.getElementById('hub-play-icon').classList.remove('fa-pause');
+                        document.getElementById('hub-play-icon').classList.add('fa-play');
+                        document.getElementById('hub-disc-icon').className = 'fa-solid fa-compact-disc';
+                        document.getElementById('music-glow').classList.remove('active');
+                        if (visualizerInterval) { clearInterval(visualizerInterval); visualizerInterval = null; }
+                        if (seekbarInterval) { clearInterval(seekbarInterval); seekbarInterval = null; }
+                        document.querySelectorAll('.vzb').forEach(bar => bar.style.height = '3px');
+                        stopMusicXPTracking();
+                    } else if (event.data === YT.PlayerState.ENDED) {
+                        isPlaying = false;
+                        document.getElementById('hub-play-icon').classList.remove('fa-pause');
+                        document.getElementById('hub-play-icon').classList.add('fa-play');
+                        stopMusicXPTracking();
+                        if (playlistMode) nextTrack();
                     }
                 }
-            });
-        } catch (e) {
-            ytp.innerHTML = '<iframe id="yt-iframe" width="1" height="1" src="https://www.youtube.com/embed/' + videoId + '?enablejsapi=1&autoplay=1&controls=0" frameborder="0" allow="autoplay"></iframe>';
-        }
-        ytp.classList.remove('hidden');
+            }
+        });
+    } catch (e) {
+        ytp.innerHTML = '<iframe id="yt-iframe" width="1" height="1" src="https://www.youtube.com/embed/'+videoId+'?enablejsapi=1&autoplay=1&controls=0" frameborder="0" allow="autoplay"></iframe>';
     }
+    ytp.classList.remove('hidden');
 }
 
-// MediaSession API for background playback
 function setupMediaSession(title) {
     if ('mediaSession' in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({
-            title: title,
-            artist: 'StudyGram Pro Music',
-            album: 'Study & Focus',
-            artwork: [
-                { src: 'https://cdn-icons-png.flaticon.com/512/727/727218.png', sizes: '512x512', type: 'image/png' }
-            ]
+            title: title, artist: 'StudyGram Pro', album: 'Study & Focus',
+            artwork: [{src:'https://cdn-icons-png.flaticon.com/512/727/727218.png', sizes:'512x512', type:'image/png'}]
         });
-        navigator.mediaSession.setActionHandler('play', () => { if (youtubePlayer) youtubePlayer.playVideo(); });
-        navigator.mediaSession.setActionHandler('pause', () => { if (youtubePlayer) youtubePlayer.pauseVideo(); });
+        navigator.mediaSession.setActionHandler('play', () => youtubePlayer?.playVideo());
+        navigator.mediaSession.setActionHandler('pause', () => youtubePlayer?.pauseVideo());
         navigator.mediaSession.setActionHandler('previoustrack', () => prevTrack());
         navigator.mediaSession.setActionHandler('nexttrack', () => nextTrack());
     }
 }
 
-// +10 EXP per minute listening
 function startMusicXPTracking() {
-    musicListenStart = Date.now();
     if (musicXPInterval) clearInterval(musicXPInterval);
     musicXPInterval = setInterval(() => {
         musicTotalListened++;
         if (musicTotalListened % 60 === 0) {
             musicEarnedXP += 10;
             addXP(10, 'music_listen');
-            const earnEl = document.getElementById('music-earn-xp');
-            const earnDisplay = document.getElementById('music-earn-display');
-            if (earnEl) earnEl.textContent = musicEarnedXP;
-            if (earnDisplay) earnDisplay.classList.remove('hidden');
-            showToast('+10 EXP for listening to music!', 'suc');
+            document.getElementById('music-earn-xp').textContent = musicEarnedXP;
+            document.getElementById('music-earn-display').classList.remove('hidden');
+            showToast('+10 EXP for listening!', 'suc');
         }
     }, 1000);
 }
+function stopMusicXPTracking() { if (musicXPInterval) { clearInterval(musicXPInterval); musicXPInterval = null; } }
 
-function stopMusicXPTracking() {
-    if (musicXPInterval) {
-        clearInterval(musicXPInterval);
-        musicXPInterval = null;
-    }
-    musicListenStart = 0;
-}
-
-window.togglePlay = function() {
-    if (!youtubePlayer || typeof youtubePlayer.playVideo !== 'function') return;
-    if (isPlaying) youtubePlayer.pauseVideo();
-    else youtubePlayer.playVideo();
-};
-
-window.setVolume = function(val) {
-    if (!youtubePlayer || typeof youtubePlayer.setVolume !== 'function') {
-        const iframe = document.getElementById('yt-iframe');
-        if (iframe && iframe.contentWindow) {
-            iframe.contentWindow.postMessage(JSON.stringify({event:'command',func:'setVolume',args:[val]}), '*');
-        }
-        return;
-    }
-    youtubePlayer.setVolume(val);
-};
-
+window.togglePlay = function() { if (!youtubePlayer) return; if (isPlaying) youtubePlayer.pauseVideo(); else youtubePlayer.playVideo(); };
+window.setVolume = function(val) { if (youtubePlayer && typeof youtubePlayer.setVolume === 'function') youtubePlayer.setVolume(val); };
 window.togglePlaylistMode = function() {
     playlistMode = !playlistMode;
     const btn = document.getElementById('hub-playlist-toggle');
-    if (btn) {
-        if (playlistMode) {
-            btn.innerHTML = '<i class="fa-solid fa-repeat mr-1"></i> Loop: On';
-            btn.classList.add('bg-[#6366f1]/15','text-[#818cf8]');
-        } else {
-            btn.innerHTML = '<i class="fa-solid fa-repeat mr-1"></i> Loop: Off';
-            btn.classList.remove('bg-[#6366f1]/15','text-[#818cf8]');
-        }
-    }
+    if (btn) btn.innerHTML = playlistMode ? '<i class="fa-solid fa-repeat"></i> Loop: On' : '<i class="fa-solid fa-repeat"></i> Loop: Off';
 };
 
 function loadHubPlaylist() {
     const playlist = JSON.parse(localStorage.getItem('sg_playlist') || '[]');
     const container = document.getElementById('hub-playlist-items');
     if (!container) return;
-    if (playlist.length === 0) {
-        container.innerHTML = '<div class="text-center text-gray-600 text-sm py-6"><i class="fa-solid fa-music text-4xl mb-3 text-gray-700 block"></i>No songs yet. Add YouTube links!</div>';
-        return;
-    }
+    if (playlist.length === 0) { container.innerHTML = '<div class="empty-state" style="padding:24px;"><i class="fa-solid fa-music empty-icon"></i>No songs yet.</div>'; return; }
     container.innerHTML = playlist.map((item, i) => {
         const isActive = item.id === currentVideoId;
-        return '<div class="flex items-center gap-3 p-3 rounded-xl ' + (isActive ? 'bg-[#6366f1]/15 border border-[#6366f1]/30' : 'bg-[#2c2c2e] border border-white/5') + ' cursor-pointer hover:bg-[#3a3a3c] transition-all" onclick="playFromPlaylist(' + i + ')"><div class="w-10 h-10 rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-sm flex-shrink-0"><i class="fa-solid fa-music"></i></div><div class="flex-1 min-w-0"><p class="font-bold text-sm text-white truncate">' + item.title + '</p></div><button onclick="event.stopPropagation(); removeFromPlaylist(' + i + ')" class="text-red-400 hover:text-red-300 text-xs px-2 flex-shrink-0 w-7 h-7 rounded-full bg-[#1c1c1e] flex items-center justify-center"><i class="fa-solid fa-times"></i></button></div>';
+        return '<div class="playlist-item ' + (isActive ? 'active' : '') + '" onclick="haptic(); playFromPlaylist('+i+')">' +
+            '<div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;flex-shrink:0;"><i class="fa-solid fa-music"></i></div>' +
+            '<div style="flex:1;min-width:0;"><p style="font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + item.title + '</p></div>' +
+            '<button onclick="event.stopPropagation(); haptic(); removeFromPlaylist('+i+');" style="background:none;border:none;color:#ff3b30;cursor:pointer;font-size:12px;padding:4px;"><i class="fa-solid fa-times"></i></button>' +
+        '</div>';
     }).join('');
 }
-
 window.playFromPlaylist = async function(index) {
     const playlist = JSON.parse(localStorage.getItem('sg_playlist') || '[]');
     if (!playlist[index]) return;
-    const item = playlist[index];
-    currentVideoId = item.id;
-    currentVideoTitle = item.title;
-    const ht = document.getElementById('hub-song-title');
-    const hs = document.getElementById('hub-song-status');
-    if (ht) ht.textContent = item.title;
-    if (hs) hs.textContent = 'Now Playing';
+    currentVideoId = playlist[index].id;
+    currentVideoTitle = playlist[index].title;
+    document.getElementById('hub-song-title').textContent = playlist[index].title;
+    document.getElementById('hub-song-status').textContent = 'Now Playing';
     loadHubPlaylist();
-    loadYouTubePlayer(item.id, item.title);
+    loadYouTubePlayer(playlist[index].id, playlist[index].title);
 };
-
 window.removeFromPlaylist = function(index) {
     const playlist = JSON.parse(localStorage.getItem('sg_playlist') || '[]');
     playlist.splice(index, 1);
     localStorage.setItem('sg_playlist', JSON.stringify(playlist));
     loadHubPlaylist();
 };
-
 window.clearPlaylist = function() {
-    if (confirm("Clear all songs from playlist?")) {
-        localStorage.removeItem('sg_playlist');
-        loadHubPlaylist();
-        showToast("Playlist cleared!", "inf");
-    }
+    if (confirm("Clear all songs?")) { localStorage.removeItem('sg_playlist'); loadHubPlaylist(); showToast("Playlist cleared!", "inf"); }
 };
-
 window.prevTrack = function() {
     const playlist = JSON.parse(localStorage.getItem('sg_playlist') || '[]');
     if (playlist.length === 0) return;
@@ -1361,7 +1441,6 @@ window.prevTrack = function() {
     if (idx <= 0) idx = playlist.length;
     playFromPlaylist(idx - 1);
 };
-
 window.nextTrack = function() {
     const playlist = JSON.parse(localStorage.getItem('sg_playlist') || '[]');
     if (playlist.length === 0) return;
@@ -1369,64 +1448,39 @@ window.nextTrack = function() {
     if (idx < 0 || idx >= playlist.length - 1) idx = -1;
     playFromPlaylist(idx + 1);
 };
-
-window.onYouTubeIframeAPIReady = function() { console.log('YouTube API Ready'); };
+window.onYouTubeIframeAPIReady = function() { console.log('YT API Ready'); };
 
 // ==========================================
-// EXAM DATE SHEET (SORTED + PROFESSIONAL)
+// DATE SHEET
 // ==========================================
 function loadDateSheet() {
     if (!db) return;
     onValue(ref(db, 'public_data/exam_schedule'), (snap) => {
         const list = document.getElementById('datesheet-list');
         if (!list) return;
-        if (!snap.exists()) {
-            list.innerHTML = '<div class="text-center text-gray-600 py-6 flex flex-col items-center"><i class="fa-solid fa-calendar-xmark text-4xl mb-3 text-gray-700"></i><p>No exams scheduled yet.</p></div>';
-            return;
-        }
+        if (!snap.exists()) { list.innerHTML = '<div class="empty-state"><i class="fa-solid fa-calendar-xmark empty-icon"></i>No exams scheduled.</div>'; return; }
         let exams = [];
-        snap.forEach(child => {
-            const d = child.val();
-            exams.push({ ...d, key: child.key });
-        });
-        // Sort by date, then by time
+        snap.forEach(child => { exams.push({...child.val(), key: child.key}); });
         exams.sort((a, b) => {
-            const dateA = (a.date || '9999-12-31') + 'T' + (a.time || '23:59');
-            const dateB = (b.date || '9999-12-31') + 'T' + (b.time || '23:59');
-            return dateA.localeCompare(dateB);
+            const dA = (a.date || '9999-12-31') + 'T' + (a.time || '23:59');
+            const dB = (b.date || '9999-12-31') + 'T' + (b.time || '23:59');
+            return dA.localeCompare(dB);
         });
-
+        const subjectColors = { hindi:'from-orange-500 to-amber-600', english:'from-pink-500 to-rose-600', math:'from-blue-500 to-cyan-600', maths:'from-blue-500 to-cyan-600', physics:'from-indigo-500 to-purple-600', chemistry:'from-green-500 to-emerald-600' };
         list.innerHTML = exams.map((exam, i) => {
             const dateObj = new Date(exam.date + 'T' + (exam.time || '00:00'));
-            const dateStr = dateObj.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-            const timeStr = exam.time || 'TBA';
             const isUpcoming = dateObj > new Date();
-            const subjectColors = {
-                hindi: 'from-orange-500 to-amber-600',
-                english: 'from-pink-500 to-rose-600',
-                math: 'from-blue-500 to-cyan-600',
-                maths: 'from-blue-500 to-cyan-600',
-                physics: 'from-indigo-500 to-purple-600',
-                chemistry: 'from-green-500 to-emerald-600',
-                default: 'from-gray-500 to-gray-600'
-            };
-            const subjKey = (exam.subject || '').toLowerCase();
-            const grad = subjectColors[subjKey] || subjectColors.default;
+            const grad = subjectColors[(exam.subject || '').toLowerCase()] || 'from-gray-500 to-gray-600';
             return '<div class="datesheet-card ' + (isUpcoming ? 'upcoming' : 'past') + '">' +
-                '<div class="datesheet-header bg-gradient-to-r ' + grad + '">' +
-                    '<span class="datesheet-index">#' + (i + 1) + '</span>' +
-                    '<span class="datesheet-status">' + (isUpcoming ? 'UPCOMING' : 'COMPLETED') + '</span>' +
+                '<div class="datesheet-header-bar" style="background:linear-gradient(90deg,'+grad.replace('from-','').replace(' to-',',')+'">' +
+                    '<span class="datesheet-index">#'+(i+1)+'</span><span class="datesheet-status">'+(isUpcoming?'UPCOMING':'COMPLETED')+'</span>' +
                 '</div>' +
                 '<div class="datesheet-body">' +
-                    '<h3 class="font-black text-white text-lg">' + exam.subject + '</h3>' +
-                    '<p class="text-xs text-gray-500 font-medium mt-0.5">' + exam.examName + '</p>' +
-                    '<div class="datesheet-meta">' +
-                        '<span><i class="fa-regular fa-calendar"></i> ' + dateStr + '</span>' +
-                        '<span><i class="fa-regular fa-clock"></i> ' + timeStr + '</span>' +
-                    '</div>' +
-                    '<div class="datesheet-shift"><i class="fa-solid fa-door-open"></i> ' + (exam.meeting || 'TBA') + '</div>' +
-                '</div>' +
-            '</div>';
+                    '<h3 style="font-weight:900;font-size:18px;">'+exam.subject+'</h3>' +
+                    '<p style="font-size:11px;color:var(--text-muted);font-weight:500;margin-top:2px;">'+exam.examName+'</p>' +
+                    '<div class="datesheet-meta"><span><i class="fa-regular fa-calendar"></i> '+dateObj.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})+'</span><span><i class="fa-regular fa-clock"></i> '+(exam.time||'TBA')+'</span></div>' +
+                    '<div class="datesheet-shift"><i class="fa-solid fa-door-open"></i> '+(exam.meeting||'TBA')+'</div>' +
+                '</div></div>';
         }).join('');
     });
 }
@@ -1440,119 +1494,123 @@ function loadDatabaseData() {
     // Users
     onValue(ref(db, 'users'), (snap) => {
         const totalUsers = snap.exists() ? Object.keys(snap.val()).length : 0;
-        const stu = document.getElementById('stat-total-users');
-        const uc = document.getElementById('user-count');
-        if (stu) stu.textContent = totalUsers;
-        if (uc) uc.textContent = totalUsers;
-        let activeToday = 0;
-        let premiumCount = 0;
+        document.getElementById('stat-total-users').textContent = totalUsers;
+        document.getElementById('user-count').textContent = totalUsers;
+        document.getElementById('admin-stat-total-users').textContent = totalUsers;
+
+        let activeToday = 0, premiumCount = 0, bannedCount = 0;
         const today = new Date().toISOString().split('T')[0];
+        const users = [];
         if (snap.exists()) {
             snap.forEach(child => {
-                if (child.val().lastActive === today) activeToday++;
-                if (child.val().isPremium === true) premiumCount++;
+                const d = child.val();
+                if (d.lastActive === today) activeToday++;
+                if (d.isPremium === true) premiumCount++;
+                users.push({...d, uid: child.key});
             });
         }
-        const sat = document.getElementById('stat-active-today');
-        if (sat) sat.textContent = activeToday;
-        const stp = document.getElementById('stat-total-premium');
-        if (stp) stp.textContent = premiumCount;
+        document.getElementById('stat-active-today').textContent = activeToday;
+        document.getElementById('admin-stat-active-today').textContent = activeToday;
+        document.getElementById('stat-total-premium').textContent = premiumCount;
+        document.getElementById('admin-stat-premium-users').textContent = premiumCount;
 
-        const usersList = document.getElementById('users-list');
-        if (snap.exists() && usersList) {
-            let html = '';
-            snap.forEach(child => {
-                const data = child.val();
-                const stats = data.stats || {};
-                const isPrem = data.isPremium === true;
-                html += '<div class="flex items-center gap-3 bg-[#2c2c2e] p-3 rounded-xl border border-white/10"><img src="' + (data.photo || 'https://cdn-icons-png.flaticon.com/512/149/149071.png') + '" class="w-9 h-9 rounded-full object-cover border border-white/10" onerror="this.src=\'https://cdn-icons-png.flaticon.com/512/149/149071.png\'"><div class="flex-1 min-w-0"><p class="font-bold text-sm text-white truncate">' + (data.name || 'Unknown') + (isPrem ? ' <i class="fa-solid fa-crown text-amber-400 text-xs"></i>' : '') + '</p><p class="text-xs text-gray-600 truncate">' + (data.email || '') + '</p></div><div class="text-right flex-shrink-0"><span class="text-xs font-bold bg-[#6366f1]/10 text-indigo-300 px-2 py-1 rounded border border-[#6366f1]/20">Lv.' + (stats.level || 1) + '</span></div></div>';
-            });
-            usersList.innerHTML = html;
-        } else if (usersList) { usersList.innerHTML = '<div class="text-center text-gray-600 text-sm py-4">Koi users nahi mile</div>'; }
+        // Admin users list
+        const ul = document.getElementById('users-list');
+        if (ul) {
+            if (users.length === 0) ul.innerHTML = '<div class="text-muted" style="text-align:center;">No users</div>';
+            else ul.innerHTML = users.map(u => {
+                const stats = u.stats || {};
+                return '<div class="admin-user-item">' +
+                    '<img src="'+(u.photo || 'https://cdn-icons-png.flaticon.com/512/149/149071.png')+'" class="admin-user-avatar" onerror="this.src=\'https://cdn-icons-png.flaticon.com/512/149/149071.png\'">' +
+                    '<div class="admin-user-info"><p class="admin-user-name">'+(u.name || 'Unknown')+(u.isPremium ? ' <i class="fa-solid fa-crown admin-user-premium"></i>' : '')+'</p><p class="admin-user-email">'+(u.email || '')+'</p></div>' +
+                    '<span class="admin-user-level">Lv.'+(stats.level || 1)+'</span>' +
+                '</div>';
+            }).join('');
+        }
     });
 
-    // Notes (cached for category filtering)
+    // Notes
     onValue(ref(db, 'public_data/notes'), (snap) => {
         const adminList = document.getElementById('manage-notes-list');
-        const stn = document.getElementById('stat-total-notes');
-        if (stn) stn.textContent = snap.exists() ? Object.keys(snap.val()).length : 0;
+        document.getElementById('stat-total-notes').textContent = snap.exists() ? Object.keys(snap.val()).length : 0;
         cachedNotes = [];
         if (adminList) adminList.innerHTML = '';
         if (snap.exists()) {
-            snap.forEach(c => {
-                let d = c.val();
-                d._key = c.key;
-                cachedNotes.push(d);
-                if (adminList) adminList.innerHTML += '<div class="flex justify-between items-center bg-[#2c2c2e] p-2 rounded-lg border border-white/10 text-sm"><span class="truncate pr-2 text-gray-400">' + (d.category || 'PDF') + ' - ' + (d.topic || d.title) + '</span><button onclick="deleteItem(\'public_data/notes/' + c.key + '\')" class="text-red-400 hover:text-red-300 bg-red-500/10 p-1.5 rounded active:scale-90 transition-transform btn-press border border-red-500/20 flex-shrink-0"><i class="fa-solid fa-trash"></i></button></div>';
+            snap.forEach(c => { let d = c.val(); d._key = c.key; cachedNotes.push(d);
+                if (adminList) adminList.innerHTML += '<div class="admin-content-item"><span>'+(d.category||'PDF')+' - '+(d.topic||d.title)+'</span><button onclick="haptic(); deleteItem(\'public_data/notes/'+c.key+'\');" class="admin-delete-btn"><i class="fa-solid fa-trash"></i></button></div>';
             });
-        } else {
-            if (adminList) adminList.innerHTML = '<span class="text-xs text-gray-600">Koi notes nahi</span>';
-        }
+        } else if (adminList) adminList.innerHTML = '<span class="text-muted">No notes</span>';
         renderNotesList();
     });
 
-    // Online Classes (cached for category filtering)
+    // Classes
     onValue(ref(db, 'public_data/classes'), (snap) => {
         const adminList = document.getElementById('manage-classes-list');
-        const stc = document.getElementById('stat-total-classes');
-        if (stc) stc.textContent = snap.exists() ? Object.keys(snap.val()).length : 0;
+        document.getElementById('stat-total-classes').textContent = snap.exists() ? Object.keys(snap.val()).length : 0;
         cachedClasses = [];
         if (adminList) adminList.innerHTML = '';
         if (snap.exists()) {
-            snap.forEach(c => {
-                let d = c.val();
-                d._key = c.key;
-                cachedClasses.push(d);
-                if (adminList) adminList.innerHTML += '<div class="flex justify-between items-center bg-[#2c2c2e] p-2 rounded-lg border border-white/10 text-sm"><span class="truncate pr-2 text-gray-400">' + (d.category || 'Other') + ' - ' + (d.title || 'Class') + '</span><button onclick="deleteItem(\'public_data/classes/' + c.key + '\')" class="text-red-400 hover:text-red-300 bg-red-500/10 p-1.5 rounded active:scale-90 transition-transform btn-press border border-red-500/20 flex-shrink-0"><i class="fa-solid fa-trash"></i></button></div>';
+            snap.forEach(c => { let d = c.val(); d._key = c.key; cachedClasses.push(d);
+                if (adminList) adminList.innerHTML += '<div class="admin-content-item"><span>'+(d.category||'Other')+' - '+(d.title||'Class')+'</span><button onclick="haptic(); deleteItem(\'public_data/classes/'+c.key+'\');" class="admin-delete-btn"><i class="fa-solid fa-trash"></i></button></div>';
             });
-        } else {
-            if (adminList) adminList.innerHTML = '<span class="text-xs text-gray-600">Koi classes nahi</span>';
-        }
+        } else if (adminList) adminList.innerHTML = '<span class="text-muted">No classes</span>';
         renderClassesList();
     });
 
-    // Progress/Syllabus
+    // Video Lectures
+    onValue(ref(db, 'public_data/lectures'), (snap) => {
+        const adminList = document.getElementById('manage-lectures-list');
+        cachedLectures = [];
+        if (adminList) adminList.innerHTML = '';
+        if (snap.exists()) {
+            snap.forEach(c => { let d = c.val(); d._key = c.key; cachedLectures.push(d);
+                if (adminList) adminList.innerHTML += '<div class="admin-content-item"><span>'+(d.subject||d.category||'General')+' - '+(d.chapter||d.topic||'Lecture')+'</span><button onclick="haptic(); deleteItem(\'public_data/lectures/'+c.key+'\');" class="admin-delete-btn"><i class="fa-solid fa-trash"></i></button></div>';
+            });
+        } else if (adminList) adminList.innerHTML = '<span class="text-muted">No lectures</span>';
+        renderLecturesList();
+    });
+
+    // Progress
     onValue(ref(db, 'public_data/status'), (snap) => {
         const box = document.getElementById('course-status');
         if (!box) return;
-        const d = snap.val() || { hin:0, eng:0, math:0, phy:0, chem:0, hin_gadya:0, hin_padya:0, hin_kahani:0, hin_natak:0, hin_vyakaran:0, hin_sanskrit:0, eng_prose:0, eng_poetry:0, eng_supp:0, eng_grammar:0 };
-        const hexColors = { hin:'#f97316', eng:'#3b82f6', math:'#10b981', phy:'#6366f1', chem:'#a855f7' };
-        const names = { hin:'Hindi', eng:'English', math:'Maths', phy:'Physics', chem:'Chemistry' };
-        let html = '<div class="flex justify-between items-center mb-4"><h4 class="font-bold text-white flex items-center gap-2"><i class="fa-solid fa-chart-simple text-indigo-400"></i> Syllabus Coverage</h4></div><div class="space-y-5">';
+        const d = snap.val() || {hin:0, eng:0, math:0, phy:0, chem:0};
+        const hexColors = {hin:'#f97316', eng:'#3b82f6', math:'#10b981', phy:'#6366f1', chem:'#a855f7'};
+        const names = {hin:'Hindi', eng:'English', math:'Maths', phy:'Physics', chem:'Chemistry'};
+        let html = '<h4 class="card-title" style="margin-bottom:16px;"><i class="fa-solid fa-chart-simple" style="color:var(--primary)"></i> Syllabus Coverage</h4><div style="display:flex;flex-direction:column;gap:16px;">';
         ['hin','eng','math','phy','chem'].forEach(s => {
-            let val = d[s] || 0;
-            let detailHtml = '';
-            if (s === 'hin') {
-                detailHtml = '<div class="sub-d"><div class="sp"><span class="text-gray-500">Gadya</span><div class="spb"><div class="spf" style="width:' + (d.hin_gadya||0) + '%;background:#f97316"></div></div><span class="text-xs font-bold text-orange-400">' + (d.hin_gadya||0) + '%</span></div><div class="sp"><span class="text-gray-500">Padya</span><div class="spb"><div class="spf" style="width:' + (d.hin_padya||0) + '%;background:#f97316"></div></div><span class="text-xs font-bold text-orange-400">' + (d.hin_padya||0) + '%</span></div><div class="sp"><span class="text-gray-500">Kahani</span><div class="spb"><div class="spf" style="width:' + (d.hin_kahani||0) + '%;background:#f97316"></div></div><span class="text-xs font-bold text-orange-400">' + (d.hin_kahani||0) + '%</span></div><div class="sp"><span class="text-gray-500">Natak</span><div class="spb"><div class="spf" style="width:' + (d.hin_natak||0) + '%;background:#f97316"></div></div><span class="text-xs font-bold text-orange-400">' + (d.hin_natak||0) + '%</span></div><div class="sp"><span class="text-gray-500">Vyakaran</span><div class="spb"><div class="spf" style="width:' + (d.hin_vyakaran||0) + '%;background:#f97316"></div></div><span class="text-xs font-bold text-orange-400">' + (d.hin_vyakaran||0) + '%</span></div><div class="sp"><span class="text-gray-500">Sanskrit</span><div class="spb"><div class="spf" style="width:' + (d.hin_sanskrit||0) + '%;background:#f97316"></div></div><span class="text-xs font-bold text-orange-400">' + (d.hin_sanskrit||0) + '%</span></div></div>';
-            } else if (s === 'eng') {
-                detailHtml = '<div class="sub-d"><div class="sp"><span class="text-gray-500">Prose</span><div class="spb"><div class="spf" style="width:' + (d.eng_prose||0) + '%;background:#3b82f6"></div></div><span class="text-xs font-bold text-blue-400">' + (d.eng_prose||0) + '%</span></div><div class="sp"><span class="text-gray-500">Poetry</span><div class="spb"><div class="spf" style="width:' + (d.eng_poetry||0) + '%;background:#3b82f6"></div></div><span class="text-xs font-bold text-blue-400">' + (d.eng_poetry||0) + '%</span></div><div class="sp"><span class="text-gray-500">Supplementary</span><div class="spb"><div class="spf" style="width:' + (d.eng_supp||0) + '%;background:#3b82f6"></div></div><span class="text-xs font-bold text-blue-400">' + (d.eng_supp||0) + '%</span></div><div class="sp"><span class="text-gray-500">Grammar</span><div class="spb"><div class="spf" style="width:' + (d.eng_grammar||0) + '%;background:#3b82f6"></div></div><span class="text-xs font-bold text-blue-400">' + (d.eng_grammar||0) + '%</span></div></div>';
-            }
-            html += '<div><p class="text-xs font-bold uppercase flex justify-between text-gray-400 mb-1.5">' + names[s] + ' <span>' + val + '%</span></p><div class="h-2 bg-[#2c2c2e] rounded-full shadow-inner border border-white/10"><div class="h-full rounded-full transition-all duration-1000 ease-out" style="width:' + val + '%;background:' + hexColors[s] + ';opacity:0.7"></div></div>' + detailHtml + '</div>';
+            const val = d[s] || 0;
+            html += '<div><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;margin-bottom:4px;"><span>'+names[s]+'</span><span>'+val+'%</span></div>' +
+                '<div style="height:8px;background:var(--bg-elevated);border-radius:4px;overflow:hidden;border:1px solid var(--border);"><div style="height:100%;border-radius:4px;transition:width 1s ease;width:'+val+'%;background:'+hexColors[s]+';opacity:0.85;"></div></div></div>';
         });
         box.innerHTML = html + '</div>';
     });
 
-    // Notices (with white-space: pre-wrap)
+    // Notices
     onValue(ref(db, 'public_data/notices'), (snap) => {
         const list = document.getElementById('notice-list');
         const adminList = document.getElementById('manage-notices-list');
         if (list) list.innerHTML = '';
         if (adminList) adminList.innerHTML = '';
-        const stn = document.getElementById('stat-total-notices');
-        if (stn) stn.textContent = snap.exists() ? Object.keys(snap.val()).length : 0;
+        document.getElementById('stat-total-notices').textContent = snap.exists() ? Object.keys(snap.val()).length : 0;
         if (snap.exists()) {
             snap.forEach(c => {
-                let d = c.val(); let k = c.key;
-                if (list) list.innerHTML = '<div class="ios-card p-4 rounded-2xl mb-3 border-l-4 border-amber-400 relative overflow-hidden"><div class="absolute -right-4 -top-4 text-amber-400/10 text-5xl opacity-30"><i class="fa-solid fa-bell"></i></div><h4 class="font-bold text-white relative z-10">' + d.title + '</h4><p class="text-[10px] text-gray-600 mt-1 uppercase tracking-wider relative z-10 font-bold">' + d.date + '</p><p class="text-sm mt-2 text-gray-400 relative z-10 leading-relaxed notice-text">' + d.msg + '</p></div>' + list.innerHTML;
-                if (adminList) adminList.innerHTML += '<div class="flex justify-between items-center bg-[#2c2c2e] p-2 rounded-lg border border-white/10 text-sm"><span class="truncate pr-2 text-gray-400">' + d.title + '</span><button onclick="deleteItem(\'public_data/notices/' + k + '\')" class="text-red-400 hover:text-red-300 bg-red-500/10 p-1.5 rounded active:scale-90 transition-transform btn-press border border-red-500/20 flex-shrink-0"><i class="fa-solid fa-trash"></i></button></div>';
+                const d = c.val(), k = c.key;
+                if (list) list.innerHTML = '<div class="card" style="border-left:3px solid var(--warning);margin-bottom:12px;position:relative;overflow:hidden;">' +
+                    '<div style="position:absolute;right:-8px;top:-8px;font-size:56px;color:var(--warning);opacity:0.04;"><i class="fa-solid fa-bell"></i></div>' +
+                    '<h4 style="font-weight:700;position:relative;z-index:1;">'+d.title+'</h4>' +
+                    '<p style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-top:4px;">'+d.date+'</p>' +
+                    '<p style="font-size:13px;margin-top:8px;color:var(--text-secondary);line-height:1.6;white-space:pre-wrap;">'+d.msg+'</p>' +
+                '</div>' + list.innerHTML;
+                if (adminList) adminList.innerHTML += '<div class="admin-content-item"><span>'+d.title+'</span><button onclick="haptic(); deleteItem(\'public_data/notices/'+k+'\');" class="admin-delete-btn"><i class="fa-solid fa-trash"></i></button></div>';
             });
         } else {
-            if (list) list.innerHTML = '<div class="text-center text-gray-600 py-6">Koi updates nahi hain.</div>';
-            if (adminList) adminList.innerHTML = '<span class="text-xs text-gray-600">Koi notices nahi</span>';
+            if (list) list.innerHTML = '<div class="empty-state">No updates yet.</div>';
+            if (adminList) adminList.innerHTML = '<span class="text-muted">No notices</span>';
         }
     });
 
-    // Exam Schedule (for modal)
+    // Exam Schedule (modal)
     onValue(ref(db, 'public_data/exam_schedule'), (snap) => {
         const list = document.getElementById('modal-schedule-list');
         const adminList = document.getElementById('manage-exams-list');
@@ -1560,13 +1618,20 @@ function loadDatabaseData() {
         if (adminList) adminList.innerHTML = '';
         if (snap.exists()) {
             snap.forEach(c => {
-                let d = c.val(); let k = c.key;
-                if (list) list.innerHTML += '<div class="ios-card p-4 rounded-xl mb-3 shadow-md border border-[#6366f1]/20"><div class="flex justify-between items-start mb-2"><span class="bg-[#6366f1] text-white text-[10px] px-2 py-1 rounded font-bold uppercase tracking-wide">' + d.examName + '</span><span class="text-xs font-bold text-indigo-300 bg-[#6366f1]/10 px-2 py-1 rounded border border-[#6366f1]/20"><i class="fa-regular fa-calendar text-indigo-400 mr-1"></i> ' + d.date + '</span></div><h3 class="font-black text-white text-lg mt-1">' + d.subject + '</h3><div class="flex justify-between text-xs text-gray-500 mt-3 font-medium bg-[#2c2c2e] p-2 rounded-lg border border-white/10"><span><i class="fa-regular fa-clock text-gray-600 mr-1"></i>' + d.time + '</span><span><i class="fa-solid fa-door-open text-gray-600 mr-1"></i>' + d.meeting + '</span></div></div>';
-                if (adminList) adminList.innerHTML += '<div class="flex justify-between items-center bg-[#2c2c2e] p-2 rounded-lg border border-white/10 text-sm"><span class="truncate pr-2 text-gray-400">' + d.subject + ' (' + d.examName + ')</span><button onclick="deleteItem(\'public_data/exam_schedule/' + k + '\')" class="text-red-400 hover:text-red-300 bg-red-500/10 p-1.5 rounded active:scale-90 transition-transform btn-press border border-red-500/20 flex-shrink-0"><i class="fa-solid fa-trash"></i></button></div>';
+                const d = c.val(), k = c.key;
+                if (list) list.innerHTML += '<div class="card" style="margin-bottom:10px;border:1px solid rgba(99,102,241,0.2);">' +
+                    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">' +
+                        '<span style="background:var(--primary);color:#fff;font-size:10px;padding:3px 10px;border-radius:6px;font-weight:700;">'+d.examName+'</span>' +
+                        '<span style="font-size:11px;font-weight:700;color:#818cf8;background:rgba(99,102,241,0.1);padding:3px 10px;border-radius:6px;"><i class="fa-regular fa-calendar"></i> '+d.date+'</span>' +
+                    '</div><h3 style="font-weight:900;font-size:18px;">'+d.subject+'</h3>' +
+                    '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-top:8px;background:var(--bg-elevated);padding:8px;border-radius:8px;">' +
+                        '<span><i class="fa-regular fa-clock"></i> '+(d.time||'TBA')+'</span><span><i class="fa-solid fa-door-open"></i> '+(d.meeting||'TBA')+'</span>' +
+                    '</div></div>';
+                if (adminList) adminList.innerHTML += '<div class="admin-content-item"><span>'+d.subject+' ('+d.examName+')</span><button onclick="haptic(); deleteItem(\'public_data/exam_schedule/'+k+'\');" class="admin-delete-btn"><i class="fa-solid fa-trash"></i></button></div>';
             });
         } else {
-            if (list) list.innerHTML = '<div class="text-center text-gray-600 py-6 flex flex-col items-center"><i class="fa-solid fa-mug-hot text-4xl mb-3 text-gray-700"></i>Koi exams scheduled nahi! Relax!</div>';
-            if (adminList) adminList.innerHTML = '<span class="text-xs text-gray-600">Koi exams nahi</span>';
+            if (list) list.innerHTML = '<div class="empty-state"><i class="fa-solid fa-mug-hot empty-icon"></i>No exams scheduled! Relax!</div>';
+            if (adminList) adminList.innerHTML = '<span class="text-muted">No exams</span>';
         }
     });
 
@@ -1575,226 +1640,291 @@ function loadDatabaseData() {
         if (snap.exists()) {
             const val = snap.val();
             if (typeof val === 'object' && val !== null) {
-                if (val.date) {
-                    globalTargetDate = new Date(val.date);
-                    if (isNaN(globalTargetDate.getTime())) globalTargetDate = new Date("2026-02-15T00:00:00");
-                }
+                if (val.date) { globalTargetDate = new Date(val.date); if (isNaN(globalTargetDate.getTime())) globalTargetDate = new Date("2026-02-15T00:00:00"); }
                 if (val.examName) globalExamName = val.examName;
-            } else if (typeof val === 'string') {
-                globalTargetDate = new Date(val);
-                if (isNaN(globalTargetDate.getTime())) globalTargetDate = new Date("2026-02-15T00:00:00");
             }
-            const labelEl = document.getElementById('exam-countdown-label');
-            if (labelEl) labelEl.textContent = globalExamName;
+            document.getElementById('exam-countdown-label').textContent = globalExamName;
         }
+    });
+
+    // Social Hub Data
+    // Posts
+    onValue(ref(db, 'social/posts'), (snap) => {
+        const adminList = document.getElementById('admin-posts-list');
+        cachedPosts = [];
+        if (adminList) adminList.innerHTML = '';
+        if (snap.exists()) {
+            snap.forEach(c => {
+                const d = c.val(); d.key = c.key; cachedPosts.push(d);
+                if (adminList) adminList.innerHTML += '<div class="admin-content-item"><span>'+escapeHtml(d.userName || 'User')+': '+escapeHtml((d.caption || '').substring(0, 40))+'</span><button onclick="haptic(); deleteItem(\'social/posts/'+c.key+'\');" class="admin-delete-btn"><i class="fa-solid fa-trash"></i></button></div>';
+            });
+        } else if (adminList) adminList.innerHTML = '<span class="text-muted">No posts</span>';
+        if (currentSocialTab === 'feed') renderFeed();
+    });
+
+    // Stories
+    onValue(ref(db, 'social/stories'), (snap) => {
+        const adminList = document.getElementById('admin-stories-list');
+        cachedStories = [];
+        if (adminList) adminList.innerHTML = '';
+        if (snap.exists()) {
+            snap.forEach(c => {
+                const d = c.val(); d.key = c.key; cachedStories.push(d);
+                if (adminList) adminList.innerHTML += '<div class="admin-content-item"><span>'+escapeHtml(d.userName || 'User')+': '+escapeHtml((d.text || d.type || 'story').substring(0, 40))+'</span><button onclick="haptic(); deleteItem(\'social/stories/'+c.key+'\');" class="admin-delete-btn"><i class="fa-solid fa-trash"></i></button></div>';
+            });
+        } else if (adminList) adminList.innerHTML = '<span class="text-muted">No stories</span>';
+        if (currentSocialTab === 'stories') renderStories();
+    });
+
+    // Reels
+    onValue(ref(db, 'social/reels'), (snap) => {
+        cachedReels = [];
+        if (snap.exists()) {
+            snap.forEach(c => { const d = c.val(); d.key = c.key; cachedReels.push(d); });
+        }
+        document.getElementById('admin-stat-total-reels').textContent = cachedReels.length;
+        if (currentSocialTab === 'reels') renderReels();
+    });
+
+    // Banned Users
+    onValue(ref(db, 'banned_users'), (snap) => {
+        const list = document.getElementById('banned-users-list');
+        if (!list) return;
+        if (!snap.exists()) { list.innerHTML = '<span class="text-muted">No banned users</span>'; return; }
+        let html = '';
+        snap.forEach(c => {
+            const d = c.val();
+            html += '<div class="admin-content-item"><span><i class="fa-solid fa-ban" style="color:var(--danger);margin-right:6px;"></i>'+escapeHtml(d.name || c.key)+' - '+escapeHtml(d.reason || 'No reason')+'</span><button onclick="haptic(); unbanUser(\''+c.key+'\');" class="admin-delete-btn" style="color:var(--success);border-color:rgba(52,199,89,0.2);background:rgba(52,199,89,0.1);"><i class="fa-solid fa-check"></i></button></div>';
+        });
+        list.innerHTML = html;
     });
 }
 
 // ==========================================
-// DELETE
+// ADMIN GOD MODE
 // ==========================================
+window.unlockAdmin = function() {
+    const pass = document.getElementById('admin-pass')?.value;
+    const errorEl = document.getElementById('admin-error');
+    if (pass === ADMIN_PASS) {
+        document.getElementById('admin-auth')?.classList.add('hidden');
+        document.getElementById('admin-controls')?.classList.remove('hidden');
+        document.getElementById('admin-pass').value = '';
+        if (errorEl) errorEl.classList.add('hidden');
+        isAdminUnlocked = true;
+        showToast("Admin Portal Unlocked", "suc");
+    } else {
+        if (errorEl) { errorEl.textContent = "Wrong Master Key!"; errorEl.classList.remove('hidden'); }
+        showToast("Wrong Key", "err");
+    }
+};
+window.lockAdmin = function() {
+    document.getElementById('admin-auth')?.classList.remove('hidden');
+    document.getElementById('admin-controls')?.classList.add('hidden');
+    isAdminUnlocked = false;
+    showToast("Portal Locked", "inf");
+};
+
+// Delete Post/Story (Content Moderation)
 window.deleteItem = async function(path) {
     if (!db) return;
-    if (confirm("Kya aap ise delete karna chahte hain?")) {
-        try { await remove(ref(db, path)); showToast("Item Deleted!", "suc"); }
+    if (confirm("Delete this item?")) {
+        try { await remove(ref(db, path)); showToast("Deleted!", "suc"); }
         catch (e) { showToast("Delete failed", "err"); }
     }
 };
 
-// ==========================================
-// ADMIN
-// ==========================================
-window.unlockAdmin = function() {
-    const pass = document.getElementById('admin-pass').value;
-    const errorEl = document.getElementById('admin-error');
-    if (pass === "unlock") {
-        document.getElementById('admin-auth').classList.add('hidden');
-        document.getElementById('admin-controls').classList.remove('hidden');
-        document.getElementById('admin-pass').value = '';
-        if (errorEl) errorEl.classList.add('hidden');
-        showToast("Portal Unlocked", "suc");
-    } else {
-        if (errorEl) { errorEl.textContent = "Galat Master Key!"; errorEl.classList.remove('hidden'); }
-        showToast("Galat Key", "err");
-    }
+// Ban User
+window.banUser = async function() {
+    const uid = document.getElementById('ban-uid')?.value.trim();
+    const reason = document.getElementById('ban-reason')?.value.trim() || 'Violation of community guidelines';
+    if (!uid) { showToast("Enter a UID", "err"); return; }
+    if (!db) return;
+    try {
+        await set(ref(db, 'banned_users/' + uid), { reason, bannedAt: Date.now(), bannedBy: currentUser?.uid || 'admin' });
+        showToast("User banned!", "suc");
+        document.getElementById('ban-uid').value = '';
+        document.getElementById('ban-reason').value = '';
+    } catch (e) { showToast("Failed: " + e.message, "err"); }
+};
+window.unbanUser = async function(uid) {
+    if (!db) return;
+    if (!confirm("Unban this user?")) return;
+    try { await remove(ref(db, 'banned_users/' + uid)); showToast("User unbanned!", "suc"); }
+    catch (e) { showToast("Failed", "err"); }
 };
 
-window.lockAdmin = function() {
-    document.getElementById('admin-auth').classList.remove('hidden');
-    document.getElementById('admin-controls').classList.add('hidden');
-    showToast("Portal Locked", "inf");
+// Global Announcement
+window.sendGlobalAnnouncement = async function() {
+    const title = document.getElementById('announcement-title')?.value.trim();
+    const message = document.getElementById('announcement-message')?.value.trim();
+    if (!title || !message) { showToast("Enter title and message!", "err"); return; }
+    if (!db) return;
+    try {
+        await push(ref(db, 'public_data/notices'), {
+            title, msg: message,
+            date: new Date().toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'})
+        });
+        showToast("Announcement sent to all users!", "suc");
+        document.getElementById('announcement-title').value = '';
+        document.getElementById('announcement-message').value = '';
+    } catch (e) { showToast("Failed: " + e.message, "err"); }
 };
 
 window.adminAction = async function(type) {
     if (!db) { showToast("Database not connected", "err"); return; }
     try {
         if (type === 'note') {
-            const category = document.getElementById('n-category').value;
-            const topic = document.getElementById('n-topic').value.trim();
-            const l = document.getElementById('n-link').value.trim();
+            const cat = document.getElementById('n-category')?.value;
+            const topic = document.getElementById('n-topic')?.value.trim();
+            const l = document.getElementById('n-link')?.value.trim();
             if (!topic || !l) return showToast("All fields required", "err");
-            const dateStr = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-            await push(ref(db, 'public_data/notes'), { category, topic, title: topic, link: l, date: dateStr });
+            await push(ref(db, 'public_data/notes'), { category: cat, topic, title: topic, link: l, date: new Date().toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'}) });
         } else if (type === 'class') {
-            const category = document.getElementById('vc-category').value;
-            const title = document.getElementById('vc-title').value.trim();
-            const l = document.getElementById('vc-link').value.trim();
+            const cat = document.getElementById('vc-category')?.value;
+            const title = document.getElementById('vc-title')?.value.trim();
+            const l = document.getElementById('vc-link')?.value.trim();
             if (!title || !l) return showToast("All fields required", "err");
-            await push(ref(db, 'public_data/classes'), { category, title, link: l });
+            await push(ref(db, 'public_data/classes'), { category: cat, title, link: l });
+        } else if (type === 'lecture') {
+            const cat = document.getElementById('lecture-category')?.value;
+            const subject = document.getElementById('lecture-subject')?.value.trim();
+            const chapter = document.getElementById('lecture-chapter')?.value.trim();
+            const l = document.getElementById('lecture-link')?.value.trim();
+            if (!subject || !chapter || !l) return showToast("All fields required", "err");
+            const videoId = extractVideoId(l);
+            if (!videoId) return showToast("Invalid YouTube link", "err");
+            await push(ref(db, 'public_data/lectures'), {
+                category: cat, subject, chapter, link: l,
+                date: new Date().toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'})
+            });
         } else if (type === 'progress') {
-            const data = {
-                hin: Math.min(100, Math.max(0, parseInt(document.getElementById('p-hin').value) || 0)),
-                eng: Math.min(100, Math.max(0, parseInt(document.getElementById('p-eng').value) || 0)),
-                math: Math.min(100, Math.max(0, parseInt(document.getElementById('p-math').value) || 0)),
-                phy: Math.min(100, Math.max(0, parseInt(document.getElementById('p-phy').value) || 0)),
-                chem: Math.min(100, Math.max(0, parseInt(document.getElementById('p-chem').value) || 0)),
-                hin_gadya: Math.min(100, Math.max(0, parseInt(document.getElementById('p-hin-gadya').value) || 0)),
-                hin_padya: Math.min(100, Math.max(0, parseInt(document.getElementById('p-hin-padya').value) || 0)),
-                hin_kahani: Math.min(100, Math.max(0, parseInt(document.getElementById('p-hin-kahani').value) || 0)),
-                hin_natak: Math.min(100, Math.max(0, parseInt(document.getElementById('p-hin-natak').value) || 0)),
-                hin_vyakaran: Math.min(100, Math.max(0, parseInt(document.getElementById('p-hin-vyakaran').value) || 0)),
-                hin_sanskrit: Math.min(100, Math.max(0, parseInt(document.getElementById('p-hin-sanskrit').value) || 0)),
-                eng_prose: Math.min(100, Math.max(0, parseInt(document.getElementById('p-eng-prose').value) || 0)),
-                eng_poetry: Math.min(100, Math.max(0, parseInt(document.getElementById('p-eng-poetry').value) || 0)),
-                eng_supp: Math.min(100, Math.max(0, parseInt(document.getElementById('p-eng-supp').value) || 0)),
-                eng_grammar: Math.min(100, Math.max(0, parseInt(document.getElementById('p-eng-grammar').value) || 0))
-            };
-            await set(ref(db, 'public_data/status'), data);
+            await set(ref(db, 'public_data/status'), {
+                hin: clamp(document.getElementById('p-hin')?.value), eng: clamp(document.getElementById('p-eng')?.value),
+                math: clamp(document.getElementById('p-math')?.value), phy: clamp(document.getElementById('p-phy')?.value),
+                chem: clamp(document.getElementById('p-chem')?.value)
+            });
         } else if (type === 'notice') {
-            const t = document.getElementById('nt-title').value.trim();
-            const m = document.getElementById('nt-desc').value.trim();
-            if (!t || !m) return showToast("Sabh fields bharein", "err");
-            const dateStr = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-            await push(ref(db, 'public_data/notices'), { title: t, msg: m, date: dateStr });
+            const t = document.getElementById('nt-title')?.value.trim();
+            const m = document.getElementById('nt-desc')?.value.trim();
+            if (!t || !m) return showToast("All fields required", "err");
+            await push(ref(db, 'public_data/notices'), { title: t, msg: m, date: new Date().toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'}) });
         } else if (type === 'exam') {
-            const nm = document.getElementById('ex-name').value.trim();
-            const sb = document.getElementById('ex-sub').value.trim();
-            const dt = document.getElementById('ex-date').value;
-            const tm = document.getElementById('ex-time').value;
-            const mt = document.getElementById('ex-meet').value.trim();
-            if (!nm || !sb || !dt) return showToast("Required fields bharein", "err");
+            const nm = document.getElementById('ex-name')?.value.trim();
+            const sb = document.getElementById('ex-sub')?.value.trim();
+            const dt = document.getElementById('ex-date')?.value;
+            const tm = document.getElementById('ex-time')?.value;
+            const mt = document.getElementById('ex-meet')?.value.trim();
+            if (!nm || !sb || !dt) return showToast("Required fields missing", "err");
             await push(ref(db, 'public_data/exam_schedule'), { examName: nm, subject: sb, date: dt, time: tm || 'TBA', meeting: mt || 'TBA' });
         } else if (type === 'countdown') {
-            const examName = document.getElementById('cd-exam-name').value.trim();
-            const d = document.getElementById('cd-date').value;
+            const en = document.getElementById('cd-exam-name')?.value.trim();
+            const d = document.getElementById('cd-date')?.value;
             if (!d) return;
-            await set(ref(db, 'public_data/countdown'), { examName: examName || 'Final Board Exams', date: d });
+            await set(ref(db, 'public_data/countdown'), { examName: en || 'Final Board Exams', date: d });
         }
-        showToast("Safalta se update ho gaya!", "suc");
-        document.querySelectorAll('details[open] input:not([type="date"]):not([type="datetime-local"]), details[open] textarea').forEach(el => { el.value = ''; });
-    } catch (e) {
-        showToast("Database mein error", "err");
-        console.error(e);
-    }
+        showToast("Saved successfully!", "suc");
+        document.querySelectorAll('details[open] input:not([type="date"]):not([type="datetime-local"]), details[open] textarea').forEach(el => { if (el.id !== 'admin-pass') el.value = ''; });
+    } catch (e) { showToast("Error: " + e.message, "err"); console.error(e); }
 };
+function clamp(v) { return Math.min(100, Math.max(0, parseInt(v) || 0)); }
 
 // ==========================================
-// COUNTDOWN
+// COUNTDOWN TIMER
 // ==========================================
 setInterval(() => {
-    const now = new Date();
-    const diff = globalTargetDate - now;
-    const daysEl = document.getElementById('count-days');
-    const hoursEl = document.getElementById('count-hours');
-    const minsEl = document.getElementById('count-minutes');
-    if (daysEl && hoursEl && minsEl) {
-        if (diff > 0) {
-            daysEl.innerText = String(Math.floor(diff / 86400000)).padStart(2, '0');
-            hoursEl.innerText = String(Math.floor((diff / 3600000) % 24)).padStart(2, '0');
-            minsEl.innerText = String(Math.floor((diff / 60000) % 60)).padStart(2, '0');
-        } else {
-            daysEl.innerText = "00"; hoursEl.innerText = "00"; minsEl.innerText = "00";
-        }
-    }
+    const diff = globalTargetDate - new Date();
+    const de = document.getElementById('count-days');
+    const he = document.getElementById('count-hours');
+    const me = document.getElementById('count-minutes');
+    if (!de || !he || !me) return;
+    if (diff > 0) {
+        de.textContent = String(Math.floor(diff/86400000)).padStart(2,'0');
+        he.textContent = String(Math.floor((diff/3600000)%24)).padStart(2,'0');
+        me.textContent = String(Math.floor((diff/60000)%60)).padStart(2,'0');
+    } else { de.textContent = "00"; he.textContent = "00"; me.textContent = "00"; }
 }, 1000);
 
 // ==========================================
 // MODALS
 // ==========================================
-window.openExamModal = function() { const m = document.getElementById('exam-modal'); if (m) m.classList.add('active'); };
-window.closeExamModal = function() { const m = document.getElementById('exam-modal'); if (m) m.classList.remove('active'); };
+window.openExamModal = function() { document.getElementById('exam-modal')?.classList.add('active'); };
+window.closeExamModal = function() { document.getElementById('exam-modal')?.classList.remove('active'); };
 
-// Close modals on backdrop click
+// Close on backdrop click
 document.addEventListener('click', (e) => {
-    if (e.target.classList.contains('modal-overlay') || e.target.classList.contains('celebration-modal')) {
-        e.target.classList.remove('active');
-    }
+    if (e.target.classList.contains('modal-overlay')) e.target.classList.remove('active');
 });
 
 // ==========================================
-// PWA INSTALL
+// PWA
 // ==========================================
 let deferredPrompt = null;
-
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/Study12th/sw.js')
-            .then(registration => { console.log('Service Worker registered:', registration.scope); })
-            .catch(error => { console.warn('SW registration failed:', error); });
+            .then(r => console.log('SW registered:', r.scope))
+            .catch(e => console.warn('SW failed:', e));
     });
 }
-
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    const btn = document.getElementById('pwa-install-btn');
-    if (btn) btn.classList.remove('hidden');
-});
-
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; document.getElementById('pwa-install-btn')?.classList.remove('hidden'); });
 window.installPWA = async function() {
-    if (!deferredPrompt) { showToast("Install karne ka option nahi mila.", "warn"); return; }
+    if (!deferredPrompt) { showToast("Install not available", "warn"); return; }
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-        showToast("StudyGram Pro install ho raha hai!", "suc");
-        document.getElementById('pwa-install-btn').classList.add('hidden');
-    } else { showToast("Install cancel ho gaya", "inf"); }
+    if (outcome === 'accepted') { showToast("Installing...", "suc"); document.getElementById('pwa-install-btn')?.classList.add('hidden'); }
+    else showToast("Install cancelled", "inf");
     deferredPrompt = null;
 };
-
-if (window.matchMedia('(display-mode: standalone)').matches) {
-    const btn = document.getElementById('pwa-install-btn');
-    if (btn) btn.classList.add('hidden');
-}
+if (window.matchMedia('(display-mode: standalone)').matches) document.getElementById('pwa-install-btn')?.classList.add('hidden');
 
 // ==========================================
-// LOGIN
+// LOGIN / AUTH
 // ==========================================
-const loginBtn = document.getElementById('login-btn');
-if (loginBtn) {
-    loginBtn.onclick = async function() {
-        if (!auth) { showToast("Auth initialized nahi hua", "err"); return; }
-        const btn = document.getElementById('login-btn');
-        const errorEl = document.getElementById('login-error');
-        if (isLoggingIn) return;
-        isLoggingIn = true;
-        try {
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Connecting...';
-            btn.disabled = true;
-            if (errorEl) errorEl.classList.add('hidden');
-            await signInWithPopup(auth, provider);
-            showToast("Welcome back!", "suc");
-        } catch (e) {
-            let errorMsg = "Login failed. Dobara koshish karein.";
-            if (e.code === 'auth/popup-closed-by-user') errorMsg = "Popup band ho gaya. Dobara try karein.";
-            else if (e.code === 'auth/popup-blocked') errorMsg = "Popup blocked! Popups allow karein.";
-            else if (e.code === 'auth/network-request-failed') errorMsg = "Network error. Connection check karein.";
-            if (errorEl) { errorEl.textContent = errorMsg; errorEl.classList.remove('hidden'); }
-            showToast(errorMsg, "err");
-            btn.innerHTML = '<img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-6 h-6" alt="G"> Continue with Google';
-            btn.disabled = false;
-        } finally { isLoggingIn = false; }
-    };
-}
+window.handleLogin = async function() {
+    if (!auth) { showToast("Auth not ready", "err"); return; }
+    if (isLoggingIn) return;
+    isLoggingIn = true;
+    const btn = document.getElementById('login-btn');
+    const errorEl = document.getElementById('login-error');
+    try {
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin" style="margin-right:8px;"></i> Connecting...';
+        btn.disabled = true;
+        if (errorEl) errorEl.classList.add('hidden');
+        await signInWithPopup(auth, provider);
+        showToast("Welcome!", "suc");
+    } catch (e) {
+        let msg = "Login failed. Try again.";
+        if (e.code === 'auth/popup-closed-by-user') msg = "Popup closed. Try again.";
+        else if (e.code === 'auth/popup-blocked') msg = "Popup blocked! Allow popups.";
+        else if (e.code === 'auth/network-request-failed') msg = "Network error.";
+        if (errorEl) { errorEl.textContent = msg; errorEl.classList.remove('hidden'); }
+        showToast(msg, "err");
+        btn.innerHTML = '<img src="https://www.svgrepo.com/show/475656/google-color.svg" class="login-btn-icon" alt="G"> Continue with Google';
+        btn.disabled = false;
+    } finally { isLoggingIn = false; }
+};
 
 window.logout = async function() {
     if (!auth) return;
-    try {
-        await signOut(auth);
-        welcomeShown = false;
-        isPremium = false;
-        showToast("Successfully logged out!", "inf");
-    } catch (e) { showToast("Logout failed", "err"); }
+    try { await signOut(auth); welcomeShown = false; isPremium = false; document.body.classList.remove('premium-active'); showToast("Logged out!", "inf"); }
+    catch (e) { showToast("Logout failed", "err"); }
+};
+
+// ==========================================
+// THEME TOGGLE (PREMIUM ONLY)
+// ==========================================
+window.toggleTheme = function() {
+    if (!checkPremiumAccess()) { showPremiumPopup(); return; }
+    document.body.classList.toggle('light-mode');
+    const icon = document.getElementById('theme-icon');
+    if (document.body.classList.contains('light-mode')) {
+        if (icon) { icon.classList.remove('fa-moon'); icon.classList.add('fa-sun'); }
+        showToast("Light Mode!", "suc");
+    } else {
+        if (icon) { icon.classList.remove('fa-sun'); icon.classList.add('fa-moon'); }
+        showToast("Dark Mode!", "suc");
+    }
 };
 
 // ==========================================
@@ -1808,6 +1938,12 @@ if (auth) {
         const bottomNav = document.getElementById('bottom-nav');
 
         if (user) {
+            // Check banned
+            try {
+                const banSnap = await get(ref(db, 'banned_users/' + user.uid));
+                if (banSnap.exists()) { await signOut(auth); showToast("Your account has been banned.", "err"); return; }
+            } catch (e) {}
+
             currentUser = user;
             const firstName = user.displayName ? user.displayName.split(' ')[0] : 'Student';
             const un = document.getElementById('user-name');
@@ -1818,31 +1954,27 @@ if (auth) {
             await syncUserDataFromFirebase(user.uid);
 
             const userData = getUserData();
-            const pr = document.getElementById('prof-roll');
-            if (pr) pr.innerText = userData.rollNumber;
+            document.getElementById('prof-roll').innerText = userData.rollNumber;
 
             const photoUrl = user.photoURL || 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
-            const ui = document.getElementById('user-img');
-            const pi = document.getElementById('prof-img');
-            if (ui) ui.src = photoUrl;
-            if (pi) pi.src = photoUrl;
+            document.getElementById('user-img').src = photoUrl;
+            document.getElementById('prof-img').src = photoUrl;
 
             if (db) {
-                set(ref(db, 'users/' + user.uid), {
-                    name: user.displayName || 'Student',
-                    email: user.email,
-                    photo: user.photoURL || '',
-                    lastLogin: new Date().toISOString()
-                });
+                set(ref(db, 'users/' + user.uid), { name: user.displayName || 'Student', email: user.email, photo: user.photoURL || '', lastLogin: new Date().toISOString() });
                 update(ref(db, 'users/' + user.uid), { lastActive: new Date().toISOString().split('T')[0] });
             }
 
-            if (loginScreen) loginScreen.classList.add('fade-out');
+            // Show skeleton then hide
+            showSkeleton();
+
+            loginScreen?.classList.add('fade-out');
             setTimeout(() => {
-                if (loginScreen) { loginScreen.classList.add('hidden'); loginScreen.classList.remove('fade-out'); }
-                if (mainNav) mainNav.classList.remove('hidden');
-                if (mainContent) mainContent.classList.remove('hidden');
-                if (bottomNav) bottomNav.classList.remove('hidden');
+                loginScreen?.classList.add('hidden');
+                loginScreen?.classList.remove('fade-out');
+                mainNav?.classList.remove('hidden');
+                mainContent?.classList.remove('hidden');
+                bottomNav?.classList.remove('hidden');
                 switchTab('home');
                 loadDatabaseData();
                 loadAttendance();
@@ -1850,8 +1982,11 @@ if (auth) {
                 loadDateSheet();
                 loadHubPlaylist();
                 initHubVisualizer();
+                updateLecturesUI();
 
-                // Give +100 daily EXP for premium users
+                // Hide skeleton after everything loads
+                setTimeout(hideSkeleton, 800);
+
                 if (isPremium) {
                     const today = new Date().toISOString().split('T')[0];
                     const lastDaily = localStorage.getItem('sg_lastDailyXP');
@@ -1866,19 +2001,21 @@ if (auth) {
                 updateBadgesUI();
 
                 const totalFocus = parseInt(localStorage.getItem('totalFocus') || '0');
-                const pf = document.getElementById('prof-focus');
-                if (pf) pf.textContent = Math.floor(totalFocus / 60);
-                if (!welcomeShown) setTimeout(showWelcomeModal, 800);
+                document.getElementById('prof-focus').textContent = Math.floor(totalFocus / 60);
+                if (!welcomeShown) setTimeout(showWelcomeModal, 1000);
             }, 600);
         } else {
             currentUser = null;
             isPremium = false;
-            if (loginScreen) { loginScreen.classList.remove('hidden'); loginScreen.classList.remove('fade-out'); }
-            if (mainNav) mainNav.classList.add('hidden');
-            if (mainContent) mainContent.classList.add('hidden');
-            if (bottomNav) bottomNav.classList.add('hidden');
+            document.body.classList.remove('premium-active');
+            loginScreen?.classList.remove('hidden');
+            loginScreen?.classList.remove('fade-out');
+            mainNav?.classList.add('hidden');
+            mainContent?.classList.add('hidden');
+            bottomNav?.classList.add('hidden');
             const btn = document.getElementById('login-btn');
-            if (btn) { btn.innerHTML = '<img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-6 h-6" alt="G"> Continue with Google'; btn.disabled = false; }
+            if (btn) { btn.innerHTML = '<img src="https://www.svgrepo.com/show/475656/google-color.svg" class="login-btn-icon" alt="G"> Continue with Google'; btn.disabled = false; }
+            hideSkeleton();
         }
     });
 }
@@ -1888,37 +2025,17 @@ if (auth) {
 // ==========================================
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-        document.querySelectorAll('.modal-overlay.active, .celebration-modal.active').forEach(m => m.classList.remove('active'));
-    }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault();
-        if (currentUser) switchTab('ai');
+        document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
     }
 });
 
-console.log('StudyGram Pro v3.0 loaded - Mohammad Arshad (@dark_eio)');
-
-
 // ==========================================
-// THEME TOGGLE (PREMIUM ONLY) - GLOBAL FIX
+// ESCAPE HELPER
 // ==========================================
-window.toggleTheme = function() {
-    // 1. Check if user is premium
-    if (typeof checkPremiumAccess === 'function' && !checkPremiumAccess()) {
-        if (typeof showPremiumPopup === 'function') showPremiumPopup();
-        return;
-    }
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
 
-    // 2. Toggle Theme
-    document.body.classList.toggle('light-mode');
-    const icon = document.getElementById('theme-icon');
-    
-    // 3. Change Icon and Show Toast
-    if (document.body.classList.contains('light-mode')) {
-        if(icon) { icon.classList.remove('fa-moon'); icon.classList.add('fa-sun'); }
-        if (typeof showToast === 'function') showToast("Light Mode Enabled!", "suc");
-    } else {
-        if(icon) { icon.classList.remove('fa-sun'); icon.classList.add('fa-moon'); }
-        if (typeof showToast === 'function') showToast("Dark Mode Enabled!", "suc");
-    }
-};
+console.log('StudyGram Pro v4.0 loaded - Nothing OS Edition');
