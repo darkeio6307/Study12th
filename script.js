@@ -1897,3 +1897,28 @@ document.addEventListener('keydown', (e) => {
 });
 
 console.log('StudyGram Pro v3.0 loaded - Mohammad Arshad (@dark_eio)');
+
+
+// ==========================================
+// THEME TOGGLE (PREMIUM ONLY)
+// ==========================================
+window.toggleTheme = function() {
+    // 1. Check if user is premium
+    if (!checkPremiumAccess()) {
+        showPremiumPopup(); // Agar free user hai, toh popup dikhao
+        return;
+    }
+
+    // 2. Toggle Theme
+    document.body.classList.toggle('light-mode');
+    const icon = document.getElementById('theme-icon');
+    
+    // 3. Change Icon and Toast
+    if (document.body.classList.contains('light-mode')) {
+        if(icon) { icon.classList.remove('fa-moon'); icon.classList.add('fa-sun'); }
+        showToast("Light Mode Enabled!", "suc");
+    } else {
+        if(icon) { icon.classList.remove('fa-sun'); icon.classList.add('fa-moon'); }
+        showToast("Dark Mode Enabled!", "suc");
+    }
+};
