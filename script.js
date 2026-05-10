@@ -325,21 +325,38 @@ window.closeSidebar = function() {
 // ==========================================
 // TAB SWITCHING (Full-Screen)
 // ==========================================
+// ==========================================
+// TAB SWITCHING (Full-Screen & Top Bar Fix)
+// ==========================================
 window.switchTab = function(id) {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active-section'));
     const target = document.getElementById(id);
     if (target) target.classList.add('active-section');
+    
     const navTop = document.getElementById('main-nav');
     const navBot = document.getElementById('bottom-nav');
 
+    // Bottom Navigation (नीचे वाली पट्टी का लॉजिक)
     if (id === 'ai' || id === 'music') {
-        if (navTop) navTop.style.display = 'none';
         if (navBot) navBot.style.display = 'none';
     } else {
-        if (navTop) navTop.style.display = 'flex';
         if (navBot) navBot.style.display = 'flex';
     }
 
+    // Top Navigation (ऊपर वाली ढाल और म्यूजिक पट्टी का लॉजिक)
+    if (navTop) {
+        if (id === 'home') {
+            // सिर्फ Home पेज पर दिखेगी
+            navTop.classList.remove('hidden');
+            navTop.style.display = 'flex';
+        } else {
+            // बाकी पेजों पर छुप जाएगी ताकि डिज़ाइन खराब न हो
+            navTop.classList.add('hidden');
+            navTop.style.display = 'none';
+        }
+    }
+
+    // बटन्स का कलर सेट करना
     document.querySelectorAll('.nav-btn').forEach(btn => {
         const isActive = btn.dataset.target === id;
         btn.style.color = isActive ? '#fff' : '#8e8e93';
