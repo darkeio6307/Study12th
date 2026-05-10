@@ -11,9 +11,11 @@ import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "http
 const firebaseConfig = {
     apiKey: "AIzaSyC-psUKqTO9u5kCuA3OUqWT63Ey0IvDei4",
     authDomain: "study-ae01d.firebaseapp.com",
-    databaseURL: "https://study-ae01d-default-rtdb.firebase.io",
+    databaseURL: "https://study-ae01d-default-rtdb.firebaseio.com", // यहाँ '.com' ज़रूर चेक करना
     projectId: "study-ae01d",
-    storageBucket: "study-ae01d.appspot.com"
+    storageBucket: "study-ae01d.appspot.com",
+    messagingSenderId: "596131435306", // यह आपकी पुरानी आईडी है
+    appId: "1:596131435306:web:68c07e0a29829f041f66c8" // यह आपकी पुरानी ऐप आईडी है
 };
 
 let app, auth, db, storage, provider;
