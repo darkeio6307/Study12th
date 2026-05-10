@@ -700,37 +700,42 @@ function markReelSeen(reelId) {
 function renderReels() {
     const container = document.getElementById('reels-container');
     if (!container) return;
-    const seen = getSeenReels();
-    const unseen = cachedReels.filter(r => !seen.includes(r.key));
 
-    if (unseen.length === 0 && cachedReels.length > 0) {
-        container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-check-circle empty-icon" style="color:#34c759"></i>You\'ve seen all reels! Check back later for new ones.</div>';
-        return;
-    }
-    if (cachedReels.length === 0) {
-        container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-film empty-icon"></i>No reels yet. Upload one!</div>';
-        return;
-    }
+    // Firebase से सीधे रील्स मंगाना (ताकि cachedReels का झंझट न रहे)
+    const { onValue, ref } = window.firebaseDatabase || window; // अगर आपने import ऊपर किया है तो इसकी जरूरत नहीं
+    const reelsRef = ref(db, 'public_data/reels');
 
-    container.innerHTML = unseen.map(r => {
-        return '<div class="reel-card" data-reel-id="' + r.key + '">' +
-            '<div class="reel-video-wrap">' +
-                '<video class="reel-video" src="' + r.videoUrl + '" loop playsinline muted onclick="this.muted=!this.muted;"></video>' +
-                '<div class="reel-overlay">' +
-                    '<div class="reel-user">' +
-                        '<img src="' + (r.userPhoto || 'https://cdn-icons-png.flaticon.com/512/149/149071.png') + '" class="reel-user-avatar" alt="">' +
-                        '<span class="reel-username">' + escapeHtml(r.userName || 'User') + '</span>' +
-                    '</div>' +
-                    '<p class="reel-caption">' + escapeHtml(r.caption || '') + '</p>' +
-                    '<div class="reel-actions">' +
-                        '<button class="reel-action" onclick="haptic(); likeReel(\'' + r.key + '\');"><i class="fa-solid fa-heart"></i> ' + (r.likes || 0) + '</button>' +
-                        '<button class="reel-action" onclick="haptic(); shareReel(\'' + r.key + '\');"><i class="fa-solid fa-share"></i> Share</button>' +
+    onValue(reelsRef, (snapshot) => {
+        if (!snapshot.exists()) {
+            container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-film empty-icon"></i>No reels yet. Upload one!</div>';
+            return;
+        }
+
+        let html = '';
+        snapshot.forEach(child => {
+            const r = child.val();
+            // YouTube लिंक्स के लिए iframe और सही keys (link, topic, admin) का इस्तेमाल
+            html += '<div class="reel-card" style="position: relative; height: 100%;">' +
+                '<div class="reel-video-wrap" style="height: 100%; width: 100%;">' +
+                    '<iframe class="reel-video" src="' + r.link + '" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen style="width:100%; height:100%; pointer-events: auto;"></iframe>' +
+                    '<div class="reel-overlay" style="pointer-events: none; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);">' +
+                        '<div class="reel-user">' +
+                            '<img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="reel-user-avatar" alt="">' +
+                            '<span class="reel-username" style="color:#fff; font-weight:bold;">@' + escapeHtml(r.admin || 'Arshad_Admin') + '</span>' +
+                        '</div>' +
+                        '<p class="reel-caption" style="color:#fff; margin-top:5px;">' + escapeHtml(r.topic || '') + '</p>' +
+                        '<div class="reel-actions" style="pointer-events: auto;">' +
+                            '<button class="reel-action" onclick="haptic(); showToast(\'Liked!\');"><i class="fa-solid fa-heart"></i></button>' +
+                            '<button class="reel-action" onclick="haptic(); showToast(\'Share feature coming soon!\');"><i class="fa-solid fa-share"></i></button>' +
+                        '</div>' +
                     '</div>' +
                 '</div>' +
-            '</div>' +
-        '</div>';
-    }).join('');
+            '</div>';
+        });
 
+        container.innerHTML = html;
+    });
+}
     // Mark as seen when scrolled into view
     setupReelObserver();
 }
