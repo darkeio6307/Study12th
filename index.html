@@ -4,686 +4,745 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#000000">
-<meta name="description" content="StudyGram Pro - The Ultimate 12th Science Hub with AI, Music & Gamification">
+<meta name="description" content="StudyGram Pro - The Ultimate 12th Science Hub with Social Hub & Gamification">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="StudyGram Pro">
 <link rel="manifest" href="/Study12th/manifest.json">
 <title>StudyGram Pro | 12th Science Hub</title>
-<script src="https://cdn.tailwindcss.com"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<!-- ===== SKELETON LOADING SCREEN ===== -->
+<div id="skeleton-loader" class="skeleton-loader">
+  <div class="skeleton-shimmer"></div>
+  <div class="skeleton-content">
+    <div class="skeleton-logo"></div>
+    <div class="skeleton-title"></div>
+    <div class="skeleton-subtitle"></div>
+    <div class="skeleton-pulse"></div>
+  </div>
+</div>
+
+<!-- ===== TOAST CONTAINER ===== -->
 <div id="toast-container"></div>
 
-<!-- ========================================== -->
-<!-- SIDEBAR / DRAWER                           -->
-<!-- ========================================== -->
+<!-- ===== SIDEBAR / DRAWER ===== -->
 <div id="sidebar-overlay" class="sidebar-overlay" onclick="closeSidebar()"></div>
 <div id="sidebar" class="sidebar">
   <div class="sidebar-header">
-    <div class="w-12 h-12 bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 rounded-2xl rotate-45 flex items-center justify-center text-white text-xl shadow-lg">
-      <i class="fa-solid fa-atom -rotate-45"></i>
+    <div class="sidebar-logo-box">
+      <i class="fa-solid fa-atom"></i>
     </div>
     <div>
-      <h3 class="font-black text-white text-lg">StudyGram <span class="text-indigo-400">Pro</span></h3>
-      <p class="text-[10px] text-gray-500 font-medium">Class 12th PCM Hub</p>
+      <h3 class="sidebar-brand">StudyGram <span class="sidebar-brand-pro">Pro</span></h3>
+      <p class="sidebar-sub">Class 12th PCM Hub</p>
     </div>
-    <button onclick="closeSidebar()" class="w-8 h-8 rounded-full bg-[#2c2c2e] flex items-center justify-center text-gray-400 hover:bg-[#3a3a3c] hover:text-white transition-all border border-white/10">
+    <button onclick="haptic(); closeSidebar();" class="sidebar-close-btn" aria-label="Close sidebar">
       <i class="fa-solid fa-xmark"></i>
     </button>
   </div>
   <div class="sidebar-divider"></div>
   <nav class="sidebar-nav">
-    <button onclick="closeSidebar(); showPremiumPopup();" class="sidebar-link">
-      <span class="sidebar-icon" style="background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#000;"><i class="fa-solid fa-crown"></i></span>
+    <button onclick="haptic(); closeSidebar(); showPremiumPopup();" class="sidebar-link">
+      <span class="sidebar-icon" style="background:linear-gradient(135deg,#FFD700,#DAA520);color:#000;"><i class="fa-solid fa-crown"></i></span>
       <span class="sidebar-text">Be a Premium User</span>
-      <span class="ml-auto text-[10px] font-bold text-amber-400 border border-amber-400/30 px-2 py-0.5 rounded-full">PRO</span>
+      <span class="sidebar-pro-badge">PRO</span>
     </button>
-    <button onclick="closeSidebar(); switchTab('datesheet')" class="sidebar-link">
+    <button onclick="haptic(); closeSidebar(); switchTab('datesheet');" class="sidebar-link">
       <span class="sidebar-icon" style="background:rgba(99,102,241,0.15);color:#818cf8;"><i class="fa-solid fa-calendar-days"></i></span>
       <span class="sidebar-text">Date Sheet</span>
     </button>
-    <button onclick="closeSidebar(); attemptAccessMusic();" class="sidebar-link">
+    <button onclick="haptic(); closeSidebar(); attemptAccessMusic();" class="sidebar-link">
       <span class="sidebar-icon" style="background:rgba(168,85,247,0.15);color:#c084fc;"><i class="fa-solid fa-music"></i></span>
       <span class="sidebar-text">Music Hub</span>
-      <span id="sidebar-music-lock" class="ml-auto text-[10px] text-gray-500"><i class="fa-solid fa-lock"></i></span>
+      <span id="sidebar-music-lock" class="sidebar-lock-icon"><i class="fa-solid fa-lock"></i></span>
     </button>
-        <button onclick="closeSidebar(); toggleTheme();" class="sidebar-link">
+    <button onclick="haptic(); closeSidebar(); switchTab('social');" class="sidebar-link">
+      <span class="sidebar-icon" style="background:rgba(255,107,53,0.15);color:#ff6b35;"><i class="fa-solid fa-users"></i></span>
+      <span class="sidebar-text">Social Hub</span>
+    </button>
+    <button onclick="haptic(); closeSidebar(); toggleTheme();" class="sidebar-link">
       <span class="sidebar-icon" style="background:rgba(251,191,36,0.15);color:#f59e0b;"><i class="fa-solid fa-moon" id="theme-icon"></i></span>
-      <span class="sidebar-text text-amber-500 font-bold">Theme Mode</span>
-      <span class="ml-auto text-[10px] bg-amber-500/10 text-amber-500 px-1.5 py-0.5 rounded border border-amber-500/20">PRO</span>
-        </button>
+      <span class="sidebar-text text-amber">Theme Mode</span>
+      <span class="sidebar-pro-badge">PRO</span>
+    </button>
     <div class="sidebar-divider"></div>
-    <button onclick="closeSidebar(); logout()" class="sidebar-link">
+    <button onclick="haptic(); closeSidebar(); logout();" class="sidebar-link">
       <span class="sidebar-icon" style="background:rgba(255,59,48,0.1);color:#ff3b30;"><i class="fa-solid fa-power-off"></i></span>
-      <span class="sidebar-text text-red-400">Log Out</span>
+      <span class="sidebar-text text-red">Log Out</span>
     </button>
   </nav>
 </div>
 
-<!-- ========================================== -->
-<!-- LOGIN SCREEN                               -->
-<!-- ========================================== -->
+<!-- ===== LOGIN SCREEN ===== -->
 <div id="login-screen" class="login-screen">
-  <div class="w-28 h-28 bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 rounded-[2rem] rotate-45 flex items-center justify-center text-white text-4xl shadow-xl mb-8 relative z-10">
-    <i class="fa-solid fa-atom -rotate-45"></i>
+  <div class="login-logo">
+    <i class="fa-solid fa-atom"></i>
   </div>
-  <h1 class="text-4xl font-black text-white tracking-tight mb-2 relative z-10">StudyGram <span class="login-gradient-text">Pro</span></h1>
-  <p class="text-gray-500 font-medium mb-10 text-base relative z-10">The Ultimate 12th Science Hub</p>
-  <button id="login-btn" class="login-btn">
-    <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-6 h-6" alt="G"> Continue with Google
+  <h1 class="login-title">StudyGram <span class="login-gradient-text">Pro</span></h1>
+  <p class="login-subtitle">The Ultimate 12th Science Hub</p>
+  <button id="login-btn" class="login-btn" onclick="haptic(); handleLogin();">
+    <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="login-btn-icon" alt="G"> Continue with Google
   </button>
-  <p id="login-error" class="mt-4 text-red-400 text-sm font-medium hidden relative z-10"></p>
-  <p class="mt-6 text-xs text-gray-600 relative z-10">By continuing, you agree to our Terms</p>
+  <p id="login-error" class="login-error hidden"></p>
+  <p class="login-terms">By continuing, you agree to our Terms</p>
 </div>
 
-<!-- ========================================== -->
-<!-- TOP NAVIGATION (with hamburger)            -->
-<!-- ========================================== -->
+<!-- ===== TOP NAVIGATION ===== -->
 <nav id="main-nav" class="main-nav hidden">
-  <div class="flex items-center gap-3">
-    <button onclick="openSidebar()" class="w-9 h-9 rounded-xl bg-[#2c2c2e] flex items-center justify-center text-gray-400 hover:bg-[#3a3a3c] hover:text-white active:scale-90 transition-all btn-press border border-white/5">
+  <div class="main-nav-left">
+    <button onclick="haptic(); openSidebar();" class="nav-icon-btn" aria-label="Open menu">
       <i class="fa-solid fa-bars"></i>
     </button>
-    <div class="w-9 h-9 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white text-sm shadow-lg">
+    <div class="nav-logo-box">
       <i class="fa-solid fa-book-open"></i>
     </div>
-    <div>
-      <h2 class="text-base font-bold tracking-wide text-white">StudyGram</h2>
-      <div class="flex items-center gap-1.5">
-        <span class="lvb" id="nav-level">Lv.1</span>
-        <span class="text-[10px] text-gray-500 font-medium" id="nav-xp-text">0 / 100 EXP</span>
+    <div class="nav-info">
+      <h2 class="nav-brand">StudyGram</h2>
+      <div class="nav-meta">
+        <span class="level-badge" id="nav-level">Lv.1</span>
+        <span class="nav-xp-text" id="nav-xp-text">0 / 100 EXP</span>
       </div>
     </div>
   </div>
-  <div class="flex gap-2 items-center">
-    <button onclick="attemptAccessMusic()" class="w-9 h-9 rounded-full bg-[#2c2c2e] flex items-center justify-center text-gray-400 hover:bg-[#3a3a3c] hover:text-white active:scale-90 transition-all btn-press border border-white/5" title="Music">
+  <div class="main-nav-right">
+    <button onclick="haptic(); attemptAccessMusic();" class="nav-icon-btn" title="Music" id="nav-music-btn">
       <i class="fa-solid fa-music" id="nav-music-icon"></i>
     </button>
-    <button onclick="switchTab('admin')" class="w-9 h-9 rounded-full bg-[#2c2c2e] flex items-center justify-center text-gray-400 hover:bg-[#3a3a3c] hover:text-white active:scale-90 transition-all btn-press border border-white/5">
+    <button onclick="haptic(); switchTab('admin');" class="nav-icon-btn" aria-label="Admin panel">
       <i class="fa-solid fa-shield-halved"></i>
     </button>
   </div>
 </nav>
 
-<!-- ========================================== -->
-<!-- MAIN CONTENT                               -->
-<!-- ========================================== -->
+<!-- ===== MAIN CONTENT ===== -->
 <main class="main-content hidden" id="main-content">
 
 <!-- ===== HOME SECTION ===== -->
 <div id="home" class="section">
   <div class="section-scroll">
-    <div class="ios-card p-5 flex items-center gap-4 relative overflow-hidden mb-4">
-      <img id="user-img" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="w-14 h-14 rounded-2xl border-2 border-white/10 shadow-lg object-cover bg-[#2c2c2e] flex-shrink-0">
-      <div class="flex-1 min-w-0">
-        <p class="text-xs text-gray-500 font-medium">Welcome back,</p>
-        <h3 id="user-name" class="font-bold text-lg text-white truncate">Student</h3>
-        <div class="flex items-center gap-2 mt-1">
-          <span class="lvb" id="home-level">Lv.1</span>
-          <div class="xpbc flex-1 max-w-[100px]"><div class="xpbf" id="home-xp-bar" style="width:0%"></div></div>
+    <!-- User Card -->
+    <div class="card card-user">
+      <img id="user-img" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="user-avatar" alt="User">
+      <div class="user-info">
+        <p class="user-welcome">Welcome back,</p>
+        <h3 id="user-name" class="user-name">Student</h3>
+        <div class="user-meta">
+          <span class="level-badge" id="home-level">Lv.1</span>
+          <div class="xp-bar"><div class="xp-fill" id="home-xp-bar" style="width:0%"></div></div>
         </div>
       </div>
-      <div class="flex items-center gap-1 bg-orange-500/10 px-2.5 py-1 rounded-full border border-orange-500/20 flex-shrink-0">
-        <i class="fa-solid fa-fire text-orange-400 sf text-xs"></i>
-        <span id="streak-count" class="text-[11px] font-bold text-orange-300">0</span>
+      <div class="streak-box">
+        <i class="fa-solid fa-fire streak-fire"></i>
+        <span id="streak-count" class="streak-num">0</span>
       </div>
     </div>
 
-    <div class="ios-card p-4 border-l-4 border-purple-500 relative overflow-hidden mb-4">
-      <div class="absolute -right-4 -bottom-4 text-purple-500/10 text-6xl"><i class="fa-solid fa-quote-right"></i></div>
-      <div class="flex items-start gap-3 relative z-10">
-        <i class="fa-solid fa-quote-left text-purple-400/40 text-xl mt-1"></i>
+    <!-- Quote Card -->
+    <div class="card card-quote">
+      <div class="quote-bg"><i class="fa-solid fa-quote-right"></i></div>
+      <div class="quote-content">
+        <i class="fa-solid fa-quote-left quote-icon"></i>
         <div>
-          <p id="daily-quote" class="text-sm text-gray-400 italic leading-relaxed">Loading motivation...</p>
-          <p id="quote-author" class="text-xs text-gray-600 mt-2 font-medium">- StudyGram</p>
+          <p id="daily-quote" class="quote-text">Loading motivation...</p>
+          <p id="quote-author" class="quote-author">- StudyGram</p>
         </div>
       </div>
     </div>
 
-    <div class="ios-card p-5 relative overflow-hidden mb-4" style="background: linear-gradient(135deg, #1c1c1e 0%, #2c1a4e 100%);">
-      <div class="relative z-10">
-        <p class="text-indigo-400 text-xs font-semibold mb-3 uppercase tracking-wider"><i class="fa-solid fa-stopwatch mr-1"></i> <span id="exam-countdown-label">Final Board Exams</span></p>
-        <div class="flex gap-3 mt-2">
-          <div class="bg-black/40 px-4 py-3 rounded-xl border border-white/10 text-center min-w-[65px]">
-            <span id="count-days" class="text-3xl font-black block text-white">00</span><span class="text-[9px] text-indigo-400 uppercase tracking-widest">Days</span>
-          </div>
-          <div class="bg-black/40 px-4 py-3 rounded-xl border border-white/10 text-center min-w-[65px]">
-            <span id="count-hours" class="text-3xl font-black block text-white">00</span><span class="text-[9px] text-indigo-400 uppercase tracking-widest">Hours</span>
-          </div>
-          <div class="bg-black/40 px-4 py-3 rounded-xl border border-white/10 text-center min-w-[65px]">
-            <span id="count-minutes" class="text-3xl font-black block text-white">00</span><span class="text-[9px] text-indigo-400 uppercase tracking-widest">Mins</span>
-          </div>
+    <!-- Countdown Card -->
+    <div class="card card-countdown">
+      <div class="countdown-body">
+        <p class="countdown-label"><i class="fa-solid fa-stopwatch"></i> <span id="exam-countdown-label">Final Board Exams</span></p>
+        <div class="countdown-grid">
+          <div class="countdown-box"><span id="count-days" class="countdown-num">00</span><span class="countdown-unit">Days</span></div>
+          <div class="countdown-box"><span id="count-hours" class="countdown-num">00</span><span class="countdown-unit">Hours</span></div>
+          <div class="countdown-box"><span id="count-minutes" class="countdown-num">00</span><span class="countdown-unit">Mins</span></div>
         </div>
       </div>
     </div>
 
-    <div class="ios-card p-4 mb-4">
-      <div class="flex justify-between items-center mb-2">
-        <h4 class="font-bold text-white flex items-center gap-2 text-sm"><i class="fa-solid fa-calendar-check text-green-500"></i> Attendance</h4>
-        <span id="attendance-rate" class="text-xs font-bold bg-green-500/10 text-green-400 px-2.5 py-1 rounded-lg border border-green-500/20">0%</span>
+    <!-- Attendance Card -->
+    <div class="card">
+      <div class="attendance-header">
+        <h4 class="card-title-sm"><i class="fa-solid fa-calendar-check" style="color:#34c759"></i> Attendance</h4>
+        <span id="attendance-rate" class="attendance-rate">0%</span>
       </div>
       <div class="att-cal" id="attendance-calendar"></div>
-      <button onclick="markAttendance()" id="att-btn" class="w-full mt-3 bg-[#34c759] text-white py-2.5 rounded-xl font-bold shadow-lg active:scale-95 transition-all btn-press flex items-center justify-center gap-2 hover:brightness-110 text-sm">
+      <button onclick="haptic(); markAttendance();" id="att-btn" class="btn btn-success btn-full btn-attendance">
         <i class="fa-solid fa-check-circle"></i> Mark Today's Attendance
       </button>
     </div>
 
-    <div class="ios-card p-5 text-center mb-4">
-      <h4 class="font-bold text-white mb-4"><i class="fa-solid fa-hourglass-half text-indigo-400 mr-2"></i>Focus Timer</h4>
-      <div class="flex justify-center mb-4">
-        <div class="tmr-c" id="timer-circle" style="--p:0%"><div class="tmr-d" id="timer-display">25:00</div></div>
+    <!-- Focus Timer Card -->
+    <div class="card card-timer">
+      <h4 class="card-title"><i class="fa-solid fa-hourglass-half" style="color:#6366f1"></i> Focus Timer</h4>
+      <div class="timer-wrap">
+        <div class="timer-circle" id="timer-circle" style="--p:0%"><div class="timer-display" id="timer-display">25:00</div></div>
       </div>
-      <div class="flex gap-3 justify-center">
-        <button onclick="startTimer()" id="timer-start" class="bg-[#6366f1] text-white px-6 py-2 rounded-xl font-bold shadow-lg active:scale-95 btn-press hover:brightness-110 transition-all">Start</button>
-        <button onclick="pauseTimer()" id="timer-pause" class="bg-[#ff9500] text-white px-6 py-2 rounded-xl font-bold shadow-lg active:scale-95 btn-press hidden hover:brightness-110 transition-all">Pause</button>
-        <button onclick="resetTimer()" class="bg-[#2c2c2e] text-gray-400 px-6 py-2 rounded-xl font-bold shadow-md active:scale-95 btn-press border border-white/10 hover:bg-[#3a3a3c] transition-all">Reset</button>
+      <div class="timer-controls">
+        <button onclick="haptic(); startTimer();" id="timer-start" class="btn btn-primary">Start</button>
+        <button onclick="haptic(); pauseTimer();" id="timer-pause" class="btn btn-warning hidden">Pause</button>
+        <button onclick="haptic(); resetTimer();" class="btn btn-ghost">Reset</button>
       </div>
-      <p class="text-xs text-gray-600 mt-3">25 min study + 5 min break</p>
+      <p class="timer-hint">25 min study + 5 min break</p>
     </div>
 
-    <div id="course-status" class="ios-card p-5 space-y-4 mb-4">
-      <div class="text-center py-6"><i class="fa-solid fa-spinner fa-spin text-gray-600 text-2xl"></i><p class="text-xs text-gray-600 mt-3">Loading progress...</p></div>
+    <!-- Course Progress -->
+    <div id="course-status" class="card">
+      <div class="loading-wrap"><i class="fa-solid fa-spinner fa-spin loading-icon"></i><p class="loading-text">Loading progress...</p></div>
     </div>
 
-    <div class="ios-card p-4 mb-4">
-      <h4 class="font-bold text-white mb-3 text-sm"><i class="fa-solid fa-sticky-note text-yellow-500 mr-2"></i>Quick Notes</h4>
-      <div class="flex gap-2 mb-3">
-        <input id="quick-note-input" type="text" placeholder="Add a quick note..." class="flex-1 p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-sm text-white placeholder-gray-600 focus:border-indigo-500/50 transition-all">
-        <button onclick="addQuickNote()" class="bg-[#ff9500] text-white px-4 rounded-xl font-bold shadow-lg active:scale-95 btn-press hover:brightness-110 transition-all"><i class="fa-solid fa-plus"></i></button>
+    <!-- Quick Notes -->
+    <div class="card">
+      <h4 class="card-title-sm"><i class="fa-solid fa-sticky-note" style="color:#f59e0b"></i> Quick Notes</h4>
+      <div class="note-input-row">
+        <input id="quick-note-input" type="text" placeholder="Add a quick note..." class="input" onkeydown="if(event.key==='Enter'){haptic();addQuickNote();}">
+        <button onclick="haptic(); addQuickNote();" class="btn btn-warning btn-square"><i class="fa-solid fa-plus"></i></button>
       </div>
-      <div id="quick-notes-list" class="space-y-2 max-h-40 overflow-y-auto"></div>
+      <div id="quick-notes-list" class="quick-notes-list"></div>
     </div>
   </div>
 </div>
 
-<!-- ===== NOTES SECTION (CATEGORIZED) ===== -->
+<!-- ===== VIDEO LECTURES SECTION ===== -->
+<div id="lectures" class="section">
+  <div class="section-header">
+    <button onclick="haptic(); switchTab('home');" class="btn-icon" aria-label="Go back"><i class="fa-solid fa-arrow-left"></i></button>
+    <h2 class="section-title">Video Lectures</h2>
+    <div class="w-36"></div>
+  </div>
+  <div class="section-scroll">
+    <div id="lectures-premium-banner" class="lectures-premium-banner">
+      <div class="lectures-premium-content">
+        <i class="fa-solid fa-crown lectures-crown"></i>
+        <h3 class="lectures-premium-title">Premium Feature</h3>
+        <p class="lectures-premium-desc">Unlock Video Lectures with Premium</p>
+        <button onclick="haptic(); showPremiumPopup();" class="btn btn-gold">Unlock Premium</button>
+      </div>
+    </div>
+    <div id="lectures-list" class="lectures-list hidden">
+      <div class="lectures-filter-row">
+        <select id="lectures-filter" class="input" onchange="filterLectures(this.value)">
+          <option value="all">All Subjects</option>
+          <option value="physics">Physics</option>
+          <option value="chemistry">Chemistry</option>
+          <option value="math">Math</option>
+          <option value="hindi">Hindi</option>
+          <option value="english">English</option>
+        </select>
+      </div>
+      <div id="lectures-items" class="lectures-items"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== NOTES SECTION ===== -->
 <div id="notes" class="section">
-  <div class="notes-header">
-    <button onclick="switchTab('home')" class="w-9 h-9 bg-[#2c2c2e] rounded-full flex items-center justify-center text-gray-400 hover:bg-[#3a3a3c] hover:text-white active:scale-90 transition-all btn-press border border-white/10">
-      <i class="fa-solid fa-arrow-left"></i>
-    </button>
-    <h2 class="text-xl font-black text-white">Study Materials</h2>
-    <div class="w-9"></div>
+  <div class="section-header">
+    <button onclick="haptic(); switchTab('home');" class="btn-icon" aria-label="Go back"><i class="fa-solid fa-arrow-left"></i></button>
+    <h2 class="section-title">Study Materials</h2>
+    <div class="w-36"></div>
   </div>
   <div class="section-scroll">
     <div class="category-tabs">
-      <button class="cat-tab active" data-cat="all" onclick="filterNotes('all')">All</button>
-      <button class="cat-tab" data-cat="hindi" onclick="filterNotes('hindi')">Hindi</button>
-      <button class="cat-tab" data-cat="english" onclick="filterNotes('english')">Eng</button>
-      <button class="cat-tab" data-cat="math" onclick="filterNotes('math')">Math</button>
-      <button class="cat-tab" data-cat="physics" onclick="filterNotes('physics')">Phy</button>
-      <button class="cat-tab" data-cat="chemistry" onclick="filterNotes('chemistry')">Chem</button>
-      <button class="cat-tab" data-cat="other" onclick="filterNotes('other')">Other</button>
+      <button class="cat-tab active" data-cat="all" onclick="haptic(); filterNotes('all');">All</button>
+      <button class="cat-tab" data-cat="hindi" onclick="haptic(); filterNotes('hindi');">Hindi</button>
+      <button class="cat-tab" data-cat="english" onclick="haptic(); filterNotes('english');">Eng</button>
+      <button class="cat-tab" data-cat="math" onclick="haptic(); filterNotes('math');">Math</button>
+      <button class="cat-tab" data-cat="physics" onclick="haptic(); filterNotes('physics');">Phy</button>
+      <button class="cat-tab" data-cat="chemistry" onclick="haptic(); filterNotes('chemistry');">Chem</button>
+      <button class="cat-tab" data-cat="other" onclick="haptic(); filterNotes('other');">Other</button>
     </div>
-    <div id="notes-list" class="space-y-3 pb-4"></div>
+    <div id="notes-list" class="space-y"></div>
   </div>
 </div>
 
 <!-- ===== ONLINE CLASSES SECTION ===== -->
 <div id="classes" class="section">
-  <div class="notes-header">
-    <button onclick="switchTab('home')" class="w-9 h-9 bg-[#2c2c2e] rounded-full flex items-center justify-center text-gray-400 hover:bg-[#3a3a3c] hover:text-white active:scale-90 transition-all btn-press border border-white/10">
-      <i class="fa-solid fa-arrow-left"></i>
-    </button>
-    <h2 class="text-xl font-black text-white">Online Classes</h2>
-    <div class="w-9"></div>
+  <div class="section-header">
+    <button onclick="haptic(); switchTab('home');" class="btn-icon" aria-label="Go back"><i class="fa-solid fa-arrow-left"></i></button>
+    <h2 class="section-title">Online Classes</h2>
+    <div class="w-36"></div>
   </div>
   <div class="section-scroll">
     <div class="category-tabs">
-      <button class="cls-tab active" data-cat="all" onclick="filterClasses('all')">All</button>
-      <button class="cls-tab" data-cat="hindi" onclick="filterClasses('hindi')">Hindi</button>
-      <button class="cls-tab" data-cat="english" onclick="filterClasses('english')">Eng</button>
-      <button class="cls-tab" data-cat="math" onclick="filterClasses('math')">Math</button>
-      <button class="cls-tab" data-cat="physics" onclick="filterClasses('physics')">Phy</button>
-      <button class="cls-tab" data-cat="chemistry" onclick="filterClasses('chemistry')">Chem</button>
-      <button class="cls-tab" data-cat="other" onclick="filterClasses('other')">Other</button>
+      <button class="cls-tab active" data-cat="all" onclick="haptic(); filterClasses('all');">All</button>
+      <button class="cls-tab" data-cat="hindi" onclick="haptic(); filterClasses('hindi');">Hindi</button>
+      <button class="cls-tab" data-cat="english" onclick="haptic(); filterClasses('english');">Eng</button>
+      <button class="cls-tab" data-cat="math" onclick="haptic(); filterClasses('math');">Math</button>
+      <button class="cls-tab" data-cat="physics" onclick="haptic(); filterClasses('physics');">Phy</button>
+      <button class="cls-tab" data-cat="chemistry" onclick="haptic(); filterClasses('chemistry');">Chem</button>
+      <button class="cls-tab" data-cat="other" onclick="haptic(); filterClasses('other');">Other</button>
     </div>
-    <div id="classes-list" class="space-y-3 pb-4">
-      <div class="text-center text-gray-600 py-6"><i class="fa-solid fa-video text-4xl mb-3 text-gray-700 block"></i>No classes uploaded yet.</div>
+    <div id="classes-list" class="space-y">
+      <div class="empty-state"><i class="fa-solid fa-video empty-icon"></i>No classes uploaded yet.</div>
     </div>
   </div>
 </div>
 
 <!-- ===== NOTICE SECTION ===== -->
 <div id="notice" class="section">
-  <div class="notes-header">
-    <button onclick="switchTab('home')" class="w-9 h-9 bg-[#2c2c2e] rounded-full flex items-center justify-center text-gray-400 hover:bg-[#3a3a3c] hover:text-white active:scale-90 transition-all btn-press border border-white/10">
-      <i class="fa-solid fa-arrow-left"></i>
-    </button>
-    <h2 class="text-xl font-black text-white">Board Updates</h2>
-    <div class="w-9"></div>
+  <div class="section-header">
+    <button onclick="haptic(); switchTab('home');" class="btn-icon" aria-label="Go back"><i class="fa-solid fa-arrow-left"></i></button>
+    <h2 class="section-title">Board Updates</h2>
+    <div class="w-36"></div>
   </div>
   <div class="section-scroll">
-    <div id="notice-list" class="space-y-3 pb-4"></div>
+    <div id="notice-list" class="space-y"></div>
   </div>
 </div>
 
 <!-- ===== DATE SHEET SECTION ===== -->
 <div id="datesheet" class="section">
-  <div class="notes-header">
-    <button onclick="switchTab('home')" class="w-9 h-9 bg-[#2c2c2e] rounded-full flex items-center justify-center text-gray-400 hover:bg-[#3a3a3c] hover:text-white active:scale-90 transition-all btn-press border border-white/10">
-      <i class="fa-solid fa-arrow-left"></i>
-    </button>
-    <h2 class="text-xl font-black text-white"><i class="fa-solid fa-calendar-days text-indigo-400 mr-2"></i>Exam Date Sheet</h2>
-    <div class="w-9"></div>
+  <div class="section-header">
+    <button onclick="haptic(); switchTab('home');" class="btn-icon" aria-label="Go back"><i class="fa-solid fa-arrow-left"></i></button>
+    <h2 class="section-title"><i class="fa-solid fa-calendar-days" style="color:#6366f1"></i> Exam Date Sheet</h2>
+    <div class="w-36"></div>
   </div>
   <div class="section-scroll">
-    <div id="datesheet-list" class="space-y-3 pb-4">
-      <div class="text-center text-gray-600 py-6"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Loading schedule...</div>
+    <div id="datesheet-list" class="space-y">
+      <div class="loading-wrap"><i class="fa-solid fa-circle-notch fa-spin loading-icon"></i>Loading schedule...</div>
     </div>
   </div>
 </div>
 
 <!-- ===== PROFILE SECTION ===== -->
 <div id="profile" class="section">
-  <div class="notes-header">
-    <button onclick="switchTab('home')" class="w-9 h-9 bg-[#2c2c2e] rounded-full flex items-center justify-center text-gray-400 hover:bg-[#3a3a3c] hover:text-white active:scale-90 transition-all btn-press border border-white/10">
-      <i class="fa-solid fa-arrow-left"></i>
-    </button>
-    <h2 class="text-xl font-black text-white">Profile</h2>
-    <div class="w-9"></div>
+  <div class="section-header">
+    <button onclick="haptic(); switchTab('home');" class="btn-icon" aria-label="Go back"><i class="fa-solid fa-arrow-left"></i></button>
+    <h2 class="section-title">Profile</h2>
+    <div class="w-36"></div>
   </div>
   <div class="section-scroll">
-    <div class="ios-card p-6 text-center relative mt-10 mb-4">
-      <div class="absolute -top-12 left-1/2 transform -translate-x-1/2">
+    <div class="card card-profile">
+      <div class="profile-avatar-wrap">
         <div class="profile-upload" onclick="document.getElementById('dp-upload').click()">
-          <img id="prof-img" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="w-24 h-24 rounded-full object-cover border-4 border-[#6366f1]/40 shadow-2xl bg-[#2c2c2e] transition-transform hover:scale-105">
+          <img id="prof-img" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="profile-avatar" alt="Profile">
           <input type="file" id="dp-upload" accept="image/*" class="hidden" onchange="handleProfilePicUpload(event)">
         </div>
-        <div class="absolute bottom-1 right-1 w-7 h-7 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xs shadow-lg border-2 border-black">
-          <i class="fa-solid fa-camera"></i>
-        </div>
+        <div class="profile-camera"><i class="fa-solid fa-camera"></i></div>
       </div>
-      <div class="mt-14">
-        <h2 id="prof-name" class="text-xl font-black text-white">Student</h2>
-        <p class="text-indigo-400 font-semibold text-sm mb-2">Class 12th - PCM</p>
-        <div class="flex justify-center gap-2 mb-3">
-          <span class="lvb" id="prof-level">Lv.1</span>
-          <span id="premium-badge" class="hidden lvb" style="background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#000;"><i class="fa-solid fa-crown"></i> PREMIUM</span>
+      <div class="profile-info">
+        <h2 id="prof-name" class="profile-name">Student</h2>
+        <p class="profile-class">Class 12th - PCM</p>
+        <div class="profile-badges-row">
+          <span class="level-badge" id="prof-level">Lv.1</span>
+          <span id="premium-badge" class="premium-badge hidden"><i class="fa-solid fa-crown"></i> PREMIUM</span>
         </div>
-        <button onclick="toggleNameEdit()" class="text-xs text-gray-500 hover:text-indigo-400 transition-colors mb-3 flex items-center gap-1 mx-auto">
-          <i class="fa-solid fa-pen"></i> Edit Name
-        </button>
-        <div id="name-edit-box" class="hidden mb-3">
-          <div class="flex gap-2 max-w-[240px] mx-auto">
-            <input id="name-edit-input" type="text" placeholder="Enter new name" class="flex-1 p-2.5 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-sm text-white placeholder-gray-600 focus:border-indigo-500/50 text-center">
-            <button onclick="saveDisplayName()" class="bg-[#6366f1] text-white px-3 rounded-xl font-bold text-xs shadow-lg active:scale-95 btn-press"><i class="fa-solid fa-check"></i></button>
+        <button onclick="haptic(); toggleNameEdit();" class="btn-text"><i class="fa-solid fa-pen"></i> Edit Name</button>
+        <div id="name-edit-box" class="name-edit-box hidden">
+          <div class="name-edit-row">
+            <input id="name-edit-input" type="text" placeholder="Enter new name" class="input input-center">
+            <button onclick="haptic(); saveDisplayName();" id="save-name-btn" class="btn btn-primary btn-sm"><i class="fa-solid fa-check"></i></button>
           </div>
         </div>
       </div>
 
-      <div class="mb-5 px-2">
-        <div class="flex justify-between text-xs text-gray-500 mb-1.5">
-          <span>Experience</span>
-          <span id="prof-xp-text">0 / 100 EXP</span>
-        </div>
-        <div class="xpbc"><div class="xpbf" id="prof-xp-bar" style="width:0%"></div></div>
+      <div class="xp-section">
+        <div class="xp-label-row"><span>Experience</span><span id="prof-xp-text">0 / 100 EXP</span></div>
+        <div class="xp-bar"><div class="xp-fill" id="prof-xp-bar" style="width:0%"></div></div>
       </div>
 
-      <div class="mb-5">
-        <h4 class="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Badges Earned (Click for details)</h4>
-        <div id="prof-badges" class="flex flex-wrap justify-center gap-2 cursor-pointer" onclick="showBadgePopup()">
-          <span class="text-xs text-gray-600">No badges yet</span>
+      <div class="badges-section">
+        <h4 class="badges-title">Badges Earned (Click for details)</h4>
+        <div id="prof-badges" class="badges-wrap" onclick="haptic(); showBadgePopup();">
+          <span class="text-muted">No badges yet</span>
         </div>
       </div>
 
-      <div class="grid grid-cols-3 gap-2 mb-5">
-        <div class="ios-gcard p-3 text-center">
-          <span id="prof-streak" class="text-xl font-black text-orange-400 block">0</span>
-          <span class="text-[9px] text-gray-500 uppercase font-bold">Day Streak</span>
+      <div class="stats-grid">
+        <div class="stat-card"><span id="prof-streak" class="stat-num stat-orange">0</span><span class="stat-label">Day Streak</span></div>
+        <div class="stat-card"><span id="prof-attendance" class="stat-num stat-green">0%</span><span class="stat-label">Attendance</span></div>
+        <div class="stat-card"><span id="prof-focus" class="stat-num stat-purple">0</span><span class="stat-label">Focus Hrs</span></div>
+      </div>
+
+      <div class="card card-inner">
+        <div class="roll-row">
+          <span class="text-muted">Roll Number</span>
+          <button onclick="haptic(); editRollNumber();" class="btn-text"><i class="fa-solid fa-pen"></i> Edit</button>
         </div>
-        <div class="ios-gcard p-3 text-center">
-          <span id="prof-attendance" class="text-xl font-black text-green-400 block">0%</span>
-          <span class="text-[9px] text-gray-500 uppercase font-bold">Attendance</span>
-        </div>
-        <div class="ios-gcard p-3 text-center">
-          <span id="prof-focus" class="text-xl font-black text-purple-400 block">0</span>
-          <span class="text-[9px] text-gray-500 uppercase font-bold">Focus Hrs</span>
+        <span class="roll-num" id="prof-roll">UP000000</span>
+      </div>
+
+      <div class="card card-inner">
+        <div class="faculty-header"><i class="fa-solid fa-chalkboard-user" style="color:#6366f1"></i><span class="faculty-title">Faculty Details</span><span class="faculty-locked">Locked</span></div>
+        <div class="faculty-list">
+          <div class="faculty-item"><div class="faculty-icon faculty-indigo"><i class="fa-solid fa-user-tie"></i></div><div><p class="faculty-sub">Class Teacher</p><p class="faculty-name">Mr. Sanjay Gupta</p></div></div>
+          <div class="faculty-item"><div class="faculty-icon faculty-purple"><i class="fa-solid fa-atom"></i></div><div><p class="faculty-sub">Physics</p><p class="faculty-name">Mr. Sanjay Gupta</p></div></div>
+          <div class="faculty-item"><div class="faculty-icon faculty-green"><i class="fa-solid fa-flask"></i></div><div><p class="faculty-sub">Chemistry</p><p class="faculty-name">Mr. Shivkant Tiwari</p></div></div>
+          <div class="faculty-item"><div class="faculty-icon faculty-blue"><i class="fa-solid fa-calculator"></i></div><div><p class="faculty-sub">Mathematics</p><p class="faculty-name">Mr. P.R. Verma</p></div></div>
+          <div class="faculty-item"><div class="faculty-icon faculty-orange"><i class="fa-solid fa-om"></i></div><div><p class="faculty-sub">Hindi</p><p class="faculty-name">Umasankar Gupta</p></div></div>
+          <div class="faculty-item"><div class="faculty-icon faculty-pink"><i class="fa-solid fa-book-open"></i></div><div><p class="faculty-sub">English</p><p class="faculty-name">Anupam Mishra</p></div></div>
         </div>
       </div>
 
-      <div class="ios-gcard p-4 rounded-2xl mb-4 text-left">
-        <div class="flex justify-between items-center mb-2">
-          <span class="text-gray-500 text-sm font-medium">Roll Number</span>
-          <button onclick="editRollNumber()" class="text-indigo-400 text-xs hover:text-indigo-300 transition-colors flex items-center gap-1"><i class="fa-solid fa-pen"></i> Edit</button>
-        </div>
-        <span class="font-bold text-white text-lg" id="prof-roll">UP000000</span>
+      <button onclick="haptic(); openExamModal();" class="btn btn-primary btn-full"><i class="fa-solid fa-ticket"></i> View Exam Seat & Schedule</button>
+
+      <div class="card card-inner info-card">
+        <div class="info-row"><span class="text-muted">Subjects</span><span class="info-value">Hin, Eng, Math, Phy, Chem</span></div>
+        <div class="info-row"><span class="text-muted">Total EXP</span><span class="info-value text-indigo" id="prof-total-xp">0</span></div>
       </div>
 
-      <div class="ios-gcard p-4 rounded-2xl mb-4 text-left">
-        <div class="flex items-center gap-2 mb-3">
-          <i class="fa-solid fa-chalkboard-user text-indigo-400"></i>
-          <span class="font-bold text-white text-sm">Faculty Details</span>
-          <span class="text-[10px] bg-indigo-500/10 text-indigo-300 px-2 py-0.5 rounded-full border border-indigo-500/20">Locked</span>
-        </div>
-        <div class="space-y-2">
-          <div class="tch"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400 text-xs"><i class="fa-solid fa-user-tie"></i></div><div><p class="text-[11px] text-gray-500">Class Teacher</p><p class="text-sm font-bold text-white">Mr. Sanjay Gupta</p></div></div></div>
-          <div class="tch"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-400 text-xs"><i class="fa-solid fa-atom"></i></div><div><p class="text-[11px] text-gray-500">Physics</p><p class="text-sm font-bold text-white">Mr. Sanjay Gupta</p></div></div></div>
-          <div class="tch"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center text-green-400 text-xs"><i class="fa-solid fa-flask"></i></div><div><p class="text-[11px] text-gray-500">Chemistry</p><p class="text-sm font-bold text-white">Mr. Shivkant Tiwari</p></div></div></div>
-          <div class="tch"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 text-xs"><i class="fa-solid fa-calculator"></i></div><div><p class="text-[11px] text-gray-500">Mathematics</p><p class="text-sm font-bold text-white">Mr. P.R. Verma</p></div></div></div>
-          <div class="tch"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-400 text-xs"><i class="fa-solid fa-om"></i></div><div><p class="text-[11px] text-gray-500">Hindi</p><p class="text-sm font-bold text-white">Umasankar Gupta</p></div></div></div>
-          <div class="tch"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-pink-500/10 flex items-center justify-center text-pink-400 text-xs"><i class="fa-solid fa-book-open"></i></div><div><p class="text-[11px] text-gray-500">English</p><p class="text-sm font-bold text-white">Anupam Mishra</p></div></div></div>
-        </div>
-      </div>
-
-      <button onclick="openExamModal()" class="w-full bg-[#6366f1] text-white py-3.5 rounded-2xl font-bold shadow-lg hover:brightness-110 active:scale-95 transition-all mb-4 flex justify-center items-center gap-2 btn-press">
-        <i class="fa-solid fa-ticket"></i> View Exam Seat & Schedule
-      </button>
-      
-      <div class="ios-gcard p-4 rounded-2xl mb-4 text-left space-y-3">
-        <div class="flex justify-between items-center border-b border-white/10 pb-2">
-          <span class="text-gray-500 text-sm font-medium">Subjects</span>
-          <span class="font-bold text-white text-sm">Hin, Eng, Math, Phy, Chem</span>
-        </div>
-        <div class="flex justify-between items-center">
-          <span class="text-gray-500 text-sm font-medium">Total EXP</span>
-          <span class="font-bold text-indigo-400" id="prof-total-xp">0</span>
-        </div>
-      </div>
-
-      <!-- PREMIUM CARD -->
-      <div class="premium-card mb-4" onclick="showPremiumPopup()">
+      <!-- Premium Card -->
+      <div class="premium-card" onclick="haptic(); showPremiumPopup();">
         <div class="premium-card-shine"></div>
-        <div class="relative z-10">
-          <div class="flex items-center gap-3 mb-3">
-            <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-400 to-orange-500 flex items-center justify-center text-black text-xl shadow-lg">
-              <i class="fa-solid fa-crown"></i>
-            </div>
-            <div>
-              <h3 class="font-black text-white text-lg">Be a Premium User</h3>
-              <p class="text-amber-300 text-xs font-medium">Unlock the full experience</p>
-            </div>
+        <div class="premium-card-content">
+          <div class="premium-card-header">
+            <div class="premium-card-icon"><i class="fa-solid fa-crown"></i></div>
+            <div><h3 class="premium-card-title">Be a Premium User</h3><p class="premium-card-sub">Unlock the full experience</p></div>
           </div>
-          <div class="space-y-1.5">
-            <div class="flex items-center gap-2 text-xs"><i class="fa-solid fa-crown text-amber-400 w-4"></i><span class="text-gray-300">Premium Badge</span></div>
-            <div class="flex items-center gap-2 text-xs"><i class="fa-solid fa-moon text-indigo-400 w-4"></i><span class="text-gray-300">Dark/Light Mode Access</span></div>
-            <div class="flex items-center gap-2 text-xs"><i class="fa-solid fa-music text-purple-400 w-4"></i><span class="text-gray-300">Unlimited Music Access</span></div>
-            <div class="flex items-center gap-2 text-xs"><i class="fa-solid fa-rocket text-green-400 w-4"></i><span class="text-gray-300">Instant +10 Levels Boost</span></div>
-            <div class="flex items-center gap-2 text-xs"><i class="fa-solid fa-bolt text-yellow-400 w-4"></i><span class="text-gray-300">+100 EXP Daily</span></div>
+          <div class="premium-features">
+            <div class="premium-feature"><i class="fa-solid fa-crown" style="color:#FFD700"></i><span>Premium Badge</span></div>
+            <div class="premium-feature"><i class="fa-solid fa-moon" style="color:#6366f1"></i><span>Dark/Light Mode Access</span></div>
+            <div class="premium-feature"><i class="fa-solid fa-music" style="color:#c084fc"></i><span>Unlimited Music Access</span></div>
+            <div class="premium-feature"><i class="fa-solid fa-video" style="color:#34c759"></i><span>Video Lectures Access</span></div>
+            <div class="premium-feature"><i class="fa-solid fa-rocket" style="color:#4ade80"></i><span>Instant +10 Levels Boost</span></div>
+            <div class="premium-feature"><i class="fa-solid fa-bolt" style="color:#fbbf24"></i><span>+100 EXP Daily</span></div>
           </div>
-          <button class="w-full mt-3 bg-gradient-to-r from-amber-500 to-orange-500 text-black font-black py-2.5 rounded-xl text-sm shadow-lg active:scale-95 btn-press">
-            <i class="fa-solid fa-crown mr-1"></i> Upgrade Now
-          </button>
+          <button class="btn btn-gold btn-full"><i class="fa-solid fa-crown"></i> Upgrade Now</button>
         </div>
       </div>
 
-      <!-- ABOUT DEVELOPER CARD -->
-      <div class="ios-gcard p-4 rounded-2xl mb-4 cursor-pointer hover:bg-[#323234] transition-all" onclick="showDeveloperModal()">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-sm shadow-lg">
-            <i class="fa-solid fa-code"></i>
-          </div>
-          <div>
-            <h4 class="font-bold text-white text-sm">About Developer</h4>
-            <p class="text-[10px] text-gray-500">Meet the creator behind StudyGram Pro</p>
-          </div>
-          <i class="fa-solid fa-chevron-right text-gray-600 ml-auto text-xs"></i>
+      <!-- About Developer Card -->
+      <div class="card card-inner dev-card" onclick="haptic(); showDeveloperModal();">
+        <div class="dev-content">
+          <div class="dev-icon"><i class="fa-solid fa-code"></i></div>
+          <div><h4 class="dev-title">About Developer</h4><p class="dev-sub">Meet the creator behind StudyGram Pro</p></div>
+          <i class="fa-solid fa-chevron-right dev-arrow"></i>
         </div>
       </div>
-          <button onclick="switchTab('admin')" class="w-full bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 py-3 rounded-2xl font-bold flex items-center justify-center gap-2 transition-colors btn-press border border-blue-500/20 mb-4">
-        <i class="fa-solid fa-shield-halved"></i> Open Admin Panel
-      </button>
-      <button onclick="logout()" class="w-full bg-red-500/10 text-red-400 hover:bg-red-500/20 py-3 rounded-2xl font-bold flex items-center justify-center gap-2 transition-colors btn-press border border-red-500/20">
-        <i class="fa-solid fa-power-off"></i> Logout
-      </button>
+
+      <button onclick="haptic(); switchTab('admin');" class="btn btn-admin btn-full"><i class="fa-solid fa-shield-halved"></i> Open Admin Panel</button>
+      <button onclick="haptic(); logout();" class="btn btn-danger-ghost btn-full"><i class="fa-solid fa-power-off"></i> Logout</button>
     </div>
   </div>
 </div>
 
 <!-- ===== MUSIC HUB (PREMIUM) ===== -->
 <div id="music" class="section">
-  <div class="bg-[#1c1c1e] px-4 py-3 flex items-center justify-between shadow-lg z-10 border-b border-white/10 relative">
-    <div class="flex items-center gap-3">
-      <button onclick="switchTab('home')" class="w-9 h-9 bg-[#2c2c2e] rounded-full flex items-center justify-center text-gray-400 hover:bg-[#3a3a3c] hover:text-white active:scale-90 transition-all btn-press border border-white/10">
-        <i class="fa-solid fa-arrow-left"></i>
-      </button>
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white shadow-lg">
-          <i class="fa-solid fa-music"></i>
-        </div>
+  <div class="music-header">
+    <div class="music-header-left">
+      <button onclick="haptic(); switchTab('home');" class="btn-icon" aria-label="Go back"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="music-header-info">
+        <div class="music-header-icon"><i class="fa-solid fa-music"></i></div>
         <div>
-          <h3 class="font-bold text-white leading-tight text-sm">Music Hub <span id="music-premium-badge" class="hidden text-[9px] bg-amber-500/15 text-amber-400 px-1.5 py-0.5 rounded font-bold ml-1 border border-amber-500/25"><i class="fa-solid fa-crown"></i> PRO</span></h3>
-          <p class="text-[10px] text-indigo-400 font-bold uppercase tracking-wider">Focus & Study</p>
+          <h3 class="music-header-title">Music Hub <span id="music-premium-badge" class="hidden" style="font-size:9px;background:rgba(251,191,36,0.15);color:#FFD700;padding:2px 6px;border-radius:4px;font-weight:700;border:1px solid rgba(255,215,0,0.25);"><i class="fa-solid fa-crown"></i> PRO</span></h3>
+          <p class="music-header-sub">Focus & Study</p>
         </div>
       </div>
     </div>
-    <button onclick="clearPlaylist()" class="text-sm text-gray-500 hover:text-red-400 transition-colors bg-[#2c2c2e] px-3 py-2 rounded-lg btn-press border border-white/10" title="Clear all">
-      <i class="fa-solid fa-trash-can"></i>
-    </button>
+    <button onclick="haptic(); clearPlaylist();" class="btn-icon" title="Clear all"><i class="fa-solid fa-trash-can"></i></button>
   </div>
   <div class="music-hub-container">
-    <div class="ios-card p-4 mb-4">
-      <div class="flex items-center gap-4 mb-4">
-        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-2xl shadow-lg flex-shrink-0 relative overflow-hidden">
+    <div class="card">
+      <div class="music-player">
+        <div class="music-disc-box">
           <i class="fa-solid fa-compact-disc" id="hub-disc-icon"></i>
           <div class="music-glow" id="music-glow"></div>
         </div>
-        <div class="flex-1 min-w-0">
-          <p class="text-[10px] text-indigo-400 font-bold uppercase tracking-wider mb-0.5">Now Playing</p>
-          <h3 class="font-bold text-white truncate text-base" id="hub-song-title">No song playing</h3>
-          <p class="text-xs text-gray-500 truncate" id="hub-song-status">Paste a YouTube link to start</p>
+        <div class="music-track-info">
+          <p class="music-now-playing">Now Playing</p>
+          <h3 class="music-track-title" id="hub-song-title">No song playing</h3>
+          <p class="music-track-status" id="hub-song-status">Paste a YouTube link to start</p>
         </div>
       </div>
-      <div class="mviz mb-3" id="hub-visualizer"></div>
-      <div class="seekbar-container mb-3">
+      <div class="mviz" id="hub-visualizer"></div>
+      <div class="seekbar-container">
         <span class="seekbar-time" id="hub-seek-current">0:00</span>
         <div class="seekbar-track" id="hub-seekbar-track" onclick="seekTo(event)">
           <div class="seekbar-fill" id="hub-seekbar-fill" style="width:0%"><div class="seekbar-thumb"></div></div>
         </div>
         <span class="seekbar-time" id="hub-seek-duration">0:00</span>
       </div>
-      <div class="flex items-center justify-center gap-4">
-        <button onclick="skipBackward()" class="w-10 h-10 rounded-full bg-[#2c2c2e] flex items-center justify-center text-gray-400 hover:bg-[#3a3a3c] hover:text-white active:scale-90 btn-press transition-all border border-white/5"><i class="fa-solid fa-backward text-sm"></i></button>
-        <button onclick="prevTrack()" class="w-10 h-10 rounded-full bg-[#2c2c2e] flex items-center justify-center text-gray-300 hover:bg-[#3a3a3c] active:scale-90 btn-press transition-all border border-white/5"><i class="fa-solid fa-backward-step"></i></button>
-        <button onclick="togglePlay()" id="hub-play-btn" class="w-14 h-14 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-xl active:scale-90 btn-press transition-all hover:brightness-110"><i class="fa-solid fa-play text-xl" id="hub-play-icon"></i></button>
-        <button onclick="nextTrack()" class="w-10 h-10 rounded-full bg-[#2c2c2e] flex items-center justify-center text-gray-300 hover:bg-[#3a3a3c] active:scale-90 btn-press transition-all border border-white/5"><i class="fa-solid fa-forward-step"></i></button>
-        <button onclick="skipForward()" class="w-10 h-10 rounded-full bg-[#2c2c2e] flex items-center justify-center text-gray-400 hover:bg-[#3a3a3c] hover:text-white active:scale-90 btn-press transition-all border border-white/5"><i class="fa-solid fa-forward text-sm"></i></button>
+      <div class="music-controls">
+        <button onclick="haptic(); skipBackward();" class="btn-icon-md"><i class="fa-solid fa-backward" style="font-size:12px"></i></button>
+        <button onclick="haptic(); prevTrack();" class="btn-icon-md"><i class="fa-solid fa-backward-step"></i></button>
+        <button onclick="haptic(); togglePlay();" id="hub-play-btn" class="btn-play"><i class="fa-solid fa-play" id="hub-play-icon"></i></button>
+        <button onclick="haptic(); nextTrack();" class="btn-icon-md"><i class="fa-solid fa-forward-step"></i></button>
+        <button onclick="haptic(); skipForward();" class="btn-icon-md"><i class="fa-solid fa-forward" style="font-size:12px"></i></button>
       </div>
-      <div class="flex items-center gap-3 mt-4 px-2">
-        <i class="fa-solid fa-volume-low text-gray-600 text-xs"></i>
-        <input type="range" min="0" max="100" value="50" id="hub-volume-slider" oninput="setVolume(this.value)" class="flex-1 h-1 bg-[#2c2c2e] rounded-full appearance-none cursor-pointer accent-indigo-500">
-        <i class="fa-solid fa-volume-high text-gray-600 text-xs"></i>
+      <div class="volume-row">
+        <i class="fa-solid fa-volume-low" style="color:#555;font-size:11px"></i>
+        <input type="range" min="0" max="100" value="50" id="hub-volume-slider" oninput="setVolume(this.value)" class="volume-slider">
+        <i class="fa-solid fa-volume-high" style="color:#555;font-size:11px"></i>
       </div>
-      <div id="music-earn-display" class="mt-3 text-center hidden">
-        <span class="text-[10px] text-indigo-400 font-bold"><i class="fa-solid fa-bolt text-yellow-400"></i> +<span id="music-earn-xp">0</span> EXP earned from listening</span>
-      </div>
-    </div>
-    <div class="ios-card p-4 mb-4">
-      <p class="text-xs text-gray-500 font-bold mb-2 uppercase tracking-wider">Add Song</p>
-      <div class="flex gap-2">
-        <input id="hub-yt-link" type="text" placeholder="Paste YouTube link..." class="flex-1 p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-sm text-white placeholder-gray-600 focus:border-indigo-500/50 transition-all">
-        <button onclick="loadYouTubeMusic()" class="bg-[#6366f1] text-white px-4 rounded-xl font-bold shadow-md active:scale-95 btn-press border border-indigo-500/30 hover:brightness-110 transition-all"><i class="fa-solid fa-play"></i></button>
+      <div id="music-earn-display" class="music-earn hidden">
+        <span class="music-earn-text"><i class="fa-solid fa-bolt" style="color:#FFD700"></i> +<span id="music-earn-xp">0</span> EXP earned from listening</span>
       </div>
     </div>
-    <div class="ios-card p-4">
-      <div class="flex justify-between items-center mb-3">
-        <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">Your Playlist</p>
-        <button onclick="togglePlaylistMode()" id="hub-playlist-toggle" class="text-xs bg-[#2c2c2e] text-gray-400 px-3 py-1.5 rounded-lg border border-white/10 hover:bg-[#3a3a3c] transition-all btn-press"><i class="fa-solid fa-repeat mr-1"></i> Loop: Off</button>
+    <div class="card">
+      <p class="card-label">Add Song</p>
+      <div class="note-input-row">
+        <input id="hub-yt-link" type="text" placeholder="Paste YouTube link..." class="input">
+        <button onclick="haptic(); loadYouTubeMusic();" class="btn btn-primary btn-square"><i class="fa-solid fa-play"></i></button>
       </div>
-      <div id="hub-playlist-items" class="space-y-2 max-h-64 overflow-y-auto">
-        <div class="text-center text-gray-600 text-sm py-6"><i class="fa-solid fa-music text-4xl mb-3 text-gray-700 block"></i>No songs yet. Add YouTube links!</div>
+    </div>
+    <div class="card">
+      <div class="playlist-header">
+        <p class="card-label">Your Playlist</p>
+        <button onclick="haptic(); togglePlaylistMode();" id="hub-playlist-toggle" class="btn-playlist-toggle"><i class="fa-solid fa-repeat"></i> Loop: Off</button>
       </div>
+      <div id="hub-playlist-items" class="playlist-items"></div>
     </div>
     <div id="yt-player" class="hidden"></div>
   </div>
 </div>
 
-<!-- ===== ADMIN SECTION ===== -->
-<div id="admin" class="section">
-  <div class="notes-header">
-    <button onclick="switchTab('home')" class="w-9 h-9 bg-[#2c2c2e] rounded-full flex items-center justify-center text-gray-400 hover:bg-[#3a3a3c] hover:text-white active:scale-90 transition-all btn-press border border-white/10">
-      <i class="fa-solid fa-arrow-left"></i>
-    </button>
-    <h2 class="text-xl font-black text-white">Admin Panel</h2>
-    <div class="w-9"></div>
-  </div>
-  <div class="section-scroll">
-    <div id="admin-auth" class="ios-card p-6 text-center max-w-sm mx-auto mt-10">
-      <i class="fa-solid fa-user-shield text-5xl text-indigo-400 mb-3"></i>
-      <h2 class="text-xl font-bold mb-5 text-white">Admin Login</h2>
-      <input id="admin-pass" type="password" placeholder="Enter Master Key" class="w-full py-3 px-4 rounded-xl mb-3 border border-white/10 focus:border-indigo-500/50 outline-none text-center font-mono tracking-widest bg-[#2c2c2e] text-white placeholder-gray-600 transition-all">
-      <button onclick="unlockAdmin()" class="bg-[#6366f1] text-white w-full py-3 rounded-xl font-bold shadow-lg hover:brightness-110 active:scale-95 transition-all btn-press border border-indigo-500/30">Unlock Portal</button>
-      <p id="admin-error" class="mt-3 text-red-400 text-sm hidden"></p>
+<!-- ===== SOCIAL HUB (INSTAGRAM-STYLE COMMUNITY) ===== -->
+<div id="social" class="section">
+  <div class="social-header">
+    <div class="social-header-left">
+      <button onclick="haptic(); switchTab('home');" class="btn-icon" aria-label="Go back"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="social-header-info">
+        <div class="social-header-icon"><i class="fa-solid fa-users"></i></div>
+        <div>
+          <h3 class="social-header-title">Social Hub</h3>
+          <p class="social-header-sub">Community</p>
+        </div>
+      </div>
     </div>
-    <div id="admin-controls" class="hidden space-y-4 pb-4">
-      <div class="flex justify-between items-center mb-3 pl-1">
-        <h2 class="text-xl font-bold text-white">Control Panel</h2>
-        <button onclick="lockAdmin()" class="text-red-400 font-bold bg-red-500/10 px-3 py-2 rounded-xl text-sm hover:bg-red-500/20 transition-colors btn-press border border-red-500/20"><i class="fa-solid fa-lock mr-1"></i> Lock</button>
+    <button onclick="haptic(); openCreatePostModal();" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus"></i> Create</button>
+  </div>
+
+  <!-- Social Hub Tabs -->
+  <div class="social-tabs">
+    <button class="social-tab active" data-tab="stories" onclick="haptic(); switchSocialTab('stories');">Stories</button>
+    <button class="social-tab" data-tab="feed" onclick="haptic(); switchSocialTab('feed');">Feed</button>
+    <button class="social-tab" data-tab="reels" onclick="haptic(); switchSocialTab('reels');">Reels</button>
+  </div>
+
+  <div class="social-container">
+    <!-- STORIES TAB -->
+    <div id="social-stories" class="social-panel active">
+      <div class="stories-row" id="stories-row">
+        <div class="story-item story-add" onclick="haptic(); openCreateStoryModal();">
+          <div class="story-ring story-ring-add">
+            <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="story-avatar" id="story-user-avatar" alt="Add story">
+            <div class="story-add-icon"><i class="fa-solid fa-plus"></i></div>
+          </div>
+          <span class="story-username">Your Story</span>
+        </div>
+        <!-- Stories injected by JS -->
       </div>
-      <details class="ios-card p-4 group cursor-pointer border-l-4 border-blue-500" open>
-        <summary class="font-bold text-lg text-blue-400 flex justify-between items-center list-none outline-none"><span class="flex items-center gap-2"><i class="fa-solid fa-users"></i> All Users (<span id="user-count">0</span>)</span><i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i></summary>
-        <div class="mt-3 cursor-default border-t border-white/10 pt-3">
-          <div id="users-list" class="space-y-2 max-h-56 overflow-y-auto pr-1"><div class="text-center text-gray-600 text-sm py-4">Loading users...</div></div>
-        </div>
-      </details>
-      <div class="grid grid-cols-2 gap-3">
-        <div class="ios-gcard p-3 text-center"><i class="fa-solid fa-users text-blue-400 text-xl mb-1"></i><span id="stat-total-users" class="text-xl font-black text-white block">0</span><span class="text-xs text-gray-600 font-medium">Total Users</span></div>
-        <div class="ios-gcard p-3 text-center"><i class="fa-solid fa-fire text-orange-400 text-xl mb-1"></i><span id="stat-active-today" class="text-xl font-black text-white block">0</span><span class="text-xs text-gray-600 font-medium">Active Today</span></div>
-        <div class="ios-gcard p-3 text-center"><i class="fa-solid fa-book text-indigo-400 text-xl mb-1"></i><span id="stat-total-notes" class="text-xl font-black text-white block">0</span><span class="text-xs text-gray-600 font-medium">Total Notes</span></div>
-        <div class="ios-gcard p-3 text-center"><i class="fa-solid fa-video text-pink-400 text-xl mb-1"></i><span id="stat-total-classes" class="text-xl font-black text-white block">0</span><span class="text-xs text-gray-600 font-medium">Classes</span></div>
-        <div class="ios-gcard p-3 text-center"><i class="fa-solid fa-bullhorn text-amber-400 text-xl mb-1"></i><span id="stat-total-notices" class="text-xl font-black text-white block">0</span><span class="text-xs text-gray-600 font-medium">Notices</span></div>
-        <div class="ios-gcard p-3 text-center"><i class="fa-solid fa-crown text-yellow-400 text-xl mb-1"></i><span id="stat-total-premium" class="text-xl font-black text-white block">0</span><span class="text-xs text-gray-600 font-medium">Premium</span></div>
+      <div id="stories-list" class="stories-list"></div>
+    </div>
+
+    <!-- FEED TAB -->
+    <div id="social-feed" class="social-panel">
+      <div id="feed-list" class="feed-list">
+        <div class="empty-state"><i class="fa-solid fa-image empty-icon"></i>No posts yet. Be the first to share!</div>
       </div>
-      <details class="ios-card p-4 group cursor-pointer">
-        <summary class="font-bold text-lg text-yellow-400 flex justify-between items-center list-none outline-none"><span class="flex items-center gap-2"><i class="fa-solid fa-crown"></i> Premium Granter</span><i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i></summary>
-        <div class="mt-3 space-y-2 cursor-default border-t border-white/10 pt-3">
-          <input id="premium-uid" placeholder="Enter User UID" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600 transition-all focus:border-indigo-500/50 text-sm font-mono">
-          <button onclick="grantPremium()" class="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-black py-3 rounded-xl font-bold shadow-lg hover:brightness-110 active:scale-95 transition-transform btn-press"><i class="fa-solid fa-crown mr-1"></i> Grant Premium</button>
-        </div>
-      </details>
-      <details class="ios-card p-4 group cursor-pointer border-l-4 border-red-500">
-        <summary class="font-bold text-lg text-red-400 flex justify-between items-center list-none outline-none"><span class="flex items-center gap-2"><i class="fa-solid fa-trash-can"></i> Manage Data</span><i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i></summary>
-        <div class="mt-3 space-y-3 cursor-default border-t border-white/10 pt-3">
-          <div class="text-sm font-bold text-gray-600 mb-1">Study Materials</div><div id="manage-notes-list" class="space-y-2 max-h-40 overflow-y-auto pr-1">Loading...</div>
-          <div class="text-sm font-bold text-gray-600 mb-1 mt-3">Online Classes</div><div id="manage-classes-list" class="space-y-2 max-h-40 overflow-y-auto pr-1">Loading...</div>
-          <div class="text-sm font-bold text-gray-600 mb-1 mt-3">Board Notices</div><div id="manage-notices-list" class="space-y-2 max-h-40 overflow-y-auto pr-1">Loading...</div>
-          <div class="text-sm font-bold text-gray-600 mb-1 mt-3">Exam Schedule</div><div id="manage-exams-list" class="space-y-2 max-h-40 overflow-y-auto pr-1">Loading...</div>
-        </div>
-      </details>
-      <details class="ios-card p-4 group cursor-pointer">
-        <summary class="font-bold text-lg text-indigo-400 flex justify-between items-center list-none outline-none"><span class="flex items-center gap-2"><i class="fa-solid fa-file-pdf"></i> Upload Material</span><i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i></summary>
-        <div class="mt-3 space-y-2 cursor-default">
-          <select id="n-category" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white transition-all focus:border-indigo-500/50">
-            <option value="hindi">Hindi</option><option value="english">English</option><option value="math">Math</option><option value="physics">Physics</option><option value="chemistry">Chemistry</option><option value="other">Other</option>
-          </select>
-          <input id="n-topic" placeholder="Topic (e.g. Chapter 1 - Electric Charges)" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600 transition-all focus:border-indigo-500/50">
-          <input id="n-link" placeholder="Drive Link" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600 transition-all focus:border-indigo-500/50">
-          <button onclick="adminAction('note')" class="w-full bg-[#6366f1] text-white py-3 rounded-xl font-bold shadow-lg hover:brightness-110 active:scale-95 transition-transform btn-press border border-indigo-500/30">Upload Note</button>
-        </div>
-      </details>
-      <details class="ios-card p-4 group cursor-pointer">
-        <summary class="font-bold text-lg text-pink-400 flex justify-between items-center list-none outline-none"><span class="flex items-center gap-2"><i class="fa-solid fa-video"></i> Upload Online Class</span><i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i></summary>
-        <div class="mt-3 space-y-2 cursor-default">
-          <select id="vc-category" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white transition-all focus:border-indigo-500/50">
-            <option value="hindi">Hindi</option><option value="english">English</option><option value="math">Math</option><option value="physics">Physics</option><option value="chemistry">Chemistry</option><option value="other">Other</option>
-          </select>
-          <input id="vc-title" placeholder="Class Title (e.g. Physics Lec 1)" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600 transition-all focus:border-indigo-500/50">
-          <input id="vc-link" placeholder="YouTube Video Link" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600 transition-all focus:border-indigo-500/50">
-          <button onclick="adminAction('class')" class="w-full bg-[#ec4899] text-white py-3 rounded-xl font-bold shadow-lg hover:brightness-110 active:scale-95 transition-transform btn-press border border-pink-500/30"><i class="fa-solid fa-video mr-1"></i> Upload Class</button>
-        </div>
-      </details>
-      <details class="ios-card p-4 group cursor-pointer">
-        <summary class="font-bold text-lg text-blue-400 flex justify-between items-center list-none outline-none"><span class="flex items-center gap-2"><i class="fa-solid fa-chart-pie"></i> Update Progress</span><i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i></summary>
-        <div class="mt-3 space-y-2 cursor-default">
-          <div class="grid grid-cols-2 gap-2">
-            <input id="p-hin" type="number" min="0" max="100" placeholder="Hindi %" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600 transition-all">
-            <input id="p-eng" type="number" min="0" max="100" placeholder="English %" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600 transition-all">
-            <input id="p-math" type="number" min="0" max="100" placeholder="Math %" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600 transition-all">
-            <input id="p-phy" type="number" min="0" max="100" placeholder="Physics %" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600 transition-all">
-          </div>
-          <input id="p-chem" type="number" min="0" max="100" placeholder="Chemistry %" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600 transition-all">
-          <div class="border-t border-white/10 pt-2 mt-2">
-            <p class="text-xs font-bold text-gray-600 mb-1">Hindi Sub-parts</p>
-            <div class="grid grid-cols-2 gap-2">
-              <input id="p-hin-gadya" type="number" min="0" max="100" placeholder="Gadya %" class="w-full p-2 border border-white/10 rounded-lg outline-none bg-[#2c2c2e] text-white text-sm placeholder-gray-600">
-              <input id="p-hin-padya" type="number" min="0" max="100" placeholder="Padya %" class="w-full p-2 border border-white/10 rounded-lg outline-none bg-[#2c2c2e] text-white text-sm placeholder-gray-600">
-              <input id="p-hin-kahani" type="number" min="0" max="100" placeholder="Kahani %" class="w-full p-2 border border-white/10 rounded-lg outline-none bg-[#2c2c2e] text-white text-sm placeholder-gray-600">
-              <input id="p-hin-natak" type="number" min="0" max="100" placeholder="Natak %" class="w-full p-2 border border-white/10 rounded-lg outline-none bg-[#2c2c2e] text-white text-sm placeholder-gray-600">
-              <input id="p-hin-vyakaran" type="number" min="0" max="100" placeholder="Vyakaran %" class="w-full p-2 border border-white/10 rounded-lg outline-none bg-[#2c2c2e] text-white text-sm placeholder-gray-600">
-              <input id="p-hin-sanskrit" type="number" min="0" max="100" placeholder="Sanskrit %" class="w-full p-2 border border-white/10 rounded-lg outline-none bg-[#2c2c2e] text-white text-sm placeholder-gray-600">
-            </div>
-          </div>
-          <div class="border-t border-white/10 pt-2 mt-2">
-            <p class="text-xs font-bold text-gray-600 mb-1">English Sub-parts</p>
-            <div class="grid grid-cols-2 gap-2">
-              <input id="p-eng-prose" type="number" min="0" max="100" placeholder="Prose %" class="w-full p-2 border border-white/10 rounded-lg outline-none bg-[#2c2c2e] text-white text-sm placeholder-gray-600">
-              <input id="p-eng-poetry" type="number" min="0" max="100" placeholder="Poetry %" class="w-full p-2 border border-white/10 rounded-lg outline-none bg-[#2c2c2e] text-white text-sm placeholder-gray-600">
-              <input id="p-eng-supp" type="number" min="0" max="100" placeholder="Supplementary %" class="w-full p-2 border border-white/10 rounded-lg outline-none bg-[#2c2c2e] text-white text-sm placeholder-gray-600">
-              <input id="p-eng-grammar" type="number" min="0" max="100" placeholder="Grammar %" class="w-full p-2 border border-white/10 rounded-lg outline-none bg-[#2c2c2e] text-white text-sm placeholder-gray-600">
-            </div>
-          </div>
-          <button onclick="adminAction('progress')" class="w-full bg-[#6366f1] text-white py-3 rounded-xl font-bold shadow-lg hover:brightness-110 active:scale-95 transition-transform btn-press border border-indigo-500/30">Save Progress</button>
-        </div>
-      </details>
-      <details class="ios-card p-4 group cursor-pointer">
-        <summary class="font-bold text-lg text-amber-400 flex justify-between items-center list-none outline-none"><span class="flex items-center gap-2"><i class="fa-solid fa-bullhorn"></i> Push Notice</span><i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i></summary>
-        <div class="mt-3 space-y-2 cursor-default">
-          <input id="nt-title" placeholder="Notice Title" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600 transition-all">
-          <textarea id="nt-desc" placeholder="Details..." class="w-full p-3 border border-white/10 rounded-xl h-20 outline-none resize-none bg-[#2c2c2e] text-white placeholder-gray-600 transition-all"></textarea>
-          <button onclick="adminAction('notice')" class="w-full bg-[#ff9500] text-white py-3 rounded-xl font-bold shadow-lg hover:brightness-110 active:scale-95 transition-transform btn-press border border-amber-500/30">Publish Notice</button>
-        </div>
-      </details>
-      <details class="ios-card p-4 group cursor-pointer">
-        <summary class="font-bold text-lg text-purple-400 flex justify-between items-center list-none outline-none"><span class="flex items-center gap-2"><i class="fa-solid fa-calendar-days"></i> Add Exam Schedule</span><i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i></summary>
-        <div class="mt-3 space-y-2 cursor-default">
-          <input id="ex-name" placeholder="Exam (e.g. Pre-Board)" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600">
-          <input id="ex-sub" placeholder="Subject" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600">
-          <input id="ex-date" type="date" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600">
-          <div class="flex gap-2">
-            <input id="ex-time" type="time" class="w-1/2 p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white">
-            <input id="ex-meet" placeholder="Meeting (Shift)" class="w-1/2 p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600">
-          </div>
-          <button onclick="adminAction('exam')" class="w-full bg-[#a855f7] text-white py-3 rounded-xl font-bold shadow-lg hover:brightness-110 active:scale-95 transition-transform btn-press border border-purple-500/30">Add to Schedule</button>
-        </div>
-      </details>
-      <details class="ios-card p-4 group cursor-pointer">
-        <summary class="font-bold text-lg text-green-400 flex justify-between items-center list-none outline-none"><span class="flex items-center gap-2"><i class="fa-solid fa-stopwatch"></i> Set Exam Countdown</span><i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i></summary>
-        <div class="mt-3 space-y-2 cursor-default">
-          <input id="cd-exam-name" placeholder="Exam Name (e.g. JEE Mains)" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600 transition-all focus:border-indigo-500/50">
-          <input id="cd-date" type="datetime-local" class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white">
-          <button onclick="adminAction('countdown')" class="w-full bg-[#34c759] text-white py-3 rounded-xl font-bold shadow-lg hover:brightness-110 active:scale-95 transition-transform btn-press border border-green-500/30">Update Countdown</button>
-        </div>
-      </details>
+    </div>
+
+    <!-- REELS TAB -->
+    <div id="social-reels" class="social-panel">
+      <div class="reels-info">
+        <i class="fa-solid fa-circle-info"></i> Scroll to discover new reels. Watched reels won't show again.
+      </div>
+      <div id="reels-container" class="reels-container">
+        <div class="empty-state"><i class="fa-solid fa-film empty-icon"></i>No reels yet. Upload one!</div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ===== AI CHAT SECTION ===== -->
-<div id="ai" class="section">
-  <div class="bg-[#1c1c1e] px-4 py-3 flex items-center justify-between shadow-lg z-10 border-b border-white/10 relative">
-    <div class="flex items-center gap-3">
-      <button onclick="switchTab('home')" class="w-9 h-9 bg-[#2c2c2e] rounded-full flex items-center justify-center text-gray-400 hover:bg-[#3a3a3c] hover:text-white active:scale-90 transition-all btn-press border border-white/10">
-        <i class="fa-solid fa-arrow-left"></i>
-      </button>
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 bg-gradient-to-tr from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-white shadow-lg">
-          <i class="fa-solid fa-robot"></i>
-        </div>
-        <div>
-          <h3 class="font-bold text-white leading-tight text-sm">Llama 3.3 <span class="text-[10px] bg-green-500/15 text-green-400 px-1.5 py-0.5 rounded font-bold ml-1 border border-green-500/25"><i class="fa-solid fa-bolt"></i> Groq</span></h3>
-          <p class="text-[10px] text-green-400 font-bold uppercase tracking-wider">Ultra Fast - Hindi AI</p>
-        </div>
+<!-- ===== ADMIN SECTION ===== -->
+<div id="admin" class="section">
+  <div class="section-header">
+    <button onclick="haptic(); switchTab('home');" class="btn-icon" aria-label="Go back"><i class="fa-solid fa-arrow-left"></i></button>
+    <h2 class="section-title">Admin Panel</h2>
+    <div class="w-36"></div>
+  </div>
+  <div class="section-scroll">
+    <div id="admin-auth" class="card card-admin-auth">
+      <i class="fa-solid fa-user-shield admin-auth-icon"></i>
+      <h2 class="admin-auth-title">Admin Login</h2>
+      <input id="admin-pass" type="password" placeholder="Enter Master Key" class="input input-center input-mono">
+      <button onclick="haptic(); unlockAdmin();" class="btn btn-primary btn-full">Unlock Portal</button>
+      <p id="admin-error" class="admin-error hidden"></p>
+    </div>
+    <div id="admin-controls" class="hidden space-y">
+      <div class="admin-header-row">
+        <h2 class="section-title-sm">Control Panel</h2>
+        <button onclick="haptic(); lockAdmin();" class="btn btn-danger-ghost btn-sm"><i class="fa-solid fa-lock"></i> Lock</button>
       </div>
-    </div>
-    <div class="flex gap-2">
-      <button onclick="speakLastMessage()" class="vb" title="Read aloud"><i class="fa-solid fa-volume-high text-sm"></i></button>
-      <button onclick="clearChat()" class="text-sm text-gray-500 hover:text-red-400 transition-colors bg-[#2c2c2e] px-3 py-2 rounded-lg btn-press border border-white/10"><i class="fa-solid fa-trash-can"></i></button>
-    </div>
-  </div>
-  <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-4 bg-black">
-    <div class="flex items-start gap-3">
-      <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-green-500 to-emerald-600 flex items-center justify-center text-white flex-shrink-0 mt-1 shadow-sm"><i class="fa-solid fa-robot text-xs"></i></div>
-      <div class="ios-card p-4 rounded-2xl rounded-tl-none shadow-md text-sm text-gray-300 max-w-[85%] ai-res"><div class="tc" id="welcome-msg"></div></div>
-    </div>
-  </div>
-  <div class="p-4 bg-[#1c1c1e] border-t border-white/10">
-    <div class="flex gap-2 relative">
-      <input id="ai-input" type="text" placeholder="Sawal pucho... Hindi mein jawab milega!" autocomplete="off" class="flex-1 py-3 pl-5 pr-12 rounded-full bg-[#2c2c2e] focus:bg-[#323234] border border-white/10 focus:border-green-500/30 outline-none transition-all text-sm text-white placeholder-gray-600" onkeydown="if(event.key==='Enter') askGroq()">
-      <button onclick="askGroq()" id="ai-btn" class="absolute right-1.5 top-1.5 bottom-1.5 bg-[#22c55e] text-white w-9 rounded-full flex items-center justify-center transition-all active:scale-90 shadow-lg btn-press hover:brightness-110"><i class="fa-solid fa-paper-plane text-sm"></i></button>
+
+      <!-- Stats Dashboard (God Mode) -->
+      <div class="admin-stats-grid">
+        <div class="admin-stat-card"><i class="fa-solid fa-users" style="color:#6366f1"></i><span id="admin-stat-total-users" class="admin-stat-num">0</span><span class="admin-stat-label">Total Users</span></div>
+        <div class="admin-stat-card"><i class="fa-solid fa-crown" style="color:#FFD700"></i><span id="admin-stat-premium-users" class="admin-stat-num">0</span><span class="admin-stat-label">Premium Users</span></div>
+        <div class="admin-stat-card"><i class="fa-solid fa-film" style="color:#ff6b35"></i><span id="admin-stat-total-reels" class="admin-stat-num">0</span><span class="admin-stat-label">Total Reels</span></div>
+        <div class="admin-stat-card"><i class="fa-solid fa-fire" style="color:#f59e0b"></i><span id="admin-stat-active-today" class="admin-stat-num">0</span><span class="admin-stat-label">Active Today</span></div>
+      </div>
+
+      <!-- Global Announcement -->
+      <details class="card admin-section" open>
+        <summary class="admin-summary"><span><i class="fa-solid fa-bullhorn"></i> Global Announcement</span><i class="fa-solid fa-chevron-down chevron"></i></summary>
+        <div class="admin-section-body">
+          <input id="announcement-title" placeholder="Announcement title..." class="input">
+          <textarea id="announcement-message" placeholder="Message to all users..." class="input textarea"></textarea>
+          <button onclick="haptic(); sendGlobalAnnouncement();" class="btn btn-warning btn-full"><i class="fa-solid fa-paper-plane"></i> Send to All Users</button>
+        </div>
+      </details>
+
+      <!-- Users List -->
+      <details class="card admin-section" open>
+        <summary class="admin-summary"><span><i class="fa-solid fa-users"></i> All Users (<span id="user-count">0</span>)</span><i class="fa-solid fa-chevron-down chevron"></i></summary>
+        <div class="admin-section-body">
+          <div id="users-list" class="admin-users-list"><div class="loading-text">Loading users...</div></div>
+        </div>
+      </details>
+
+      <!-- Premium Granter + Revoke -->
+      <details class="card admin-section">
+        <summary class="admin-summary admin-gold"><span><i class="fa-solid fa-crown"></i> Premium Manager</span><i class="fa-solid fa-chevron-down chevron"></i></summary>
+        <div class="admin-section-body">
+          <input id="premium-uid" placeholder="Enter User UID" class="input input-mono">
+          <button onclick="haptic(); grantPremium();" id="grant-premium-btn" class="btn btn-gold btn-full"><i class="fa-solid fa-crown"></i> Grant Premium</button>
+          <button onclick="haptic(); revokePremium();" id="revoke-premium-btn" class="btn btn-danger-ghost btn-full" style="margin-top:8px;"><i class="fa-solid fa-ban"></i> Revoke Premium</button>
+        </div>
+      </details>
+
+      <!-- Content Moderation (God Mode) -->
+      <details class="card admin-section">
+        <summary class="admin-summary admin-red"><span><i class="fa-solid fa-shield-halved"></i> Content Moderation</span><i class="fa-solid fa-chevron-down chevron"></i></summary>
+        <div class="admin-section-body">
+          <p class="card-label">Social Hub Posts</p>
+          <div id="admin-posts-list" class="admin-content-list"><span class="text-muted">Loading posts...</span></div>
+          <p class="card-label" style="margin-top:12px;">Stories</p>
+          <div id="admin-stories-list" class="admin-content-list"><span class="text-muted">Loading stories...</span></div>
+        </div>
+      </details>
+
+      <!-- Ban User -->
+      <details class="card admin-section">
+        <summary class="admin-summary admin-red"><span><i class="fa-solid fa-ban"></i> Ban User</span><i class="fa-solid fa-chevron-down chevron"></i></summary>
+        <div class="admin-section-body">
+          <input id="ban-uid" placeholder="Enter User UID to ban" class="input input-mono">
+          <input id="ban-reason" placeholder="Reason for ban..." class="input">
+          <button onclick="haptic(); banUser();" class="btn btn-danger btn-full"><i class="fa-solid fa-ban"></i> Ban User Permanently</button>
+          <p class="text-muted" style="margin-top:8px;font-size:11px;">Banned users cannot log in. Their data remains but they are blocked.</p>
+          <p class="card-label" style="margin-top:16px;">Banned Users List</p>
+          <div id="banned-users-list" class="admin-content-list"><span class="text-muted">No banned users</span></div>
+        </div>
+      </details>
+
+      <!-- Stats Grid -->
+      <div class="admin-mini-stats">
+        <div class="admin-mini-card"><i class="fa-solid fa-users" style="color:#6366f1"></i><span id="stat-total-users" class="admin-mini-num">0</span><span class="admin-mini-label">Total Users</span></div>
+        <div class="admin-mini-card"><i class="fa-solid fa-fire" style="color:#f59e0b"></i><span id="stat-active-today" class="admin-mini-num">0</span><span class="admin-mini-label">Active Today</span></div>
+        <div class="admin-mini-card"><i class="fa-solid fa-book" style="color:#6366f1"></i><span id="stat-total-notes" class="admin-mini-num">0</span><span class="admin-mini-label">Total Notes</span></div>
+        <div class="admin-mini-card"><i class="fa-solid fa-video" style="color:#ec4899"></i><span id="stat-total-classes" class="admin-mini-num">0</span><span class="admin-mini-label">Classes</span></div>
+        <div class="admin-mini-card"><i class="fa-solid fa-bullhorn" style="color:#f59e0b"></i><span id="stat-total-notices" class="admin-mini-num">0</span><span class="admin-mini-label">Notices</span></div>
+        <div class="admin-mini-card"><i class="fa-solid fa-crown" style="color:#FFD700"></i><span id="stat-total-premium" class="admin-mini-num">0</span><span class="admin-mini-label">Premium</span></div>
+      </div>
+
+      <!-- Manage Data -->
+      <details class="card admin-section">
+        <summary class="admin-summary admin-red"><span><i class="fa-solid fa-trash-can"></i> Manage Data</span><i class="fa-solid fa-chevron-down chevron"></i></summary>
+        <div class="admin-section-body">
+          <p class="card-label">Study Materials</p><div id="manage-notes-list" class="admin-content-list">Loading...</div>
+          <p class="card-label" style="margin-top:12px;">Online Classes</p><div id="manage-classes-list" class="admin-content-list">Loading...</div>
+          <p class="card-label" style="margin-top:12px;">Board Notices</p><div id="manage-notices-list" class="admin-content-list">Loading...</div>
+          <p class="card-label" style="margin-top:12px;">Exam Schedule</p><div id="manage-exams-list" class="admin-content-list">Loading...</div>
+          <p class="card-label" style="margin-top:12px;">Video Lectures</p><div id="manage-lectures-list" class="admin-content-list">Loading...</div>
+        </div>
+      </details>
+
+      <!-- Upload Material -->
+      <details class="card admin-section">
+        <summary class="admin-summary"><span><i class="fa-solid fa-file-pdf"></i> Upload Material</span><i class="fa-solid fa-chevron-down chevron"></i></summary>
+        <div class="admin-section-body">
+          <select id="n-category" class="input">
+            <option value="hindi">Hindi</option><option value="english">English</option><option value="math">Math</option><option value="physics">Physics</option><option value="chemistry">Chemistry</option><option value="other">Other</option>
+          </select>
+          <input id="n-topic" placeholder="Topic (e.g. Chapter 1 - Electric Charges)" class="input">
+          <input id="n-link" placeholder="Drive Link" class="input">
+          <button onclick="haptic(); adminAction('note');" class="btn btn-primary btn-full">Upload Note</button>
+        </div>
+      </details>
+
+      <!-- Upload Online Class -->
+      <details class="card admin-section">
+        <summary class="admin-summary admin-pink"><span><i class="fa-solid fa-video"></i> Upload Online Class</span><i class="fa-solid fa-chevron-down chevron"></i></summary>
+        <div class="admin-section-body">
+          <select id="vc-category" class="input">
+            <option value="hindi">Hindi</option><option value="english">English</option><option value="math">Math</option><option value="physics">Physics</option><option value="chemistry">Chemistry</option><option value="other">Other</option>
+          </select>
+          <input id="vc-title" placeholder="Class Title (e.g. Physics Lec 1)" class="input">
+          <input id="vc-link" placeholder="YouTube Video Link" class="input">
+          <button onclick="haptic(); adminAction('class');" class="btn btn-pink btn-full"><i class="fa-solid fa-video"></i> Upload Class</button>
+        </div>
+      </details>
+
+      <!-- Upload Video Lecture -->
+      <details class="card admin-section">
+        <summary class="admin-summary admin-green"><span><i class="fa-solid fa-graduation-cap"></i> Upload Video Lecture</span><i class="fa-solid fa-chevron-down chevron"></i></summary>
+        <div class="admin-section-body">
+          <select id="lecture-category" class="input">
+            <option value="physics">Physics</option><option value="chemistry">Chemistry</option><option value="math">Math</option><option value="hindi">Hindi</option><option value="english">English</option><option value="other">Other</option>
+          </select>
+          <input id="lecture-subject" placeholder="Subject Name (e.g. Physics)" class="input">
+          <input id="lecture-chapter" placeholder="Chapter Name (e.g. Electric Charges & Fields)" class="input">
+          <input id="lecture-link" placeholder="YouTube Video Link" class="input">
+          <button onclick="haptic(); adminAction('lecture');" class="btn btn-success btn-full"><i class="fa-solid fa-upload"></i> Upload Lecture</button>
+        </div>
+      </details>
+
+      <!-- Update Progress -->
+      <details class="card admin-section">
+        <summary class="admin-summary"><span><i class="fa-solid fa-chart-pie"></i> Update Progress</span><i class="fa-solid fa-chevron-down chevron"></i></summary>
+        <div class="admin-section-body">
+          <div class="grid-2">
+            <input id="p-hin" type="number" min="0" max="100" placeholder="Hindi %" class="input">
+            <input id="p-eng" type="number" min="0" max="100" placeholder="English %" class="input">
+            <input id="p-math" type="number" min="0" max="100" placeholder="Math %" class="input">
+            <input id="p-phy" type="number" min="0" max="100" placeholder="Physics %" class="input">
+          </div>
+          <input id="p-chem" type="number" min="0" max="100" placeholder="Chemistry %" class="input">
+          <button onclick="haptic(); adminAction('progress');" class="btn btn-primary btn-full">Save Progress</button>
+        </div>
+      </details>
+
+      <!-- Push Notice -->
+      <details class="card admin-section">
+        <summary class="admin-summary admin-warn"><span><i class="fa-solid fa-bullhorn"></i> Push Notice</span><i class="fa-solid fa-chevron-down chevron"></i></summary>
+        <div class="admin-section-body">
+          <input id="nt-title" placeholder="Notice Title" class="input">
+          <textarea id="nt-desc" placeholder="Details..." class="input textarea"></textarea>
+          <button onclick="haptic(); adminAction('notice');" class="btn btn-warning btn-full">Publish Notice</button>
+        </div>
+      </details>
+
+      <!-- Add Exam Schedule -->
+      <details class="card admin-section">
+        <summary class="admin-summary admin-purple"><span><i class="fa-solid fa-calendar-days"></i> Add Exam Schedule</span><i class="fa-solid fa-chevron-down chevron"></i></summary>
+        <div class="admin-section-body">
+          <input id="ex-name" placeholder="Exam (e.g. Pre-Board)" class="input">
+          <input id="ex-sub" placeholder="Subject" class="input">
+          <input id="ex-date" type="date" class="input">
+          <div class="grid-2">
+            <input id="ex-time" type="time" class="input">
+            <input id="ex-meet" placeholder="Meeting (Shift)" class="input">
+          </div>
+          <button onclick="haptic(); adminAction('exam');" class="btn btn-purple btn-full">Add to Schedule</button>
+        </div>
+      </details>
+
+      <!-- Set Exam Countdown -->
+      <details class="card admin-section">
+        <summary class="admin-summary admin-green"><span><i class="fa-solid fa-stopwatch"></i> Set Exam Countdown</span><i class="fa-solid fa-chevron-down chevron"></i></summary>
+        <div class="admin-section-body">
+          <input id="cd-exam-name" placeholder="Exam Name (e.g. JEE Mains)" class="input">
+          <input id="cd-date" type="datetime-local" class="input">
+          <button onclick="haptic(); adminAction('countdown');" class="btn btn-success btn-full">Update Countdown</button>
+        </div>
+      </details>
     </div>
   </div>
 </div>
@@ -692,32 +751,75 @@
 
 <!-- ===== BOTTOM NAVIGATION ===== -->
 <div id="bottom-nav" class="bottom-nav hidden">
-  <button onclick="switchTab('home')" class="nav-btn" data-target="home"><i class="fa-solid fa-house"></i></button>
-  <button onclick="switchTab('notes')" class="nav-btn" data-target="notes"><i class="fa-solid fa-book-open"></i></button>
-  <button onclick="switchTab('classes')" class="nav-btn" data-target="classes"><i class="fa-solid fa-video"></i></button>
-  <div class="relative -top-4">
-    <button onclick="switchTab('ai')" class="ai-nav-btn" data-target="ai"><i class="fa-solid fa-robot"></i></button>
+  <button onclick="haptic(); switchTab('home');" class="nav-btn active" data-target="home" aria-label="Home"><i class="fa-solid fa-house"></i></button>
+  <button onclick="haptic(); switchTab('notes');" class="nav-btn" data-target="notes" aria-label="Notes"><i class="fa-solid fa-book-open"></i></button>
+  <button onclick="haptic(); switchTab('lectures');" class="nav-btn" data-target="lectures" aria-label="Lectures"><i class="fa-solid fa-graduation-cap"></i></button>
+  <div class="nav-btn-center-wrap">
+    <button onclick="haptic(); switchTab('social');" class="nav-btn-center" data-target="social" aria-label="Social Hub"><i class="fa-solid fa-users"></i></button>
   </div>
-  <button onclick="switchTab('notice')" class="nav-btn" data-target="notice"><i class="fa-solid fa-bell"></i></button>
-    <button onclick="openSidebar()" class="nav-btn"><i class="fa-solid fa-bars-staggered"></i></button>
-  <button onclick="switchTab('profile')" class="nav-btn" data-target="profile"><i class="fa-solid fa-user-astronaut"></i></button>
+  <button onclick="haptic(); switchTab('notice');" class="nav-btn" data-target="notice" aria-label="Notices"><i class="fa-solid fa-bell"></i></button>
+  <button onclick="haptic(); openSidebar();" class="nav-btn" aria-label="Menu"><i class="fa-solid fa-bars-staggered"></i></button>
+  <button onclick="haptic(); switchTab('profile');" class="nav-btn" data-target="profile" aria-label="Profile"><i class="fa-solid fa-user-astronaut"></i></button>
+</div>
+
+<!-- ===== CREATE POST MODAL ===== -->
+<div id="create-post-modal" class="modal-overlay">
+  <div class="modal-box">
+    <button onclick="closeCreatePostModal();" class="modal-close" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    <h2 class="modal-title"><i class="fa-solid fa-pen-to-square" style="color:#ff6b35"></i> Create Post</h2>
+    <textarea id="post-caption" placeholder="What's on your mind?" class="input textarea" style="min-height:100px;"></textarea>
+    <input id="post-image" type="text" placeholder="Image URL (optional)" class="input">
+    <select id="post-type" class="input">
+      <option value="text">Text Post</option>
+      <option value="image">Photo Post</option>
+    </select>
+    <button onclick="haptic(); createPost();" class="btn btn-primary btn-full">Post</button>
+  </div>
+</div>
+
+<!-- ===== CREATE STORY MODAL ===== -->
+<div id="create-story-modal" class="modal-overlay">
+  <div class="modal-box">
+    <button onclick="closeCreateStoryModal();" class="modal-close" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    <h2 class="modal-title"><i class="fa-solid fa-circle-plus" style="color:#ff6b35"></i> Add Story</h2>
+    <select id="story-type" class="input" onchange="toggleStoryInputs();">
+      <option value="text">Text Story</option>
+      <option value="image">Photo Story</option>
+      <option value="video">Video Story</option>
+    </select>
+    <input id="story-text" type="text" placeholder="Your story text..." class="input">
+    <input id="story-media" type="text" placeholder="Image/Video URL..." class="input hidden">
+    <button onclick="haptic(); createStory();" class="btn btn-primary btn-full">Add to Story</button>
+  </div>
+</div>
+
+<!-- ===== VIEW STORY MODAL ===== -->
+<div id="view-story-modal" class="modal-overlay story-viewer-overlay">
+  <div class="story-viewer" id="story-viewer-content">
+    <button onclick="closeViewStory();" class="story-viewer-close"><i class="fa-solid fa-xmark"></i></button>
+    <div class="story-viewer-header">
+      <img id="viewer-avatar" src="" class="story-viewer-avatar" alt="">
+      <span id="viewer-username" class="story-viewer-username"></span>
+      <span id="viewer-time" class="story-viewer-time"></span>
+    </div>
+    <div class="story-viewer-body" id="viewer-body"></div>
+    <div class="story-viewer-progress"><div class="story-viewer-bar" id="viewer-bar"></div></div>
+  </div>
 </div>
 
 <!-- ===== WELCOME BACK MODAL ===== -->
 <div id="welcome-modal" class="modal-overlay">
-  <div class="bg-[#1c1c1e] w-full max-w-sm rounded-[2rem] p-8 shadow-2xl relative border border-white/10 text-center">
-    <div class="absolute -top-12 left-1/2 transform -translate-x-1/2">
-      <div class="w-20 h-20 bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-2xl shadow-2xl border-4 border-black"><i class="fa-solid fa-hand-holding-heart"></i></div>
-    </div>
-    <div class="mt-8">
-      <h2 class="text-xl font-black text-white mb-1" id="welcome-title">Welcome Back!</h2>
-      <p class="text-indigo-400 font-semibold text-sm mb-4" id="welcome-name">Student</p>
-      <div class="ios-card p-4 rounded-2xl mb-5 relative overflow-hidden text-left">
-        <i class="fa-solid fa-quote-left text-purple-400/20 text-lg absolute top-3 left-3"></i>
-        <p id="welcome-quote" class="text-gray-400 text-sm italic leading-relaxed relative z-10 pt-2"></p>
-        <p class="text-xs text-gray-600 mt-2 font-medium">- StudyGram Pro</p>
+  <div class="modal-welcome">
+    <div class="welcome-avatar"><i class="fa-solid fa-hand-holding-heart"></i></div>
+    <div class="welcome-body">
+      <h2 class="welcome-title" id="welcome-title">Welcome Back!</h2>
+      <p class="welcome-name" id="welcome-name">Student</p>
+      <div class="card card-quote" style="margin-bottom:20px;text-align:left;">
+        <i class="fa-solid fa-quote-left quote-icon"></i>
+        <p id="welcome-quote" class="quote-text" style="padding-top:8px;"></p>
+        <p class="quote-author">- StudyGram Pro</p>
       </div>
-      <button onclick="closeWelcomeModal()" class="w-full bg-[#6366f1] text-white py-3 rounded-2xl font-bold shadow-lg shadow-indigo-500/25 active:scale-95 transition-all btn-press border border-indigo-500/30 hover:brightness-110"><i class="fa-solid fa-rocket mr-2"></i> Chaliye Shuru Karein!</button>
+      <button onclick="haptic(); closeWelcomeModal();" class="btn btn-primary btn-full"><i class="fa-solid fa-rocket"></i> Chaliye Shuru Karein!</button>
     </div>
   </div>
 </div>
@@ -725,98 +827,87 @@
 <!-- ===== CELEBRATION MODAL ===== -->
 <div id="celebration-modal" class="celebration-modal">
   <div class="confetti-container" id="confetti-container"></div>
-  <div class="relative z-10 text-center px-6 max-w-sm">
-    <div class="w-24 h-24 bg-gradient-to-tr from-yellow-400 via-orange-500 to-pink-500 rounded-full flex items-center justify-center text-white text-4xl mx-auto mb-4 shadow-2xl animate-bounce" id="celebration-icon"><i class="fa-solid fa-trophy"></i></div>
-    <h2 class="text-3xl font-black mb-1 celebration-title" id="celebration-title">Level Up!</h2>
-    <p class="text-lg text-indigo-300 font-bold mb-1" id="celebration-subtitle"></p>
-    <p class="text-gray-500 text-sm mb-6" id="celebration-message"></p>
-    <button onclick="closeCelebrationModal()" class="bg-[#6366f1] text-white px-8 py-3 rounded-2xl font-bold shadow-xl shadow-indigo-500/30 active:scale-95 transition-all btn-press border border-indigo-500/30 text-base hover:brightness-110"><i class="fa-solid fa-star mr-2"></i> Awesome!</button>
+  <div class="celebration-body">
+    <div class="celebration-icon" id="celebration-icon"><i class="fa-solid fa-trophy"></i></div>
+    <h2 class="celebration-title" id="celebration-title">Level Up!</h2>
+    <p class="celebration-subtitle" id="celebration-subtitle"></p>
+    <p class="celebration-message" id="celebration-message"></p>
+    <button onclick="haptic(); closeCelebrationModal();" class="btn btn-primary"><i class="fa-solid fa-star"></i> Awesome!</button>
   </div>
 </div>
 
 <!-- ===== EXAM MODAL ===== -->
 <div id="exam-modal" class="modal-overlay">
-  <div class="bg-[#1c1c1e] w-full max-w-sm rounded-[2rem] p-6 shadow-2xl relative border border-white/10">
-    <button onclick="closeExamModal()" class="absolute top-4 right-4 w-8 h-8 bg-[#2c2c2e] rounded-full flex items-center justify-center text-gray-400 hover:bg-red-500/20 hover:text-red-400 transition-all btn-press border border-white/10"><i class="fa-solid fa-xmark"></i></button>
-    <h2 class="text-xl font-black text-white mb-2"><i class="fa-solid fa-id-card-clip text-indigo-400 mr-2"></i>Exam Seat</h2>
-    <p class="text-sm text-gray-500 mb-4 border-b border-white/10 pb-4">Check your upcoming schedule below.</p>
-    <div id="modal-schedule-list" class="space-y-3 max-h-[60vh] overflow-y-auto pr-2"><div class="text-center text-gray-600 text-sm py-6"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Loading schedule...</div></div>
+  <div class="modal-box">
+    <button onclick="closeExamModal();" class="modal-close" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    <h2 class="modal-title"><i class="fa-solid fa-id-card-clip" style="color:#6366f1"></i> Exam Seat</h2>
+    <p class="modal-subtitle">Check your upcoming schedule below.</p>
+    <div id="modal-schedule-list" class="modal-list"><div class="loading-text"><i class="fa-solid fa-circle-notch fa-spin"></i>Loading schedule...</div></div>
   </div>
 </div>
 
 <!-- ===== ROLL EDIT MODAL ===== -->
 <div id="roll-modal" class="modal-overlay">
-  <div class="bg-[#1c1c1e] w-full max-w-sm rounded-[2rem] p-6 shadow-2xl relative border border-white/10">
-    <button onclick="closeRollModal()" class="absolute top-4 right-4 w-8 h-8 bg-[#2c2c2e] rounded-full flex items-center justify-center text-gray-400 hover:bg-red-500/20 hover:text-red-400 transition-all btn-press border border-white/10"><i class="fa-solid fa-xmark"></i></button>
-    <h2 class="text-xl font-black text-white mb-4"><i class="fa-solid fa-pen-to-square text-indigo-400 mr-2"></i>Edit Roll Number</h2>
-    <input id="roll-input" type="text" placeholder="Enter your roll number..." class="w-full p-3 border border-white/10 rounded-xl outline-none bg-[#2c2c2e] text-white placeholder-gray-600 mb-4 focus:border-indigo-500/50 transition-all text-center">
-    <button onclick="saveRollNumber()" class="w-full bg-[#6366f1] text-white py-3 rounded-xl font-bold shadow-lg active:scale-95 btn-press border border-indigo-500/30 hover:brightness-110 transition-all">Save Roll Number</button>
+  <div class="modal-box">
+    <button onclick="closeRollModal();" class="modal-close" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    <h2 class="modal-title"><i class="fa-solid fa-pen-to-square" style="color:#6366f1"></i> Edit Roll Number</h2>
+    <input id="roll-input" type="text" placeholder="Enter your roll number..." class="input input-center">
+    <button onclick="haptic(); saveRollNumber();" class="btn btn-primary btn-full">Save Roll Number</button>
   </div>
 </div>
 
 <!-- ===== BADGE POPUP MODAL ===== -->
 <div id="badge-popup-modal" class="modal-overlay">
-  <div class="bg-[#1c1c1e] w-full max-w-sm rounded-[2rem] p-6 shadow-2xl relative border border-white/10 max-h-[80vh] overflow-y-auto">
-    <button onclick="closeBadgePopup()" class="absolute top-4 right-4 w-8 h-8 bg-[#2c2c2e] rounded-full flex items-center justify-center text-gray-400 hover:bg-red-500/20 hover:text-red-400 transition-all btn-press border border-white/10"><i class="fa-solid fa-xmark"></i></button>
-    <h2 class="text-xl font-black text-white mb-1"><i class="fa-solid fa-medal text-yellow-500 mr-2"></i>Your Badges</h2>
-    <p class="text-sm text-gray-500 mb-4">All badges you've earned</p>
-    <div id="badge-popup-list" class="space-y-2"></div>
+  <div class="modal-box modal-scrollable">
+    <button onclick="closeBadgePopup();" class="modal-close" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    <h2 class="modal-title"><i class="fa-solid fa-medal" style="color:#FFD700"></i> Your Badges</h2>
+    <p class="modal-subtitle">All badges you've earned</p>
+    <div id="badge-popup-list" class="modal-list"></div>
   </div>
 </div>
 
 <!-- ===== PREMIUM POPUP ===== -->
 <div id="premium-modal" class="modal-overlay">
-  <div class="bg-[#1c1c1e] w-full max-w-sm rounded-[2rem] p-6 shadow-2xl relative border border-amber-500/20 max-h-[85vh] overflow-y-auto">
-    <button onclick="closePremiumPopup()" class="absolute top-4 right-4 w-8 h-8 bg-[#2c2c2e] rounded-full flex items-center justify-center text-gray-400 hover:bg-red-500/20 hover:text-red-400 transition-all btn-press border border-white/10"><i class="fa-solid fa-xmark"></i></button>
-    <div class="text-center mb-5">
-      <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-amber-400 to-orange-500 flex items-center justify-center text-black text-2xl mx-auto mb-3 shadow-lg"><i class="fa-solid fa-crown"></i></div>
-      <h2 class="text-2xl font-black text-white">Go Premium</h2>
-      <p class="text-amber-400 text-sm font-medium mt-1">Unlock the full StudyGram Pro experience</p>
+  <div class="modal-box modal-scrollable" style="border:1px solid rgba(255,215,0,0.2);">
+    <button onclick="closePremiumPopup();" class="modal-close" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    <div class="premium-modal-header">
+      <div class="premium-modal-icon"><i class="fa-solid fa-crown"></i></div>
+      <h2 class="premium-modal-title">Go Premium</h2>
+      <p class="premium-modal-sub">Unlock the full StudyGram Pro experience</p>
     </div>
-    <div class="space-y-3 mb-5">
-      <div class="flex items-center gap-3 p-3 rounded-xl bg-[#2c2c2e] border border-white/10"><i class="fa-solid fa-crown text-amber-400 text-lg w-8 text-center"></i><div><p class="font-bold text-white text-sm">Premium Badge</p><p class="text-[10px] text-gray-500">Exclusive crown badge on your profile</p></div></div>
-      <div class="flex items-center gap-3 p-3 rounded-xl bg-[#2c2c2e] border border-white/10"><i class="fa-solid fa-moon text-indigo-400 text-lg w-8 text-center"></i><div><p class="font-bold text-white text-sm">Dark/Light Mode</p><p class="text-[10px] text-gray-500">Switch between dark and light themes</p></div></div>
-      <div class="flex items-center gap-3 p-3 rounded-xl bg-[#2c2c2e] border border-white/10"><i class="fa-solid fa-music text-purple-400 text-lg w-8 text-center"></i><div><p class="font-bold text-white text-sm">Unlimited Music</p><p class="text-[10px] text-gray-500">Full access to Music Hub with background play</p></div></div>
-      <div class="flex items-center gap-3 p-3 rounded-xl bg-[#2c2c2e] border border-white/10"><i class="fa-solid fa-rocket text-green-400 text-lg w-8 text-center"></i><div><p class="font-bold text-white text-sm">+10 Levels Boost</p><p class="text-[10px] text-gray-500">Instant level up when you subscribe</p></div></div>
-      <div class="flex items-center gap-3 p-3 rounded-xl bg-[#2c2c2e] border border-white/10"><i class="fa-solid fa-bolt text-yellow-400 text-lg w-8 text-center"></i><div><p class="font-bold text-white text-sm">+100 EXP Daily</p><p class="text-[10px] text-gray-500">Earn bonus EXP every day you open the app</p></div></div>
+    <div class="premium-modal-features">
+      <div class="premium-modal-feature"><i class="fa-solid fa-crown"></i><div><p>Premium Badge</p><p>Exclusive crown badge on your profile</p></div></div>
+      <div class="premium-modal-feature"><i class="fa-solid fa-moon"></i><div><p>Dark/Light Mode</p><p>Switch between dark and light themes</p></div></div>
+      <div class="premium-modal-feature"><i class="fa-solid fa-music"></i><div><p>Unlimited Music</p><p>Full access to Music Hub with background play</p></div></div>
+      <div class="premium-modal-feature"><i class="fa-solid fa-video"></i><div><p>Video Lectures</p><p>Access all premium video lectures</p></div></div>
+      <div class="premium-modal-feature"><i class="fa-solid fa-rocket"></i><div><p>+10 Levels Boost</p><p>Instant level up when you subscribe</p></div></div>
+      <div class="premium-modal-feature"><i class="fa-solid fa-bolt"></i><div><p>+100 EXP Daily</p><p>Earn bonus EXP every day you open the app</p></div></div>
     </div>
-    <button onclick="closePremiumPopup()" class="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-black font-black py-3.5 rounded-2xl text-base shadow-lg active:scale-95 btn-press"><i class="fa-solid fa-crown mr-2"></i>Become Premium</button>
-    <p class="text-center text-[10px] text-gray-600 mt-3">Contact admin to activate Premium</p>
+    <button onclick="haptic(); closePremiumPopup();" class="btn btn-gold btn-full"><i class="fa-solid fa-crown"></i> Become Premium</button>
+    <p class="premium-modal-footer">Contact admin to activate Premium</p>
   </div>
 </div>
 
 <!-- ===== DEVELOPER MODAL ===== -->
 <div id="developer-modal" class="modal-overlay">
-  <div class="bg-[#1c1c1e] w-full max-w-sm rounded-[2rem] p-6 shadow-2xl relative border border-indigo-500/20">
-    <button onclick="closeDeveloperModal()" class="absolute top-4 right-4 w-8 h-8 bg-[#2c2c2e] rounded-full flex items-center justify-center text-gray-400 hover:bg-red-500/20 hover:text-red-400 transition-all btn-press border border-white/10"><i class="fa-solid fa-xmark"></i></button>
-    <div class="text-center mb-5">
-      <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white text-2xl mx-auto mb-3 shadow-lg"><i class="fa-solid fa-code"></i></div>
-      <h2 class="text-xl font-black text-white">About Developer</h2>
+  <div class="modal-box">
+    <button onclick="closeDeveloperModal();" class="modal-close" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    <div class="dev-modal-header">
+      <div class="dev-modal-icon"><i class="fa-solid fa-code"></i></div>
+      <h2 class="modal-title" style="margin-bottom:0;">About Developer</h2>
     </div>
-    <div class="space-y-3">
-      <div class="ios-gcard p-4 rounded-2xl text-left">
-        <div class="flex items-center gap-3 mb-1"><i class="fa-solid fa-user text-indigo-400 w-5 text-center"></i><span class="text-gray-500 text-sm">Name</span></div>
-        <p class="font-bold text-white text-lg pl-8">Mohammad Arshad</p>
-      </div>
-      <div class="ios-gcard p-4 rounded-2xl text-left">
-        <div class="flex items-center gap-3 mb-1"><i class="fa-solid fa-envelope text-purple-400 w-5 text-center"></i><span class="text-gray-500 text-sm">Email</span></div>
-        <p class="font-bold text-white text-sm pl-8">moharshad687@gmail.com</p>
-      </div>
-      <div class="ios-gcard p-4 rounded-2xl text-left">
-        <div class="flex items-center gap-3 mb-1"><i class="fa-solid fa-mobile-screen text-green-400 w-5 text-center"></i><span class="text-gray-500 text-sm">App</span></div>
-        <p class="font-bold text-white text-sm pl-8">StudyGram Pro <span class="text-indigo-400">v3.0</span></p>
-      </div>
-      <div class="ios-gcard p-4 rounded-2xl text-left">
-        <div class="flex items-center gap-3 mb-1"><i class="fa-solid fa-hashtag text-amber-400 w-5 text-center"></i><span class="text-gray-500 text-sm">Codename</span></div>
-        <p class="font-bold text-white text-sm pl-8">@dark_eio</p>
-      </div>
+    <div class="dev-info-list">
+      <div class="dev-info-card"><div class="dev-info-row"><i class="fa-solid fa-user"></i><span class="text-muted">Name</span></div><p class="dev-info-value">Mohammad Arshad</p></div>
+      <div class="dev-info-card"><div class="dev-info-row"><i class="fa-solid fa-envelope"></i><span class="text-muted">Email</span></div><p class="dev-info-value">moharshad687@gmail.com</p></div>
+      <div class="dev-info-card"><div class="dev-info-row"><i class="fa-solid fa-mobile-screen"></i><span class="text-muted">App</span></div><p class="dev-info-value">StudyGram Pro <span style="color:#6366f1">v4.0</span></p></div>
+      <div class="dev-info-card"><div class="dev-info-row"><i class="fa-solid fa-hashtag"></i><span class="text-muted">Codename</span></div><p class="dev-info-value">@dark_eio</p></div>
     </div>
-    <p class="text-center text-[10px] text-gray-600 mt-4">Made with <i class="fa-solid fa-heart text-red-500"></i> for Class 12th Students</p>
+    <p class="dev-footer">Made with <i class="fa-solid fa-heart" style="color:#ff3b30"></i> for Class 12th Students</p>
   </div>
 </div>
 
 <!-- ===== PWA INSTALL BUTTON ===== -->
-<button id="pwa-install-btn" class="pwa-btn hidden" onclick="installPWA()"><i class="fa-solid fa-download mr-2"></i> Install App</button>
+<button id="pwa-install-btn" class="pwa-btn hidden" onclick="haptic(); installPWA();"><i class="fa-solid fa-download"></i> Install App</button>
 
 <script type="module" src="script.js"></script>
 </body>
