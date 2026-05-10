@@ -11,11 +11,9 @@ import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "http
 const firebaseConfig = {
     apiKey: "AIzaSyC-psUKqTO9u5kCuA3OUqWT63Ey0IvDei4",
     authDomain: "study-ae01d.firebaseapp.com",
-    databaseURL: "https://study-ae01d-default-rtdb.firebaseio.com", // यहाँ '.com' ज़रूर चेक करना
+    databaseURL: "https://study-ae01d-default-rtdb.firebase.io",
     projectId: "study-ae01d",
-    storageBucket: "study-ae01d.appspot.com",
-    messagingSenderId: "596131435306", // यह आपकी पुरानी आईडी है
-    appId: "1:596131435306:web:68c07e0a29829f041f66c8" // यह आपकी पुरानी ऐप आईडी है
+    storageBucket: "study-ae01d.appspot.com"
 };
 
 let app, auth, db, storage, provider;
@@ -700,41 +698,36 @@ function markReelSeen(reelId) {
 function renderReels() {
     const container = document.getElementById('reels-container');
     if (!container) return;
+    const seen = getSeenReels();
+    const unseen = cachedReels.filter(r => !seen.includes(r.key));
 
-    // Firebase से सीधे रील्स मंगाना (ताकि cachedReels का झंझट न रहे)
-    const { onValue, ref } = window.firebaseDatabase || window; // अगर आपने import ऊपर किया है तो इसकी जरूरत नहीं
-    const reelsRef = ref(db, 'public_data/reels');
+    if (unseen.length === 0 && cachedReels.length > 0) {
+        container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-check-circle empty-icon" style="color:#34c759"></i>You\'ve seen all reels! Check back later for new ones.</div>';
+        return;
+    }
+    if (cachedReels.length === 0) {
+        container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-film empty-icon"></i>No reels yet. Upload one!</div>';
+        return;
+    }
 
-    onValue(reelsRef, (snapshot) => {
-        if (!snapshot.exists()) {
-            container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-film empty-icon"></i>No reels yet. Upload one!</div>';
-            return;
-        }
-
-        let html = '';
-        snapshot.forEach(child => {
-            const r = child.val();
-            // YouTube लिंक्स के लिए iframe और सही keys (link, topic, admin) का इस्तेमाल
-            html += '<div class="reel-card" style="position: relative; height: 100%;">' +
-                '<div class="reel-video-wrap" style="height: 100%; width: 100%;">' +
-                    '<iframe class="reel-video" src="' + r.link + '" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen style="width:100%; height:100%; pointer-events: auto;"></iframe>' +
-                    '<div class="reel-overlay" style="pointer-events: none; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);">' +
-                        '<div class="reel-user">' +
-                            '<img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="reel-user-avatar" alt="">' +
-                            '<span class="reel-username" style="color:#fff; font-weight:bold;">@' + escapeHtml(r.admin || 'Arshad_Admin') + '</span>' +
-                        '</div>' +
-                        '<p class="reel-caption" style="color:#fff; margin-top:5px;">' + escapeHtml(r.topic || '') + '</p>' +
-                        '<div class="reel-actions" style="pointer-events: auto;">' +
-                            '<button class="reel-action" onclick="haptic(); showToast(\'Liked!\');"><i class="fa-solid fa-heart"></i></button>' +
-                            '<button class="reel-action" onclick="haptic(); showToast(\'Share feature coming soon!\');"><i class="fa-solid fa-share"></i></button>' +
-                        '</div>' +
+    container.innerHTML = unseen.map(r => {
+        return '<div class="reel-card" data-reel-id="' + r.key + '">' +
+            '<div class="reel-video-wrap">' +
+                '<video class="reel-video" src="' + r.videoUrl + '" loop playsinline muted onclick="this.muted=!this.muted;"></video>' +
+                '<div class="reel-overlay">' +
+                    '<div class="reel-user">' +
+                        '<img src="' + (r.userPhoto || 'https://cdn-icons-png.flaticon.com/512/149/149071.png') + '" class="reel-user-avatar" alt="">' +
+                        '<span class="reel-username">' + escapeHtml(r.userName || 'User') + '</span>' +
+                    '</div>' +
+                    '<p class="reel-caption">' + escapeHtml(r.caption || '') + '</p>' +
+                    '<div class="reel-actions">' +
+                        '<button class="reel-action" onclick="haptic(); likeReel(\'' + r.key + '\');"><i class="fa-solid fa-heart"></i> ' + (r.likes || 0) + '</button>' +
+                        '<button class="reel-action" onclick="haptic(); shareReel(\'' + r.key + '\');"><i class="fa-solid fa-share"></i> Share</button>' +
                     '</div>' +
                 '</div>' +
-            '</div>';
-        });
-
-        container.innerHTML = html;
-    });
+            '</div>' +
+        '</div>';
+    }).join('');
 
     // Mark as seen when scrolled into view
     setupReelObserver();
@@ -1798,14 +1791,11 @@ window.adminAction = async function(type) {
             const subject = document.getElementById('lecture-subject')?.value.trim();
             const chapter = document.getElementById('lecture-chapter')?.value.trim();
             const l = document.getElementById('lecture-link')?.value.trim();
-            
-            if (!subject || !chapter || !l) return showToast("Sabh details bharein!", "err");
-
+            if (!subject || !chapter || !l) return showToast("All fields required", "err");
+            const videoId = extractVideoId(l);
+            if (!videoId) return showToast("Invalid YouTube link", "err");
             await push(ref(db, 'public_data/lectures'), {
-                category: cat, 
-                subject, 
-                chapter, 
-                link: l,
+                category: cat, subject, chapter, link: l,
                 date: new Date().toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'})
             });
         } else if (type === 'progress') {
