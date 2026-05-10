@@ -735,7 +735,7 @@ function renderReels() {
 
         container.innerHTML = html;
     });
-}
+
     // Mark as seen when scrolled into view
     setupReelObserver();
 }
