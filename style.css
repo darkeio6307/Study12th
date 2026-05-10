@@ -914,3 +914,22 @@ input:focus, textarea:focus, select:focus {
     transition-duration: 0.01ms !important;
   }
 }
+/* Light Mode Magic */
+body.light-mode {
+    background: #f0f0f5 !important;
+    color: #000 !important;
+}
+.light-mode .ios-card, .light-mode .bg-\[\#1c1c1e\], .light-mode .bg-\[\#2c2c2e\], .light-mode .sidebar {
+    background: #ffffff !important;
+    border-color: #ddd !important;
+}
+.light-mode .text-white {
+    color: #000 !important;
+}
+.light-mode .text-gray-400, .light-mode .text-gray-500 {
+    color: #555 !important;
+}
+.light-mode input, .light-mode select, .light-mode textarea {
+    background: #f9f9f9 !important;
+    color: #000 !important;
+}
